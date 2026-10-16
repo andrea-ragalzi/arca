@@ -1,7 +1,0 @@
-ARCA 0.2
-Engine: Godot 4.5.1
-Commit: 374a2d3ff1731ab5f68207a56cf753cfbf77af78
-Base: godotengine/tps-demo 4.5-90f2e38
-Predator: Quaternius CC0 Velociraptor
-Tests: raptor 24/24, original robot 42/42
-Graphics verification: OpenGL 3.3 Compatibility, Mesa llvmpipe

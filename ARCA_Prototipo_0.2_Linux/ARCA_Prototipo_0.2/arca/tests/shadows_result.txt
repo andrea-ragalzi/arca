@@ -1,4 +1,0 @@
-Compatibility shadows regression, Godot 4.5.1, OpenGL 3.3, Mesa llvmpipe.
-Original mode reproduced: 142 dual-paraboloid errors, exit code 1.
-Fixed CubeMap mode: 0 dual-paraboloid errors, exit code 0.
-The test renders the enemy shoot light and an exploding projectile.

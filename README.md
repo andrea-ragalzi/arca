@@ -33,8 +33,8 @@ Keep this same `ARCA` folder for future work. Commits identify changes; folder a
 
 ## Play the mission
 
-1. Collect the yellow fuse near the entrance with **E**.
-2. Install it at the panel on the left side of the room with **E**.
+1. Find the yellow **SERVICE / FUSE ACCESS** entrance framed by the starting camera. Enter the corridor, follow the floor stripe and explore around the far screen to find the concealed fuse. Collect it with **E**.
+2. Retrace the corridor into the maintenance room and install the fuse at the power panel with **E**.
 3. Power returns and the door opens, but containment fails. A red warning precedes the predator appearing near the service bay.
 4. Fight it or evade it and cross the green exit marker. Killing the predator is optional.
 
@@ -47,6 +47,12 @@ Keep this same `ARCA` folder for future work. Commits identify changes; folder a
 | R | Restart the whole mission |
 | Escape | Pause / resume |
 | F3 | Toggle debug telemetry |
+
+### Route and camera playtest
+
+This blockout increment is a route-and-camera experiment, not a new camera controller. From the starting area, the service entrance should be recognizable while the fuse itself remains concealed. The corridor uses a screened alcove, a return sign and the existing third-person spring arm; one inherited crate is repositioned in the mission only to reveal the entrance.
+
+Target **roughly 10–20 seconds of ordinary walking from the fuse back to the panel**. The automated root-motion route measured about **19.6 simulated seconds**, including brief waypoint settling. For the F5 playtest, time your own return from pickup to the panel's E prompt without aiming, jumping or stopping to inspect things. Record whether the entrance was obvious, the fuse required exploration, and the camera stayed comfortable at the entrance, alcove turn and return. Manual acceptance is still pending; a scripted route or staged screenshot is not a human playtest.
 
 ## Develop with Zed and Godot
 
@@ -68,7 +74,7 @@ Requires Godot 4.5.1, Bash, `timeout` (coreutils) and `rg` (ripgrep). It imports
 
 | File | Responsibility |
 | --- | --- |
-| `arca/mission_room.tscn` | Main playable scene: fuse, panel, door, exit and ambush marker |
+| `arca/mission_room.tscn` | Main playable scene: service corridor, concealed fuse, panel, door, exit and ambush marker |
 | `arca/mission_room.gd` | Objectives, inventory, interaction and ambush countdown |
 | `arca/enemies/raptor.gd` | Predator state machine, navigation, melee and dormant activation |
 | `arca/interactables/` | Reusable interaction points, fuse, panel and sliding door |

@@ -6,9 +6,9 @@ Validated on 2026-10-16 with **Godot 4.5.1 Standard** on Linux using the Compati
 | --- | ---: | --- |
 | `first_playable_test.gd` | 42 | Real TPS input, movement, aiming, projectiles, cover, laser damage, death, pause and restart |
 | `raptor_test.gd` | 24 | Imported animation clips, detection, navigation around cover, bite windup/dodge/occlusion, death and actual weapon hits |
-| `mission_test.gd` | 28 | Real E input, pickup/installation, missing-fuse feedback, interaction occlusion, animated door collision, completion and mission reset |
+| `mission_test.gd` | 52 | Mission interactions/lifecycle, corridor visibility/occlusion, actual walking and return timing, camera clearance, predator traversal both ways |
 | `ambush_test.gd` | 17 | Dormant immunity/collision, power trigger, warning, pause timing, single activation, navigation, death/restart cancellation and escape without a kill |
-| **Total** | **111** | Logic and physics checks against actual scenes |
+| **Total** | **135** | Logic and physics checks against actual scenes |
 
 The new ambush suite restores power through the actual interaction input path. It does not require killing the predator to complete the mission. The existing raptor suite separately verifies that actual player projectiles can kill it.
 
@@ -35,6 +35,18 @@ PATH="$PWD/.artifacts/baseline-tools/ripgrep/usr/bin:$PATH" bash scripts/check.s
 ```
 
 The extracted tool, settings probe and test logs are local artifacts, not checkpoint content. For the normal check command without a PATH override, install ripgrep as described in the README. Headless checks do not establish rendered texture quality, visual polish or GPU performance; manual F5 verification remains required.
+
+## Service corridor: route and camera experiment
+
+Implementation adds a mission-only partition, screened fuse alcove, yellow entrance/return signage and floor guide. The initial camera heading frames the entrance. One inherited crate is moved only in the mission, and a thin colliding wall lining keeps the existing spring arm ahead of inherited decorative wall panels. Movement, camera-controller code, shooting and ambush timing are unchanged.
+
+Focused regression coverage now includes initial entrance framing/sightline, fuse concealment from sampled main-room positions, blocked interaction through the actual partition while within pickup range, player movement against the partition, actual root-motion walking from spawn through the corridor and around the screen, the walked return and panel activation, camera clearance at the alcove, and raptor travel into and out of the corridor. These are logic/physics checks, not proof of universal visibility or camera comfort.
+
+Rechecked with Godot 4.5.1 after the corridor changes: **135 gameplay checks and 13 launcher checks passed with zero failures**, using the documented local ripgrep PATH workaround. `git diff --check` passed in both the ARCA root and the nested `arca` Git worktree. No commits were made in either worktree.
+
+The scripted ordinary-walking return measured **19.6 simulated seconds**, including brief settling at six waypoints. Manual F5 acceptance is pending: verify entrance recognition from spawn, actual exploration to find the fuse, and roughly 10–20 seconds from fuse pickup to the panel prompt while walking normally without inspection stops. Test camera rotation at both turns, returning from the alcove and near the outer wall; try jumping against the partitions, then complete the original ambush/escape loop and restart.
+
+Software-OpenGL staged captures were generated using `capture_mission.gd` and inspected for the initial view, entrance, alcove screen and fuse. The helper now captures those corridor views as well as the original start/ambush views. Captures are local ignored artifacts under `.artifacts/corridor-captures/`; they do not establish human route timing, GPU performance or final visual acceptance. The rendered run reports existing X11 input-method/V-Sync warnings on this software display, not gameplay script errors. The navigation bake reports its existing agent-height voxel-rounding warning.
 
 ## Known limits
 

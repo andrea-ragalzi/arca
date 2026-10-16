@@ -28,5 +28,6 @@
 ## Handoff and Git
 
 - Update affected documentation. Summarize resulting behavior, changed paths, checks and remaining limits; teach one useful concept when helpful.
+- Keep `TASK.md` updated with the current task, implementation status and remaining validation. Whenever task changes are committed, include the corresponding `TASK.md` update in the same commit; do not ignore it or commit it separately from the work it describes.
 - Leave reviewable changes. Commit only when the user asks or the task explicitly includes a checkpoint. Use configured Git identity; never invent the user's name/email.
 - Do not push, publish, change remotes or upgrade the engine as a side effect of a gameplay task.

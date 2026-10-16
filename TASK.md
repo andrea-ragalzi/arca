@@ -80,6 +80,10 @@ Implemented the mission-only corridor and screened alcove, concealed fuse/pedest
 
 The automated return route measured about 19.6 simulated seconds with real root-motion walking and brief waypoint settling. Automated checks and staged software-rendered captures are recorded in `docs/VALIDATION.md`. Manual route-and-camera acceptance and human walking timing remain pending the user's F5 playtest. Leave all changes uncommitted.
 
+## Commit handoff
+
+`AGENTS.md` now requires the current task, implementation status and remaining validation to stay documented in `TASK.md`. Every commit of task changes must include the corresponding `TASK.md` update in the same commit, never as a separate follow-up. This does not authorize automatic commits or change the pending F5 acceptance above.
+
 ## Risks and edge cases
 
 - The room inherits decorative walls and cover: a corridor that looks clear may contain inherited collision. Inspect the composed scene before finalizing placement.
