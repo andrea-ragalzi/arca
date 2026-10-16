@@ -1,6 +1,55 @@
-# Task: predator entrance through a service hatch
+# Task: close service-hatch acceptance, with targeted fixes only if needed
 
-Status: implemented following the user's explicit `implement` invocation against this plan. Full gameplay gate passed: 162 gameplay checks and 13 launcher checks, zero failures. Hatch reaction/readability acceptance remains pending the user's F5 playtest. All changes remain uncommitted.
+Status: closed through documentation only on 2026-10-17. The user confirmed that the service hatch passed the F5 checklist in `README.md`. No gameplay changes were needed or made. The supported gate passed during revalidation: 162 gameplay checks and 13 launcher checks, zero failures, using the existing local ripgrep PATH workaround. The initial task-plan changes and historical implementation record have been preserved.
+
+## Roadmap decision
+
+Follow `docs/DESIGN.md`, especially "Keep future work small": accepted service corridor -> readable physical hatch entrance with user F5 acceptance -> one limited ammunition/health economy experiment. At planning time, the next unfinished item was **hatch acceptance**, not hatch implementation and not the resource economy. The user has now separately accepted both the corridor and the hatch.
+
+No deviation from the documented sequence was needed. The hatch acceptance gate is now satisfied; one limited ammunition/health economy experiment is the next candidate, not part of this closed task. The roadmap does not yet specify the economy's mechanics or tuning; leave those decisions for its own task after the hatch is accepted.
+
+## Bounded goal and acceptance
+
+Finish the existing hatch experiment: from the normal panel approach, the player can recognize the warning, see the hatch open and the same raptor walk out, and react without losing movement/camera control. The powered exit remains usable without killing the predator.
+
+Completion requires explicit user F5 acceptance of the hatch's readability and reaction comfort. Automated checks and staged captures are supporting evidence, not substitutes. If the existing behavior passes, close this task through documentation only; no new gameplay implementation is required.
+
+## Execution and conditional implementation scope
+
+1. Run the three-step F5 checklist below against the existing implementation before changing it. Record hatch-specific feedback; do not infer a failure or acceptance from the corridor result.
+2. If feedback identifies a problem, reproduce one concrete issue and make the smallest hatch-only fix. Limit changes to warning/signage visibility, hatch placement/clearance, entrance timing or a demonstrated entrance/lifecycle defect. Preserve the accepted corridor/fuse route, TPS movement/camera/shooting, combat balance, single predator and independently opening exit. Stop and re-scope if the issue requires changing those contracts.
+3. Keep the existing inheritance: `mission_room` -> `raptor_room` -> `test_room`, for scenes and scripts. Use `arca/mission_room.tscn` and `arca/mission_room.gd` first; touch `arca/enemies/raptor.gd` only for a reproduced emergence defect. Re-bake `arca/mission_navigation.tres` only if static geometry changes. Save/reload open Godot scenes before external edits.
+4. For a meaningful behavior fix, extend the existing `arca/tests/ambush_test.gd` coverage with a focused regression where automatable; do not add tests merely mirroring cosmetic adjustments. Preserve phase-specific pause, death, restart and completion handling, dormant immunity, obstruction safety and one activation per mission. Do not weaken existing assertions.
+5. Update `README.md`, `docs/DESIGN.md`, `docs/VALIDATION.md` and this task with actual changes/checks and the user's acceptance or remaining feedback. Keep the original implementation record below as history. Do not commit unless requested.
+
+Non-goals: ammunition limits, reloads, healing/pickups, inventory frameworks, new enemies/assets/audio, camera redesign, corridor rework or unrelated cleanup. No gameplay edit is authorized merely by preparing this task.
+
+## Validation and stop condition
+
+F5 checklist for the user:
+
+1. Collect the corridor fuse, return to the panel and restore power. Check that the hatch warning is noticeable, the opening and raptor walk-out are readable, and there is enough time to react with normal controls.
+2. Escape through the green exit without shooting. Restart and separately check shooting the emerging/active raptor.
+3. Pause/resume during hatch opening and walk-out, then restart during the sequence. Check freezing/resuming and reset to the closed hatch/hidden predator; death or completion must prevent later entrance actions.
+
+If gameplay changes are needed, establish the supported baseline, run focused ambush checks during iteration and finish with `bash scripts/check.sh` on Godot 4.5.1 Standard. Inspect logs for script/runtime errors, then repeat the affected F5 steps. Historical results are 162 gameplay and 13 launcher checks passed; report fresh results only after running them. For documentation-only closure, inspect the diff and run `git diff --check`; no gameplay rerun is required.
+
+Stop when the hatch is explicitly accepted and documentation reflects that result. Only then prepare a separate bounded ammunition/health economy experiment; do not bundle it into this task.
+
+## Execution handoff
+
+- The user explicitly invoked the implement skill with conditional documentation-only closure if the existing behavior passes. After automated revalidation, the user answered "yes" when asked whether the service hatch also passed the F5 checklist in `README.md`.
+- `bash scripts/check.sh` initially stopped at its prerequisite check because `rg` was absent from PATH. The existing ignored binary at `.artifacts/baseline-tools/ripgrep/usr/bin/rg` reports version 14.1.0; prepending its directory to PATH allowed the unchanged check script to complete.
+- Fresh results: launcher 13/13; first-playable 42/42; raptor 24/24; mission 52/52; ambush 44/44. Import and all gameplay suites passed without script/runtime errors; this includes the repository's GDScript compilation/type gate. Logs are under ignored `.artifacts/test-logs/`.
+- No reproduced defect required a gameplay edit. Updated `TASK.md`, `README.md`, `docs/DESIGN.md` and `docs/VALIDATION.md` to record acceptance and close the task. No sequence deviation, new assets, dependency changes, commits or pushes.
+- No remaining acceptance blocker for this task. User F5 acceptance establishes hatch readability/reaction comfort; it is not a GPU performance measurement. The economy experiment remains unplanned and unimplemented.
+- Closure is documentation-only: gameplay suites were not rerun after the earlier passing revalidation; inspect the final documentation diff and run `git diff --check`.
+
+---
+
+# Implementation record: predator entrance through a service hatch
+
+Status at the implementation handoff: implemented following the user's explicit `implement` invocation against this plan. Full gameplay gate passed: 162 gameplay checks and 13 launcher checks, zero failures. Hatch reaction/readability acceptance remained pending the user's F5 playtest. Changes were uncommitted at that handoff; this is a historical record, not the current Git status.
 
 ## Recorded feedback
 

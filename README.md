@@ -60,7 +60,7 @@ The user accepted the service corridor in an F5 playtest on **2026-10-17**: "The
 2. Evade through the green exit without shooting. Restart and separately check that shooting the emerging/active raptor still works.
 3. Pause/resume during opening and walk-out, then restart during the sequence. Check that motion freezes/resumes and restart restores the closed hatch and hidden predator; death/completion must prevent later entrance movement.
 
-The sequence gives a 1.4-second warning, a one-second hatch opening and about 2.3 seconds of collision-aware walk-out before the existing alert/combat flow. Hatch reaction/readability acceptance is pending your F5 playtest; headless checks and staged captures cannot establish game feel.
+The sequence gives a 1.4-second warning, a one-second hatch opening and about 2.3 seconds of collision-aware walk-out before the existing alert/combat flow. The user confirmed that the service hatch passed this F5 checklist on **2026-10-17**, accepting hatch readability and reaction comfort. The task was closed through documentation only; no gameplay fixes were needed. This acceptance is not a GPU performance measurement.
 
 ## Develop with Zed and Godot
 

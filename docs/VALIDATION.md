@@ -65,7 +65,9 @@ Mission navigation was rebaked against static bay geometry with the movable leaf
 
 Editor diagnostics for the changed mission, raptor and ambush GDScript files report no errors or warnings. The aggregate editor report is not clean: it also attempts to parse Markdown as GDScript (for example, README prose produces "Unexpected identifier ... in class body") and reports Markdown line-length warnings. These are separate from the passing Godot import/gameplay gate; no editor/language-server configuration was changed.
 
-Remaining manual acceptance: use the three-step F5 checklist in `README.md` to judge warning visibility/reaction time, the opening/walk-out, optional shooting/escape and pause/restart behavior. No hatch F5 acceptance has been reported.
+Revalidated the unchanged implementation on 2026-10-17 during the hatch-acceptance task: **162 gameplay checks and 13 launcher checks passed, zero failures**, including all 44 ambush checks. Import and the full gameplay gate reported no script/runtime errors. The plain `bash scripts/check.sh` invocation first stopped because `rg` was absent from PATH; rerunning with the existing `.artifacts/baseline-tools/ripgrep/usr/bin/` directory prepended passed. No gameplay, test, engine or dependency changes were needed.
+
+Manual acceptance completed on 2026-10-17: the user answered "yes" when asked whether the service hatch also passed the three-step F5 checklist in `README.md`. Record the hatch as accepted, including its readability/reaction comfort. The task is closed through documentation only, with no gameplay fixes needed. This is user-reported F5 acceptance, separate from the automated revalidation and staged captures; no human timing or GPU performance measurements were supplied.
 
 ## Known limits
 
@@ -73,4 +75,4 @@ Remaining manual acceptance: use the three-step F5 checklist in `README.md` to j
 - Art, character, sound design and level geometry remain temporary; the enemy is not a scientific species reconstruction.
 - Ammunition is unlimited; inventory and progress reset on restart. No save/load system exists.
 - Zed settings/tasks were syntax checked, not exercised in the user's installed Zed/ACP version. Explicit file-reading prompts provide a fallback if agent or skill auto-discovery differs.
-- The final game feel, aiming comfort and frame rate still require an F5 playtest on the user's PC.
+- Hatch F5 acceptance does not establish broader aiming comfort, final polish or frame rate on the user's PC.
