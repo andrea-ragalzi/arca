@@ -30,6 +30,18 @@ resolve_godot() {
   fi
 }
 
+prepare_x11_input() {
+  if [[ "${XMODIFIERS:-}" != '@im=ibus' ]] || ! command -v ibus >/dev/null 2>&1; then
+    return
+  fi
+  local ibus_address
+  ibus_address="$(ibus address 2>/dev/null)" || return 0
+  # Desktop sessions can select IBus without running its input-method server.
+  if [[ "$ibus_address" == '(null)' ]]; then
+    export XMODIFIERS='@im=none'
+  fi
+}
+
 enable_nvidia() {
   export __NV_PRIME_RENDER_OFFLOAD=1
   export __GLX_VENDOR_LIBRARY_NAME=nvidia

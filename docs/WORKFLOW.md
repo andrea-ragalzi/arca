@@ -20,6 +20,21 @@ In **Editor > Editor Settings**, enable **Text Editor > Behavior > Auto Reload S
 
 Always save scenes with Ctrl+S before an agent edits `.tscn` or `.tres` files. Stop the game with F8. After external changes, switch to Godot, wait for import and choose to reload changed scenes from disk. Do not save a stale scene over agent changes. Use Git diff if you are unsure which copy contains your work.
 
+## X11 startup on Wayland desktops
+
+The launchers keep X11, Compatibility rendering and optional NVIDIA offload. Two Godot 4.5.1 issues were reproduced on the Pop!_OS Wayland session:
+
+- The session selected `XMODIFIERS=@im=ibus`, but `ibus address` returned `(null)` and no XIM server was registered. `XOpenIM` then failed, followed by `XCreateIC` warnings. The editor and play launchers now select X11's local input method (`@im=none`) only when this IBus probe confirms the missing service. Running IBus services and other input-method selections are left unchanged. The fallback does not provide IBus composition; start IBus normally if you need it.
+- An empty project's embedded F5 game window produced `BadWindow`, opcode `12`, during teardown. Four repeated runs without embedding were clean. In a Wayland session, the editor launcher now adds `--single-window`, which also passed four start/exit cycles with the default embedding preference. This keeps editor dialogs/docks within the main window and makes F5 games run separately; it does not alter the game's window settings. Native X11 sessions retain the previous editor behavior.
+
+Save work, stop the game, close the editor, and relaunch with `bash scripts/editor.sh --nvidia` for these process-local workarounds to take effect. Press F5, then F8, and repeat to check the console for fresh input-method or `BadWindow` messages. Personal Godot settings and system input-method configuration are not modified. Launcher regression checks run with `bash scripts/launcher_test.sh` and as part of `bash scripts/check.sh`.
+
+## Archived project copies
+
+The three existing `ARCA_Prototipo_*_Linux/` directories are historical copies, not part of the active game. Each has a tracked `.gdignore` marker at its outer root so Godot does not scan its duplicate global script classes. Preserve these markers while keeping the copies inside ARCA. `.gitignore` alone does not exclude files from Godot's resource scanner. Keep future backups outside the project rather than adding more nested projects.
+
+After adding an exclusion, restart the Godot editor and reconnect Zed's GDScript language server to clear old diagnostics. Open `.import` metadata and Markdown documentation in Zed, not as Godot resources.
+
 ## Daily loop
 
 1. Run `git status --short` and understand existing changes.
