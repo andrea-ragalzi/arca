@@ -62,6 +62,12 @@ The user accepted the service corridor in an F5 playtest on **2026-10-17**: "The
 
 The sequence gives a 1.4-second warning, a one-second hatch opening and about 2.3 seconds of collision-aware walk-out before the existing alert/combat flow. The user confirmed that the service hatch passed this F5 checklist on **2026-10-17**, accepting hatch readability and reaction comfort. The task was closed through documentation only; no gameplay fixes were needed. This acceptance is not a GPU performance measurement.
 
+## Inspect the Regina character
+
+Open `arca/character_test.tscn` and press **F6** for a separate, static character inspection scene with neutral lighting, a metric ruler and labeled axes. Use the editor 3D viewport to orbit and inspect the rig. **F5 still runs the mission with the original robot**; no TPS replacement has been made.
+
+The imported model has 69 bones, nine materials, 17 textures and **no animation clips**. Its posed height is about 1.799 m. See [the Regina inspection report](docs/REGINA.md) for the complete inventory, appearance/source limitations, focused check command and movement/aim/shoot integration requirements. The original Regina FBX is not in the repository; source comparison remains pending.
+
 ## Develop with Zed and Godot
 
 The project includes `.zed/settings.json` with save on focus change, plus `.zed/tasks.json` with editor, play, test and Git-status tasks. Open Zed's command palette, run **task: spawn**, and select an **ARCA:** task. Keep one Godot editor instance open on this folder.

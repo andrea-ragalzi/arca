@@ -25,9 +25,17 @@ Pack page: <https://quaternius.com/packs/animateddinosaurs.html>
 
 The FBX was converted to GLB using Godot 4.5.1. ARCA adjusts scene scale and adds AI, collision and navigation; original clips and materials are preserved.
 
+## Regina inspection asset
+
+**"DinoCrisisCustom - Regina"** by **Otherspectre**.
+Source: <https://skfb.ly/pCKMp>.
+Licensed under **Creative Commons Attribution 4.0 International (CC BY 4.0)**: <http://creativecommons.org/licenses/by/4.0/>.
+
+The supplied `arca/assets/characters/regina/regina.glb` retains its embedded creator/license metadata and is unchanged. Godot 4.5.1 extracts its embedded textures for import; the separate `arca/character_test.tscn` applies a 180-degree yaw and -0.0112332 m vertical offset to its instance, with no scale, geometry, rig or material edits. No local FBX conversion is claimed. See `docs/REGINA.md` for the imported inventory and limitations. This fan-character credit does not establish rights to underlying third-party characters/IP or verify whether the model was independently created; provenance beyond the supplied credit and metadata remains unverified.
+
 ## ARCA additions
 
 Fuse, panel, door, divider geometry, mission and ambush logic, documentation and project workflow files are ARCA additions under MIT, as stated in `LICENSE_ARCA.md`.
 The two short sounds `arca/audio/pickup.wav` and `arca/audio/power.wav` are original synthesized sounds distributed under the same MIT license; they are not extracted from games or third-party sound packs.
 
-This technical game project contains no models, textures, audio or extracted game data from Dino Crisis. The broader fan-story concept is a design reference, not a grant of rights to Capcom's names or characters.
+The playable mission retains its credited TPS placeholder and Quaternius predator. The separate inspection scene includes the Regina fan model credited above; its underlying provenance has not been independently verified. Neither that model's stated CC license nor ARCA's broader fan-story concept grants rights to Capcom's names or characters.

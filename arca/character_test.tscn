@@ -1,0 +1,209 @@
+[gd_scene load_steps=16 format=3]
+
+[ext_resource type="PackedScene" path="res://arca/assets/characters/regina/regina.glb" id="1_regina"]
+
+[sub_resource type="Environment" id="Environment_neutral"]
+background_mode = 1
+background_color = Color(0.16, 0.18, 0.21, 1)
+ambient_light_source = 3
+ambient_light_color = Color(1, 1, 1, 1)
+ambient_light_energy = 0.65
+reflected_light_source = 2
+tonemap_mode = 0
+
+[sub_resource type="StandardMaterial3D" id="Material_floor"]
+albedo_color = Color(0.27, 0.29, 0.32, 1)
+roughness = 0.9
+
+[sub_resource type="StandardMaterial3D" id="Material_ruler"]
+albedo_color = Color(0.9, 0.9, 0.9, 1)
+shading_mode = 0
+
+[sub_resource type="StandardMaterial3D" id="Material_x"]
+albedo_color = Color(0.95, 0.25, 0.22, 1)
+shading_mode = 0
+
+[sub_resource type="StandardMaterial3D" id="Material_y"]
+albedo_color = Color(0.3, 0.9, 0.4, 1)
+shading_mode = 0
+
+[sub_resource type="StandardMaterial3D" id="Material_z"]
+albedo_color = Color(0.3, 0.55, 1, 1)
+shading_mode = 0
+
+[sub_resource type="PlaneMesh" id="Mesh_floor"]
+material = SubResource("Material_floor")
+size = Vector2(8, 8)
+
+[sub_resource type="BoxMesh" id="Mesh_ruler"]
+material = SubResource("Material_ruler")
+size = Vector3(0.025, 2, 0.025)
+
+[sub_resource type="BoxMesh" id="Mesh_tick"]
+material = SubResource("Material_ruler")
+size = Vector3(0.18, 0.012, 0.025)
+
+[sub_resource type="BoxMesh" id="Mesh_x"]
+material = SubResource("Material_x")
+size = Vector3(1, 0.018, 0.018)
+
+[sub_resource type="BoxMesh" id="Mesh_y"]
+material = SubResource("Material_y")
+size = Vector3(0.018, 1, 0.018)
+
+[sub_resource type="BoxMesh" id="Mesh_z"]
+material = SubResource("Material_z")
+size = Vector3(0.018, 0.018, 1)
+
+[sub_resource type="BoxMesh" id="Mesh_meter"]
+material = SubResource("Material_ruler")
+size = Vector3(1, 0.012, 0.025)
+
+[sub_resource type="BoxMesh" id="Mesh_forward"]
+material = SubResource("Material_z")
+size = Vector3(0.025, 0.012, 1)
+
+[node name="CharacterTest" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_neutral")
+
+[node name="KeyLight" type="DirectionalLight3D" parent="."]
+rotation_degrees = Vector3(-40, -35, 0)
+light_energy = 1.0
+shadow_enabled = true
+
+[node name="FillLight" type="DirectionalLight3D" parent="."]
+rotation_degrees = Vector3(-25, 145, 0)
+light_energy = 0.45
+
+[node name="Ground" type="MeshInstance3D" parent="."]
+mesh = SubResource("Mesh_floor")
+
+[node name="ModelPivot" type="Node3D" parent="."]
+position = Vector3(0, -0.0112332, 0)
+rotation_degrees = Vector3(0, 180, 0)
+
+[node name="Regina" parent="ModelPivot" instance=ExtResource("1_regina")]
+
+[node name="HeightRuler" type="Node3D" parent="."]
+position = Vector3(-1.15, 0, 0)
+
+[node name="Bar" type="MeshInstance3D" parent="HeightRuler"]
+position = Vector3(0, 1, 0)
+mesh = SubResource("Mesh_ruler")
+
+[node name="Tick0" type="MeshInstance3D" parent="HeightRuler"]
+mesh = SubResource("Mesh_tick")
+
+[node name="Tick05" type="MeshInstance3D" parent="HeightRuler"]
+position = Vector3(0, 0.5, 0)
+mesh = SubResource("Mesh_tick")
+
+[node name="Tick1" type="MeshInstance3D" parent="HeightRuler"]
+position = Vector3(0, 1, 0)
+mesh = SubResource("Mesh_tick")
+
+[node name="Tick15" type="MeshInstance3D" parent="HeightRuler"]
+position = Vector3(0, 1.5, 0)
+mesh = SubResource("Mesh_tick")
+
+[node name="Tick2" type="MeshInstance3D" parent="HeightRuler"]
+position = Vector3(0, 2, 0)
+mesh = SubResource("Mesh_tick")
+
+[node name="Label0" type="Label3D" parent="HeightRuler"]
+position = Vector3(-0.21, 0.04, 0)
+billboard = 1
+pixel_size = 0.0025
+text = "0 m"
+font_size = 32
+
+[node name="Label1" type="Label3D" parent="HeightRuler"]
+position = Vector3(-0.21, 1, 0)
+billboard = 1
+pixel_size = 0.0025
+text = "1 m"
+font_size = 32
+
+[node name="Label2" type="Label3D" parent="HeightRuler"]
+position = Vector3(-0.21, 2, 0)
+billboard = 1
+pixel_size = 0.0025
+text = "2 m"
+font_size = 32
+
+[node name="Meter" type="MeshInstance3D" parent="."]
+position = Vector3(0, 0.015, -0.6)
+mesh = SubResource("Mesh_meter")
+
+[node name="MeterLabel" type="Label3D" parent="Meter"]
+position = Vector3(0, 0.11, 0)
+billboard = 1
+pixel_size = 0.002
+text = "1 meter"
+font_size = 32
+
+[node name="Forward" type="MeshInstance3D" parent="."]
+position = Vector3(0, 0.015, -1.2)
+mesh = SubResource("Mesh_forward")
+
+[node name="ForwardLabel" type="Label3D" parent="Forward"]
+position = Vector3(0, 0.1, -0.55)
+billboard = 1
+pixel_size = 0.002
+text = "-Z forward"
+font_size = 32
+
+[node name="Axes" type="Node3D" parent="."]
+position = Vector3(0.8, 0.03, 0.1)
+scale = Vector3(0.65, 0.65, 0.65)
+
+[node name="X" type="MeshInstance3D" parent="Axes"]
+position = Vector3(0.5, 0, 0)
+mesh = SubResource("Mesh_x")
+
+[node name="Label" type="Label3D" parent="Axes/X"]
+position = Vector3(0.6, 0.1, 0)
+billboard = 1
+pixel_size = 0.002
+text = "+X"
+font_size = 32
+
+[node name="Y" type="MeshInstance3D" parent="Axes"]
+position = Vector3(0, 0.5, 0)
+mesh = SubResource("Mesh_y")
+
+[node name="Label" type="Label3D" parent="Axes/Y"]
+position = Vector3(0, 0.6, 0)
+billboard = 1
+pixel_size = 0.002
+text = "+Y"
+font_size = 32
+
+[node name="Z" type="MeshInstance3D" parent="Axes"]
+position = Vector3(0, 0, 0.5)
+mesh = SubResource("Mesh_z")
+
+[node name="Label" type="Label3D" parent="Axes/Z"]
+position = Vector3(0, 0.1, 0.6)
+billboard = 1
+pixel_size = 0.002
+text = "+Z"
+font_size = 32
+
+[node name="Camera3D" type="Camera3D" parent="."]
+position = Vector3(2.5, 1.8, -4)
+rotation = Vector3(-0.178286, 2.582993, 0)
+current = true
+fov = 45.0
+
+[node name="Instructions" type="CanvasLayer" parent="."]
+
+[node name="Label" type="Label" parent="Instructions"]
+offset_left = 24.0
+offset_top = 20.0
+offset_right = 900.0
+offset_bottom = 100.0
+theme_override_font_sizes/font_size = 20
+text = "REGINA / CHARACTER INSPECTION\nStatic rest pose - no animations supplied. 1 Godot unit = 1 meter.\nUse the editor 3D viewport to orbit and inspect bones. F5 still runs the mission."

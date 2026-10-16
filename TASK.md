@@ -1,4 +1,189 @@
-# Task: close service-hatch acceptance, with targeted fixes only if needed
+# Task: inspect Regina and create an isolated character test scene
+
+Status: implemented on 2026-10-17 following the user's explicit `implement` invocation. The isolated scene, Godot inventory, TPS assessment and attribution are delivered; 93 focused checks and the clean-import gate (162 gameplay + 13 launcher checks) pass. Original-FBX comparison is blocked by unavailable source files; user F6 appearance/rig acceptance and a fresh human F5 check remain pending. No TPS integration, commit or source-GLB modification was made. Previous task records are preserved below.
+
+## Goal and mandatory contracts
+
+Inspect `arca/assets/characters/regina/regina.glb` in **Godot 4.5.1 Standard / Compatibility**, list the imported skeleton/bones, animation clips, materials and textures, and create a separate scene for judging scale, orientation and appearance. Assess the work needed for existing TPS movement, aiming and shooting; do not implement that integration. If missing/broken data warrants comparison, inspect the original Regina FBX without overwriting the GLB.
+
+Acceptance:
+
+- A documented Godot inventory distinguishes source data from importer-generated nodes, bones or RESET animations, with actual node paths, bone hierarchy, material/texture assignments and animation names/durations/looping (or explicit absence).
+- `arca/character_test.tscn` opens and runs with F6, showing the skinned model under neutral lighting, a metric reference, ground and labeled axes. Record final world-space height, foot offset, facing direction and any explicit wrapper correction. Front/side/back and close-up checks establish appearance, not just successful resource loading.
+- The report identifies concrete TPS blockers and a smallest follow-up, without replacing the mission player, changing controls or adding animations/IK.
+- Preserve the supplied asset, uncommitted work, upstream controller, camera, weapon and mission inheritance. Keep the main scene `arca/mission_room.tscn` unchanged.
+- Add attribution: **"DinoCrisisCustom - Regina"**, **Otherspectre**, <https://skfb.ly/pCKMp>, **CC BY 4.0**, <http://creativecommons.org/licenses/by/4.0/>. Describe modifications/conversion only when verified; retain embedded notices.
+
+## Assumptions, unresolved inputs and non-goals
+
+- An inspection scene, not a playable Regina controller, is the intended deliverable. A static camera for F6 plus the editor's viewport orbit is sufficient; no new viewer framework or runtime UI is needed.
+- Initial Git status: only `?? arca/assets/characters/`. Treat this GLB as user work. No Regina `.import` or cached imported scene existed at inspection time.
+- The existing Godot editor is open on ARCA. Before implementation, stop play, save open scenes and wait for imports; reload external scene changes. Do not launch a competing editor/import process.
+- **Missing input:** no Regina FBX was found anywhere in the repository; the only FBX found is the unrelated raptor source. `Mesh.fbx` inside the GLB is a node name, not an available FBX file. If source comparison is needed, ask for the original FBX/archive and its textures/location. Do not download an assumed source or claim a conversion lost clips without comparison. The standalone GLB assessment can proceed while that comparison remains blocked.
+- Non-goals: mission/player replacement, actual animation retargeting or authoring, new weapons, IK, controller refactoring, camera redesign, resource-economy work, asset optimization or engine/dependency changes. The user-requested asset inspection is separate from the economy candidate in `docs/DESIGN.md`.
+
+## Read-only source findings at planning time
+
+These baseline findings predate implementation. The verified Godot paths, imported inventory and measured posed bounds are now in `docs/REGINA.md`; do not treat the planning-time unknowns below as unresolved import results.
+
+The 5,877,192-byte file has a consistent GLB 2 header. Its metadata identifies Sketchfab-16.75.0, Otherspectre, the model title and CC-BY-4.0; it does not establish the local conversion workflow. Source counts: **84 nodes, one unnamed skin, 69 joints/inverse-bind matrices, nine skinned meshes/surfaces, nine materials, 17 textures/images, zero animations and zero morph targets**. Mesh totals: 13,937 accessor vertices, 23,941 triangles. All images/buffers are embedded; no external URI dependencies.
+
+All 17 PNGs passed chunk CRC and IDAT decompression checks. Inverse-bind entries are finite; joint indices fit the 69-joint skin; there are no zero-total-weight vertices, and maximum weight-sum error is below 0.00000009. These checks do **not** establish correct bind/rest poses, normals, deformation or rendered appearance.
+
+### Skeleton and bones
+
+Source hierarchy above the joints: `Sketchfab_model -> Mesh.fbx -> RootNode -> Armature -> Object_4 -> _rootJoint`. The skin's skeleton root is `_rootJoint`; Godot's `Skeleton3D` name/path and any name sanitation remain to be inspected. Complete source joint hierarchy below (original spelling preserved):
+
+```text
+_rootJoint
+  root ground_01
+    root hips_02
+      spine lower_03
+        spine middle_04
+          spine upper_05
+            head neck lower_06
+              head neck upper_07
+                head jaw_08
+                head hair upper_09
+                head hair back 1_010
+                  head hair back 2_011
+                head hair right 1_012
+                  head hair right 2_013
+                head hair left 1_014
+                  head hair left 2_015
+                head hair front middle 1_016
+                  head hair front middle 2_017
+            arm right shoulder 1_018
+              arm right shoulder 2_019
+                arm right elbow_020
+                  arm right wrist_021
+                    arm right finger 5a_022
+                      arm right finger 5b_023
+                        arm right finger 5c_024
+                    arm right finger 4a_025
+                      arm right finger 4b_026
+                        arm right finger 4c_027
+                    arm right finger 3a_028
+                      arm right finger 3b_029
+                        arm right finger 3c_030
+                    arm right finger 2a_031
+                      arm right finger 2b_032
+                        arm right finger 2c_033
+                    arm right finger 1a_034
+                      arm right finger 1b_035
+                        arm right finger 1c_036
+            arm left shoulder 1_037
+              arm left shoulder 2_038
+                arm left elbow_039
+                  arm left wrist_040
+                    arm left finger 5a_041
+                      arm left finger 5b_042
+                        arm left finger 5c_043
+                    arm left finger 4a_044
+                      arm left finger 4b_045
+                        arm left finger 4c_046
+                    arm left finger 3a_047
+                      arm left finger 3b_048
+                        arm left finger 3c_049
+                    arm left finger 2a_050
+                      arm left finger 2b_051
+                        arm left finger 2c_052
+                    arm left finger 1a_053
+                      arm left finger 1b_054
+                        arm left finger 1c_055
+          boob right 1_00
+            boob right 2_056
+          boob left 1_057
+            boob left 2_058
+      leg right thigh_059
+        leg right knee_060
+          leg right ankle_061
+            leg right toes_062
+      leg left thigh_063
+        leg left knee_064
+          leg left ankle_065
+            leg left toes_066
+      belt holser_067
+```
+
+### Animation clips
+
+**None in the GLB.** A generated Godot RESET clip would not supply locomotion or prove lost source animations. Original-FBX comparison is needed to determine whether the source also lacks clips.
+
+### Materials and embedded textures
+
+Exact source material names are below. For each material, texture filenames use that name plus `_baseColor.png` and `_normal.png`; eyelashes have only `_baseColor.png`. Filenames are stored as buffer-view labels, not external files. This accounts for all **nine albedos and eight normals**.
+
+| Material | Base color | Normal | Alpha / special data |
+| --- | --- | --- | --- |
+| `24_costume.reginadtga_0.25_0_0` | 1024 x 1024 | 1024 x 1024 | Opaque; roughness 0 |
+| `24_holster.holsterdtga_1_0_0` | 256 x 512 | 256 x 512 | Opaque |
+| `24_eyetga_1_0_0` | 256 x 256 | 256 x 256 | Opaque; specular extension |
+| `24_facedtga_0.25_0_0` | 1024 x 1024 | 1024 x 1024 | Opaque |
+| `24_reginau1v1u1v1tga_0.25_0_0` | 1024 x 1024 | 1024 x 1024 | Opaque |
+| `25_4tga_0.25_0_0` | 512 x 512 | 2 x 2 | Opaque; tiny normal map is present, not evidence of corruption |
+| `25_hair2dtga_0.25_0_0` | 512 x 512 RGBA | 512 x 512 | MASK cutoff 0.771057; specular extension |
+| `25_hairdtga_0.25_0_0` | 512 x 1024 RGBA | 512 x 1024 | MASK cutoff 0.136372 |
+| `7_eyelashtga_0.1_0_0` | 256 x 128 RGBA | None | MASK cutoff 0.778979 |
+
+All materials are double-sided and metallic 0. There are no dedicated roughness/metallic/occlusion maps; roughness is scalar. Inspect Godot's handling of `KHR_materials_specular`, hair/eyelash cutouts, normal maps and the glossy costume before proposing material changes.
+
+Combined raw POSITION accessor bounds are approximately X [-0.793, 0.793], Y [0.011, 1.810], Z [-0.082, 0.196]. These are **unskinned mesh-local** bounds, not a verified 1.8 m standing character. Several ancestor transforms rotate axes; measure the actual imported posed model before choosing scale/yaw or modifying any transform.
+
+## Existing TPS flow and integration assessment
+
+Relevant existing files:
+
+- `player/player.gd`: camera-relative input selects walk/strafe/jump; `AnimationTree` root motion supplies horizontal velocity to `CharacterBody3D.move_and_slide()`. The model's world basis is set every physics frame, so a future visual correction must live below that controlled pivot.
+- `player/player.tscn`: `AnimationTree` uses `PlayerModel/AnimationPlayer` and `Robot_Skeleton/Skeleton3D:root` as its root-motion track. It references `Idle`, `Idlecombat`, `running_nogun`, `running_gun`, four strafe clips, three jump/fall/landing clips, `AIM-Up`, `AIM-Down` and `eyes`. Aim/eye filters name robot-specific bones. `GunBone` attaches to `hand.R`.
+- `player/player_input.gd`: existing mouse/aim camera blend, crosshair raycast and world-space shoot target. Preserve these behaviors.
+- `arca/player/arca_player.tscn` inherits `player/player.tscn`; `arca/player/arca_player.gd` adds health, death handling and a chest-to-muzzle cover sweep. The latter assumes a chest height of 1.4 m; camera pivot is currently 1.6 m. Model scale needs comparison against these existing references, not an immediate controller change.
+- `player/player.gd` resolves the muzzle at `PlayerModel/Robot_Skeleton/Skeleton3D/GunBone/ShootFrom`; `shoot()` also hard-codes particle paths beneath it. Shooting uses that origin toward the existing camera target, then starts particles, cooldown, sound and shake.
+- `arca/tests/first_playable_test.gd` already exercises actual movement, aim/fire, cover-safe muzzle origin and lifecycle. `scripts/check.sh` imports and runs first-playable, raptor, mission and ambush suites.
+
+Assessment to confirm in Godot: this is **not a drop-in mesh swap**. No source clips exist to drive horizontal root motion; swapping the robot animation library would stop movement. A later integration needs a verified humanoid bone/rest-pose map (including shoulder/neck differences), compatible retargeted or newly authored idle/run/strafe/jump animations with usable root translation, and aim poses/filters rebuilt for Regina. Bone renaming alone does not retarget transforms. Map a potential humanoid head to the upper-neck joint only after inspecting its rest pose; there is no explicitly named head joint.
+
+A later weapon setup needs a right-wrist `BoneAttachment3D`, a verified/licensed weapon visual and muzzle marker/effects, plus minimal handling of the robot-specific paths while retaining camera-target direction and cover safety. No source joint is named gun/muzzle; holster geometry is not evidence of a usable gun. This task documents those needs, not a solution framework. Reuse the existing controller rather than duplicating it. Recommend the next bounded step only after asset/import findings and missing animation/source availability are known.
+
+## Proposed minimal implementation sequence
+
+1. **Import and inspect without replacing assets.** Save the active editor's scenes, finish pending imports, import the supplied GLB using Godot 4.5.1, and inspect warnings and Advanced Import settings. Retain source-side `.import` and any generated source resources/UIDs needed for reproducibility; do not track `.godot/` or logs. Confirm actual skeleton paths, bone hierarchy/rest transforms, mesh skin bindings, material/texture mapping and animation inventory. If a material extension is unsupported, record the exact limitation rather than silently dropping it.
+2. **Create `arca/character_test.tscn`.** Use a standalone `Node3D`, neutral environment/light, plain ground, a one-meter reference/height ruler, labeled +X/+Y/+Z axes and Godot -Z forward marker, a fixed three-quarter camera, and the original GLB instance under `ModelPivot`. Start with identity corrections; only apply an explicit, documented wrapper scale/rotation/foot offset if measured import behavior requires it. Do not edit/bake the GLB, drive TPS scripts, add mission nodes or auto-play nonexistent clips. Inspect front/side/back in the editor and rendered F6 view; no extra runtime controller is required.
+3. **Resolve concrete discrepancies.** Verify skin/rest alignment and small temporary editor bone rotations without saving altered poses. If missing animations or bad geometry/materials warrant comparison, obtain the original Regina FBX and matching textures, import it separately, compare counts/poses/clips/assignments and record results. Keep the supplied GLB intact. Stop for re-scoping before a conversion repair, animation production or new dependency; if source is unavailable, report the blocked comparison explicitly rather than claiming success.
+4. **Add one focused inspection/smoke script, `arca/tests/regina_test.gd`.** Follow the existing `SceneTree` PASS/FAIL/RESULT pattern, exit nonzero on failure, instantiate the new scene and emit the actual imported inventory. Check the source joints have corresponding imported bones (accounting for documented importer renaming/additions), all nine mesh parts have valid skin/material bindings, all 17 expected texture mappings resolve with dimensions, transforms/bounds are finite and nonempty, and the scene has a current camera. Report zero authored clips as valid for this asset; distinguish RESET if generated. Do not add brittle pixel assertions or fabricate movement tests for a static model. Leave the existing gameplay gate unchanged; run this focused tool separately.
+5. **Document and hand off.** Put verified findings, full imported inventory, source-vs-Godot differences, measured transforms, FBX availability/comparison and concrete TPS blockers in `docs/REGINA.md`; add a short F6 entry to `README.md`; add the supplied credit to `ATTRIBUTIONS.md`. Review its blanket statement about no Dino Crisis assets against the actual provenance: a CC credit for a fan model does not establish ownership of underlying character/IP or prove independent/extracted origin. Make no unsupported provenance claim. Update `TASK.md` and `docs/VALIDATION.md` with only checks actually run and remaining manual/source limits. Keep the mission placeholder status accurate; do not change the gameplay roadmap.
+
+## Validation and expected outcomes
+
+During implementation, after the editor's imports finish (do not run these during this planning pass):
+
+- Run the new focused script with the discovered engine: `/home/andrea/Applications/Godot_v4.5.1-stable_linux.x86_64 --headless --audio-driver Dummy --fixed-fps 60 --path . -s res://arca/tests/regina_test.gd` (command becomes runnable after the script exists). Expect a readable imported inventory, all resource/binding smoke checks passing, a clean exit and no script/runtime errors. Headless results cannot establish skin appearance, alpha quality or GPU performance.
+- Run `bash scripts/check.sh` with Godot 4.5.1, using `GODOT_BIN` if needed. Its import step must succeed, and existing movement/aim/shoot/cover and mission suites must stay green. Historical baseline is 162 gameplay checks and 13 launcher checks, not a fresh result. `rg` is currently absent from PATH; the documented local workaround is `.artifacts/baseline-tools/ripgrep/usr/bin/`, or install the README prerequisite. Do not change the launcher to hide the missing prerequisite.
+- Manual **F6**: open `arca/character_test.tscn`, verify visible full model/metric reference, measured feet/ground alignment and facing axes; inspect skin/hair/eyelashes/eyes/holster and front/side/back under Compatibility. Compare rest pose and temporary joint deformation in the editor. Report whether any visible defect is present, with reproduction details.
+- Manual **F5**: confirm the mission still starts with the existing robot and unchanged movement, camera, aim/fire and pause/restart. Do not infer visual acceptance from headless checks.
+- Run `git diff --check` and review final status/diff; no application edits in the planning pass and no commits unless requested.
+
+## Risks and stop condition
+
+Root-axis rotations, bind/rest mismatch and import name sanitation can mislead raw bounds and bone mapping. Embedded PNG validity does not prove texture colors, normal orientation or alpha thresholds are correct; imported materials may approximate source specular behavior. Generated RESET is not locomotion. CC BY metadata is an attribution requirement, not verification of underlying third-party rights. Do not expand an inspection into asset repair or full TPS integration.
+
+Stop when the isolated scene and verified inventory/integration assessment are delivered and checks/manual results are recorded. If the original FBX remains unavailable, explicitly leave source comparison unresolved. Approval of this plan does not approve a character-controller replacement.
+
+## Implementation handoff
+
+- Added `arca/character_test.tscn`: standalone scene, original GLB under a visual wrapper, neutral environment/lights, ground, 2 m ruler/0.5 m ticks, 1 m reference, world axes, -Z forward marker and fixed F6 camera. The measured upright character is 1.798599 m tall; native facing is +Z and feet start at Y 0.011233 m. The instance uses yaw 180 degrees and Y -0.0112332 m, scale 1. No GLB/bone/material edits or gameplay script changes.
+- Godot confirms one `Skeleton3D`, all 69 unchanged bone names/parents, nine mesh/material parts, 17 texture mappings and no `AnimationPlayer`/clips/RESET. The existing editor completed import before inspection; retain `regina.glb.import`, extracted `regina_0.png` through `regina_16.png` and their `.import` settings. The GLB SHA-256 is recorded in `docs/REGINA.md`.
+- Added `arca/tests/regina_test.gd` and its engine-generated `.uid`; it emits the inventory and checks actual hierarchy, bindings/weights, materials/textures, alpha behavior, finite posed bounds, feet/scale/current camera, unchanged main scene and reversible wrist deformation. CPU skin measurement avoids unavailable Dummy-renderer bake registration; rendered pose bakes agree within about 0.00003 m. Editor diagnostics: no errors/warnings.
+- Focused checks: 93/93 against the working project and a clean-import copy. Full supported `bash scripts/check.sh`: launcher 13/13; first-playable 42/42; raptor 24/24; mission 52/52; ambush 44/44. No import/GDScript compilation errors/warnings or gameplay script/runtime errors. Used the existing local ripgrep PATH workaround, not a dependency/launcher edit.
+- Justified validation deviation: the working Godot editor stayed open, so a source-only copy under ignored `.artifacts/regina/validation-project/` ran the import/gameplay gate without a competing import into the live project. The tested application/script sources match the working source. Diagnostic logs/captures stay ignored. Preliminary diagnostic/test failures and their fixes are recorded in `docs/VALIDATION.md`, not hidden as passing results.
+- Inspected actual X11/Compatibility/llvmpipe captures: overview/front/side/back, face close-up and temporary elbow bend. No obvious missing texture, detached part or exploded rest skin in those views. Bright hair/specular and skin shading remain appearance considerations. The source's two `KHR_materials_specular` factors become Godot's default 0.5 scalar; documented, not arbitrarily repaired. Software-display input-method/V-Sync warnings remain; captures are not a human playtest or GPU benchmark.
+- Added `docs/REGINA.md` with the complete imported bone/material/texture inventory, measurements, FBX blocker and concrete root-motion/aim/weapon-path requirements. Updated `README.md`, `ATTRIBUTIONS.md` and `docs/VALIDATION.md`. Credit uses the user's exact title/creator/source/CC BY 4.0 links. Replaced the previous blanket no-Dino-Crisis-assets assertion with an explicit fan-model provenance limit; no underlying rights or independent creation is claimed.
+- Final review: `git diff --check` and new-file whitespace checks passed. All 121 application/asset files compared against the clean-validation snapshot are byte-identical; the supplied GLB SHA-256 is unchanged. Final status contains only the planned docs, scene, smoke script/UID and untracked character asset/import files. No commits or branches were created.
+- Remaining: supply the original Regina FBX/archive plus textures for comparison; `Mesh.fbx` is only a GLB node name. User should inspect F6 scale/appearance/bones and F5 unchanged robot movement/aim/fire/pause/restart. No source conversion loss, full deformation readiness, user acceptance or integration success is claimed. Recommended next bounded action is obtaining the original source, not rewriting the controller.
+
+---
+
+# Previous task: close service-hatch acceptance, with targeted fixes only if needed
 
 Status: closed through documentation only on 2026-10-17. The user confirmed that the service hatch passed the F5 checklist in `README.md`. No gameplay changes were needed or made. The supported gate passed during revalidation: 162 gameplay checks and 13 launcher checks, zero failures, using the existing local ripgrep PATH workaround. The initial task-plan changes and historical implementation record have been preserved.
 
