@@ -1,0 +1,2509 @@
+diff --git a/ARCA_SETUP.md b/ARCA_SETUP.md
+new file mode 100644
+index 0000000..03f23c8
+--- /dev/null
++++ b/ARCA_SETUP.md
+@@ -0,0 +1,76 @@
++# ARCA — Prototipo 0.1
++
++Primo incremento del dossier operativo: una stanza 3D di collaudo TPS, eseguibile e modificabile. Data: 16 ottobre 2026.
++
++## Avvio rapido
++
++1. Scarica **Godot 4.5.1 Standard**, senza .NET: <https://godotengine.org/download/archive/4.5.1-stable/>.
++2. Estrai tutto lo ZIP. In Godot scegli **Importa**, seleziona `project.godot` e attendi l'importazione delle risorse.
++3. Premi **F6** sulla scena `arca/test_room.tscn`, oppure **F5** per avviare il progetto.
++
++Su Linux puoi anche eseguire `bash AVVIA_LINUX.sh /percorso/Godot_v4.5.1-stable_linux.x86_64`. L'engine va scaricato separatamente. Lo ZIP contiene il sorgente Godot; non è una build standalone.
++
++## Cosa puoi provare
++
++- Movimento WASD o frecce, mouse per la camera mobile, spazio per saltare: controller e root motion originali TPS.
++- Tasto destro per mirare, sinistro per sparare mentre miri. Una breve pressione del destro mantiene la mira; una pressione prolungata la disattiva al rilascio, come nella base.
++- Un robot nemico con 5 HP, animazioni, inseguimento, preparazione e laser. Un colpo valido del giocatore sottrae 1 HP.
++- Salute del giocatore: 100 HP. Il laser infligge 25 HP per colpo accettato, con protezione di 0,75 secondi fra danni.
++- Coperture e pareti solide. I proiettili non attraversano i muri; la canna oltre una parete non genera il proiettile dall'altro lato.
++- Morte, blocco degli input e pannello di riavvio. **R** ripristina l'intera stanza; **Esc** apre/chiude la pausa.
++- **F3** mostra telemetria provvisoria; **F11** cambia modalità schermo.
++
++Le munizioni sono illimitate per isolare i problemi del combattimento. Il test termina quando distruggi il robot; puoi continuare a muoverti o premere R per ripetere.
++
++## Versioni e provenienza
++
++- Engine congelato: `4.5.1.stable.official.f62fdbde1`.
++- Base: <https://github.com/godotengine/tps-demo>, tag `4.5-90f2e38`.
++- Commit upstream: `90f2e38d7b5cf9e6fd0b788d0da1df4b84d49269`.
++- Branch di lavoro locale: `arca/first-playable`.
++- Renderer predefinito: **Compatibility / OpenGL**. La stanza non dipende da SDFGI, VoxelGI o dalla grande scena dimostrativa.
++- Fisica: GodotPhysics3D, impostata esplicitamente al posto del vecchio valore Bullet presente nell'upstream.
++
++Il pacchetto compatto conserva i percorsi originali delle dipendenze del controller e del robot. Esclude il grande livello dimostrativo, il menu multiplayer e i sorgenti Blender non usati dalla stanza. Il codice multiplayer già contenuto nel controller non è stato riscritto: il prototipo lo esegue in modalità offline.
++
++## Collegamenti tecnici verificati
++
++`InputMap` → `player/player_input.gd` (`PlayerInputSynchronizer`) → `player/player.gd` (`Player`). La camera espone la base di rotazione; l'AnimationTree produce root motion per movimento e strafe. Il rig rimane `PlayerModel/Robot_Skeleton/Skeleton3D`.
++
++L'input proietta il mirino nella scena; il controller calcola il tiro da `GunBone/ShootFrom` verso quel punto. `player/bullet/bullet.gd` usa collisione cinematica e invoca `hit.rpc()` una sola volta. Il cooldown nativo dell'arma è di 0,4 secondi. ARCA aggiunge il solo hook `get_shoot_origin()` per la verifica della parete davanti alla canna.
++
++`arca/player/arca_player.tscn` eredita il giocatore originale e aggiunge `HealthComponent`. Lo script ARCA estende quello TPS. Il laser del robot invoca `take_damage(25)` quando la sua collisione raggiunge il giocatore. `changed` aggiorna l'HUD; `died` arresta input, arma e attacchi pendenti. Il riavvio ricarica la scena: niente stato persistente fra tentativi.
++
++## Modifiche necessarie all'upstream
++
++1. `player/player.gd`: hook di origine del tiro; movimento, rig e animazioni conservati.
++2. `player/player_input.gd`: il raycast esclude il RID del corpo del giocatore, anziché il nodo synchronizer.
++3. `player/bullet/bullet.gd`: ritorno immediato dopo la scadenza del proiettile.
++4. `enemies/red_robot/red_robot.gd` e relativa scena: danno esplicito, protezioni alla morte, asse del cannone e dell'effetto laser allineati, clipping/particelle coerenti, effetti contenuti nella stanza.
++5. Timer dei rottami e scomparsa: legati ai nodi, così vengono eliminati al riavvio.
++6. `player/model/player.glb`: rinominata soltanto la clip inutilizzata `Cannon_Charge` in `Charge_Single`, con sostituzione di 13 byte nel JSON interno. Il nome originale collideva con `Cannon_Charge-cycle` dopo l'importazione. Geometria, skin, rig e keyframe invariati.
++7. `project.godot`: avvio diretto, risoluzione 1280×720, renderer leggero e azione R. Creato l'ambiente mancante `default_env.tres`.
++
++La stanza e l'HUD sono scene `.tscn` modificabili nell'editor. Non sono immagini prerenderizzate. Nessun addon aggiunto e nessun asset Capcom incluso.
++
++## Verifiche eseguite
++
++Consultare `TEST_RESULTS.md` e `arca/tests/last_run.txt` per l'esito effettivo della distribuzione. La suite integra fisica, input, controller originale, proiettili, nemico, segnali e ricaricamento della scena.
++
++Comandi riproducibili dalla cartella del progetto, con `godot` che indica l'eseguibile 4.5.1:
++
++```bash
++godot --headless --editor --import --path .
++godot --headless --fixed-fps 60 --path . -s res://arca/tests/first_playable_test.gd
++godot --path .
++```
++
++## Limiti e prossimo incremento
++
++Questa è una stanza tecnica, con robot originali della TPS e geometrie provvisorie. Non rappresenta la grafica finale PS2/PS3 di ARCA e non include ancora Regina, Dylan, dinosauri, fusibile, documenti, inventario o salvataggi.
++
++Resta da eseguire una prova manuale di cinque minuti sul PC di Andrea: registrare GPU, renderer, risoluzione, FPS e comportamento della camera negli angoli. Non è stata verificata una prestazione di 60 FPS sulla macchina dell'utente.
++
++Il prossimo incremento è importare un solo predatore CC0, verificare le clip realmente presenti e collegarlo a navigazione, preparazione dell'attacco e danni. Il puzzle fusibile → quadro → porta viene dopo. La base della stanza va mantenuta come scena di regressione.
++
++Licenze e crediti in `LICENSE.md`, `LICENSE_ARCA.md` e `ATTRIBUTIONS.md`.
+diff --git a/ATTRIBUTIONS.md b/ATTRIBUTIONS.md
+new file mode 100644
+index 0000000..2011f49
+--- /dev/null
++++ b/ATTRIBUTIONS.md
+@@ -0,0 +1,16 @@
++# Crediti e licenze
++
++Base originale: **Godot Third Person Shooter Demo**, Godot Engine contributors.
++Sorgente: <https://github.com/godotengine/tps-demo/tree/4.5-90f2e38>.
++Codice originale MIT, testo conservato integralmente in `LICENSE.md`.
++
++Modelli, texture, animazioni ed effetti/audio distribuiti nell'upstream:
++Copyright (c) 2018 Juan Linietsky, Fernando Miguel Calabró.
++Creative Commons Attribution 3.0: <https://creativecommons.org/licenses/by/3.0/>.
++La licenza upstream menziona materiali Substance Painter originali forniti da GameTextures.com.
++
++La musica upstream è attribuita a Christian Fernando Perucchi, CC-BY 3.0; il pacchetto compatto non include il file musicale del livello dimostrativo.
++
++Modifiche ARCA, 16 ottobre 2026: stanza e interfaccia originali, componente salute, integrazione offline, correzioni a collisioni/laser/riavvio, rinomina di una clip inutilizzata nel GLB del giocatore. Il resto del modello conserva geometria, rig e animazioni originali. Le modifiche al codice e alle nuove scene sono MIT, vedi `LICENSE_ARCA.md`; gli asset derivati mantengono l'attribuzione sopra.
++
++Il prototipo tecnico non contiene modelli, texture, audio o dati estratti da Dino Crisis. Il trattamento narrativo è un riferimento di progetto e non è incluso come asset di gioco.
+diff --git a/AVVIA_LINUX.sh b/AVVIA_LINUX.sh
+new file mode 100755
+index 0000000..b8fbeef
+--- /dev/null
++++ b/AVVIA_LINUX.sh
+@@ -0,0 +1,25 @@
++#!/usr/bin/env bash
++set -euo pipefail
++cd -- "$(dirname -- "${BASH_SOURCE[0]}")"
++
++arca_godot="${1:-${GODOT_BIN:-}}"
++if [[ -z "$arca_godot" ]]; then
++  if command -v godot4 >/dev/null 2>&1; then
++    arca_godot="$(command -v godot4)"
++  elif command -v godot >/dev/null 2>&1; then
++    arca_godot="$(command -v godot)"
++  else
++    echo "Scarica Godot 4.5.1 Standard: https://godotengine.org/download/archive/4.5.1-stable/"
++    echo "Poi avvia: bash AVVIA_LINUX.sh /percorso/eseguibile-godot"
++    exit 1
++  fi
++fi
++
++arca_version="$("$arca_godot" --version)"
++if [[ "$arca_version" != 4.5.1.* ]]; then
++  echo "Questo prototipo è verificato con Godot 4.5.1. Versione trovata: $arca_version"
++  exit 1
++fi
++
++"$arca_godot" --headless --editor --import --path .
++exec "$arca_godot" --path .
+diff --git a/LICENSE_ARCA.md b/LICENSE_ARCA.md
+new file mode 100644
+index 0000000..472312e
+--- /dev/null
++++ b/LICENSE_ARCA.md
+@@ -0,0 +1,24 @@
++MIT License
++
++Copyright (c) 2026 ARCA contributors
++
++Permission is hereby granted, free of charge, to any person obtaining a copy
++of this software and associated documentation files (the "Software"), to deal
++in the Software without restriction, including without limitation the rights
++to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
++copies of the Software, and to permit persons to whom the Software is
++furnished to do so, subject to the following conditions:
++
++The above copyright notice and this permission notice shall be included in all
++copies or substantial portions of the Software.
++
++THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
++IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
++FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
++AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
++LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
++OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
++SOFTWARE.
++
++This license covers the ARCA additions. Original third-party assets and code
++retain their respective notices in LICENSE.md and ATTRIBUTIONS.md.
+diff --git a/README.md b/README.md
+index 292c026..febe779 100644
+--- a/README.md
++++ b/README.md
+@@ -1,67 +1,13 @@
+-# Third Person Shooter Demo
++# ARCA — Prototipo 0.1
+ 
+-Third person shooter demo made using [Godot Engine](https://godotengine.org).
++Primo incremento giocabile: stanza industriale TPS, robot nemico, salute, coperture, morte e riavvio.
+ 
+-Check out this demo on the asset library: https://godotengine.org/asset-library/asset/678
++**Per iniziare:** apri `project.godot` in Godot **4.5.1 Standard**, attendi l'importazione e premi **F5**. In alternativa, apri `arca/test_room.tscn` e premi **F6**.
+ 
+-![Screenshot of TPS demo](screenshots/screenshot.webp)
++Controlli: WASD, mouse, destro per mirare, sinistro per sparare, spazio, R per riavviare, Esc per la pausa.
+ 
+-## Godot versions
++[Guida completa](ARCA_SETUP.md) · [Test eseguiti](TEST_RESULTS.md) · [Crediti](ATTRIBUTIONS.md)
+ 
+-- The [`master`](https://github.com/godotengine/tps-demo) branch is compatible with the latest stable Godot version (currently 4.x).
+-- If you are using an older version of Godot, use the appropriate branch for your Godot version:
++Questa versione usa robot e geometrie provvisori. Dinosauro e puzzle sono i prossimi incrementi.
+ 
+-  - [`3.x`](https://github.com/godotengine/tps-demo/tree/3.x) branch
+-  for Godot 3.4.x and 3.5.x.
+-  - [`3.3`](https://github.com/godotengine/tps-demo/tree/3.3) branch
+-  for Godot 3.3.x.
+-  - [`3.2`](https://github.com/godotengine/tps-demo/tree/3.2) branch
+-  for Godot 3.2.2 or 3.2.3.
+-  - [`3.2.1`](https://github.com/godotengine/tps-demo/tree/3.2.1) branch
+-  for Godot 3.2.0 or 3.2.1.
+-  - [`3.1`](https://github.com/godotengine/tps-demo/tree/3.1) branch
+-  for Godot 3.1.x.
+-
+-> **Note**
+->
+-> The repository is big, so expect a high wait time when opening the project for
+-> the first time.
+-
+-## Git LFS
+-
+-Git LFS is no longer required for the current `master` or `3.x` branches.
+-
+-You only need Git LFS if you are checking out the `3.1` or `3.2.1` branches.
+-Those branches have instructions for Git LFS in their README files.
+-
+-## Running
+-
+-You need [Godot Engine](https://godotengine.org) to run this demo project.
+-Download the latest stable version [from the website](https://godotengine.org/download/),
+-or [build it from source](https://github.com/godotengine/godot).
+-
+-You can either download from the Godot Asset Library, clone this repository, or
+-[download a ZIP archive](https://github.com/godotengine/tps-demo/archive/master.zip).
+-
+-## Controls
+-
+-- Mouse or <kbd>Gamepad Right Stick</kbd>: Look around
+-- <kbd>W</kbd>/<kbd>A</kbd>/<kbd>S</kbd>/<kbd>D</kbd>, <kbd>Arrow keys</kbd>, <kbd>Gamepad Left Analog Stick</kbd> or <kbd>Gamepad D-Pad</kbd>: Move
+-- <kbd>Space</kbd>, <kbd>Gamepad A/Cross</kbd>: Jump
+-- <kbd>Right Mouse Button</kbd>, <kbd>Gamepad Left Trigger (L2)</kbd> (press to toggle, or hold and release): Aim
+-- <kbd>Left Mouse Button</kbd>, <kbd>Gamepad Right Trigger (R2)</kbd>: Shoot (only while aiming)
+-- <kbd>Escape</kbd>, <kbd>Gamepad Start</kbd>: Go to main menu/quit
+-- <kbd>F11</kbd> or <kbd>Alt + Enter</kbd>: Toggle fullscreen
+-- <kbd>F3</kbd>: Toggle debugging information (such as FPS counter)
+-
+-## Useful links
+-
+-- [Main website](https://godotengine.org)
+-- [Source code](https://github.com/godotengine/godot)
+-- [Documentation](http://docs.godotengine.org)
+-- [Community hub](https://godotengine.org/community)
+-- [Other demos](https://github.com/godotengine/godot-demo-projects)
+-
+-## License
+-
+-See [LICENSE.md](LICENSE.md) for details.
++Base TPS ufficiale, tag `4.5-90f2e38`. Licenze originali conservate in `LICENSE.md`; aggiunte ARCA in `LICENSE_ARCA.md`. Il README originale è in `README_UPSTREAM.md`.
+diff --git a/README_UPSTREAM.md b/README_UPSTREAM.md
+new file mode 100644
+index 0000000..292c026
+--- /dev/null
++++ b/README_UPSTREAM.md
+@@ -0,0 +1,67 @@
++# Third Person Shooter Demo
++
++Third person shooter demo made using [Godot Engine](https://godotengine.org).
++
++Check out this demo on the asset library: https://godotengine.org/asset-library/asset/678
++
++![Screenshot of TPS demo](screenshots/screenshot.webp)
++
++## Godot versions
++
++- The [`master`](https://github.com/godotengine/tps-demo) branch is compatible with the latest stable Godot version (currently 4.x).
++- If you are using an older version of Godot, use the appropriate branch for your Godot version:
++
++  - [`3.x`](https://github.com/godotengine/tps-demo/tree/3.x) branch
++  for Godot 3.4.x and 3.5.x.
++  - [`3.3`](https://github.com/godotengine/tps-demo/tree/3.3) branch
++  for Godot 3.3.x.
++  - [`3.2`](https://github.com/godotengine/tps-demo/tree/3.2) branch
++  for Godot 3.2.2 or 3.2.3.
++  - [`3.2.1`](https://github.com/godotengine/tps-demo/tree/3.2.1) branch
++  for Godot 3.2.0 or 3.2.1.
++  - [`3.1`](https://github.com/godotengine/tps-demo/tree/3.1) branch
++  for Godot 3.1.x.
++
++> **Note**
++>
++> The repository is big, so expect a high wait time when opening the project for
++> the first time.
++
++## Git LFS
++
++Git LFS is no longer required for the current `master` or `3.x` branches.
++
++You only need Git LFS if you are checking out the `3.1` or `3.2.1` branches.
++Those branches have instructions for Git LFS in their README files.
++
++## Running
++
++You need [Godot Engine](https://godotengine.org) to run this demo project.
++Download the latest stable version [from the website](https://godotengine.org/download/),
++or [build it from source](https://github.com/godotengine/godot).
++
++You can either download from the Godot Asset Library, clone this repository, or
++[download a ZIP archive](https://github.com/godotengine/tps-demo/archive/master.zip).
++
++## Controls
++
++- Mouse or <kbd>Gamepad Right Stick</kbd>: Look around
++- <kbd>W</kbd>/<kbd>A</kbd>/<kbd>S</kbd>/<kbd>D</kbd>, <kbd>Arrow keys</kbd>, <kbd>Gamepad Left Analog Stick</kbd> or <kbd>Gamepad D-Pad</kbd>: Move
++- <kbd>Space</kbd>, <kbd>Gamepad A/Cross</kbd>: Jump
++- <kbd>Right Mouse Button</kbd>, <kbd>Gamepad Left Trigger (L2)</kbd> (press to toggle, or hold and release): Aim
++- <kbd>Left Mouse Button</kbd>, <kbd>Gamepad Right Trigger (R2)</kbd>: Shoot (only while aiming)
++- <kbd>Escape</kbd>, <kbd>Gamepad Start</kbd>: Go to main menu/quit
++- <kbd>F11</kbd> or <kbd>Alt + Enter</kbd>: Toggle fullscreen
++- <kbd>F3</kbd>: Toggle debugging information (such as FPS counter)
++
++## Useful links
++
++- [Main website](https://godotengine.org)
++- [Source code](https://github.com/godotengine/godot)
++- [Documentation](http://docs.godotengine.org)
++- [Community hub](https://godotengine.org/community)
++- [Other demos](https://github.com/godotengine/godot-demo-projects)
++
++## License
++
++See [LICENSE.md](LICENSE.md) for details.
+diff --git a/TEST_RESULTS.md b/TEST_RESULTS.md
+new file mode 100644
+index 0000000..9b4badc
+--- /dev/null
++++ b/TEST_RESULTS.md
+@@ -0,0 +1,35 @@
++# ARCA 0.1 — Risultati effettivi
++
++Verifiche del 16 ottobre 2026, sul pacchetto compatto importato in una cartella inizialmente priva di cache Godot.
++
++Engine eseguito: `4.5.1.stable.official.f62fdbde1`, Linux x86_64.
++
++| Verifica | Risultato |
++|---|---|
++| Importazione pulita, Godot 4.5.1 | Completata; nessun errore di parsing, importazione o risorsa mancante nel log finale |
++| Suite di integrazione con scene e fisica reali | **42 controlli superati, 0 fallimenti** |
++| Movimento con il controller TPS e root motion | Verificato mediante azioni InputMap |
++| Rotazione della camera con input mouse | Verificata |
++| Pausa e ripresa tramite HUD | Verificate |
++| Proiettile → robot | Un colpo sottrae esattamente 1 HP; il bersaglio può morire |
++| Laser → giocatore | Un colpo effettivo sottrae 25 HP; nessun danno continuo a ogni frame |
++| Allineamento effetto laser/collisione | Verificato dopo la correzione dell'asse del cannone |
++| Pareti e coperture | Il proiettile viene fermato; origine del tiro corretta quando la canna supera un muro |
++| Morte del nemico durante un attacco | Le chiamate di tiro successive non infliggono danni |
++| Morte del giocatore | Arresta movimento e sparo, mostra il pannello e ignora ulteriori danni |
++| Cinque cicli morte/riavvio | Salute e nemico ripristinati; un solo giocatore, una sola stanza e un solo HUD |
++| Collisione con il perimetro | Il giocatore resta all'interno della stanza |
++| Script di avvio Linux | Sintassi verificata con `bash -n`; il lancio grafico richiede un display locale |
++| Cattura del gioco | Render reale 1280×720 con renderer Compatibility e Mesa llvmpipe; ispezionato visivamente |
++
++Il log della suite consegnata è `arca/tests/last_run.txt`. La suite usa `--fixed-fps 60` per rendere riproducibile il tempo simulato: questo parametro **non misura né dimostra 60 FPS reali**.
++
++## Limiti delle verifiche
++
++- Non è stata eseguita la prova di cinque minuti sul PC dell'utente; GPU, FPS e latenza della sua macchina restano da misurare.
++- La verifica visiva usa una GPU software in un display virtuale. Non rappresenta le prestazioni del PC di sviluppo e non costituisce un benchmark.
++- Camera negli angoli, sensazione della mira e bilanciamento richiedono ancora una prova manuale con mouse. Collisioni e input automatici non sostituiscono questa valutazione.
++- Non è stato verificato il gamepad né ascoltato l'audio su un impianto reale.
++- Nella cattura sul display virtuale il driver segnala VSync non disponibile; alcune chiusure rapide possono segnalare risorse audio ancora in uso. La suite finale sul pacchetto pulito termina senza errori. Non è stato eseguito un test prolungato della memoria.
++
++Il primo task del dossier è realizzato come incremento tecnico. Il criterio prestazionale sulla macchina reale resta aperto.
+diff --git a/arca/components/health_component.gd b/arca/components/health_component.gd
+new file mode 100644
+index 0000000..cfc2075
+--- /dev/null
++++ b/arca/components/health_component.gd
+@@ -0,0 +1,32 @@
++class_name ArcaHealth
++extends Node
++## Each accepted hit is one damage packet. Death is emitted only once.
++
++signal changed(current: int, maximum: int)
++signal died
++
++@export_range(1, 1000) var max_health: int = 100
++@export_range(0.0, 5.0) var hit_cooldown: float = 0.75
++
++var current: int
++var cooldown_remaining: float = 0.0
++
++
++func _ready() -> void:
++	current = max_health
++	changed.emit(current, max_health)
++
++
++func _physics_process(delta: float) -> void:
++	cooldown_remaining = maxf(0.0, cooldown_remaining - delta)
++
++
++func take_damage(amount: int) -> bool:
++	if amount <= 0 or current <= 0 or cooldown_remaining > 0.0:
++		return false
++	current = maxi(0, current - amount)
++	cooldown_remaining = hit_cooldown
++	changed.emit(current, max_health)
++	if current == 0:
++		died.emit()
++	return true
+diff --git a/arca/components/health_component.gd.uid b/arca/components/health_component.gd.uid
+new file mode 100644
+index 0000000..0b99e12
+--- /dev/null
++++ b/arca/components/health_component.gd.uid
+@@ -0,0 +1 @@
++uid://ds5cp2c8vfbmd
+diff --git a/arca/player/arca_player.gd b/arca/player/arca_player.gd
+new file mode 100644
+index 0000000..faf9afd
+--- /dev/null
++++ b/arca/player/arca_player.gd
+@@ -0,0 +1,54 @@
++extends "res://player/player.gd"
++## ARCA adds health; the TPS input, root motion, camera and weapon stay upstream.
++
++@export var contact_damage: int = 25
++@onready var health_component: ArcaHealth = $HealthComponent
++
++
++func _ready() -> void:
++	super._ready()
++	add_to_group("arca_player")
++	$BulletCache.process_mode = Node.PROCESS_MODE_DISABLED
++	health_component.died.connect(_on_died)
++	# The spring arm should collide with walls, never its owner's capsule.
++	$CameraBase/CameraRot/SpringArm3D.add_excluded_object(get_rid())
++
++
++@rpc("call_local")
++func hit() -> void:
++	take_damage(contact_damage)
++
++
++func take_damage(amount: int) -> void:
++	if health_component.take_damage(amount):
++		add_camera_shake_trauma(0.75)
++
++
++func get_shoot_origin() -> Vector3:
++	# The muzzle can cross a thin wall while the player's capsule cannot.
++	# Sweep from the chest so projectiles always start on this side of cover.
++	var chest: Vector3 = global_position + Vector3.UP * 1.4
++	var muzzle: Vector3 = shoot_from.global_position
++	var query := PhysicsRayQueryParameters3D.create(chest, muzzle, 1, [get_rid()])
++	var collision: Dictionary = get_world_3d().direct_space_state.intersect_ray(query)
++	if not collision.is_empty():
++		return collision.position + collision.normal * 0.2
++	return muzzle
++
++
++func _on_died() -> void:
++	player_input.set_process(false)
++	player_input.set_process_input(false)
++	player_input.motion = Vector2.ZERO
++	player_input.shooting = false
++	player_input.aiming = false
++	player_input.toggled_aim = false
++	player_input.jumping = false
++	player_input.camera_animation.stop()
++	motion = Vector2.ZERO
++	velocity = Vector3.ZERO
++	fire_cooldown.stop()
++	set_physics_process(false)
++	animation_tree.active = false
++	crosshair.hide()
++	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+diff --git a/arca/player/arca_player.gd.uid b/arca/player/arca_player.gd.uid
+new file mode 100644
+index 0000000..abc1cb8
+--- /dev/null
++++ b/arca/player/arca_player.gd.uid
+@@ -0,0 +1 @@
++uid://dnei1epct7ivd
+diff --git a/arca/player/arca_player.tscn b/arca/player/arca_player.tscn
+new file mode 100644
+index 0000000..da418c0
+--- /dev/null
++++ b/arca/player/arca_player.tscn
+@@ -0,0 +1,11 @@
++[gd_scene load_steps=4 format=3]
++
++[ext_resource type="PackedScene" path="res://player/player.tscn" id="1_base"]
++[ext_resource type="Script" path="res://arca/player/arca_player.gd" id="2_script"]
++[ext_resource type="Script" path="res://arca/components/health_component.gd" id="3_health"]
++
++[node name="Player" instance=ExtResource("1_base")]
++script = ExtResource("2_script")
++
++[node name="HealthComponent" type="Node" parent="."]
++script = ExtResource("3_health")
+diff --git a/arca/test_room.gd b/arca/test_room.gd
+new file mode 100644
+index 0000000..618b034
+--- /dev/null
++++ b/arca/test_room.gd
+@@ -0,0 +1,71 @@
++extends Node3D
++
++signal restarted
++
++@onready var player: Player = $Player
++@onready var enemy: CharacterBody3D = $RedRobot
++@onready var hud: CanvasLayer = $HUD
++var restart_pending: bool = false
++var paused: bool = false
++
++
++func _ready() -> void:
++	add_to_group("arca_room")
++	hud.bind(player.health_component, enemy)
++	player.health_component.died.connect(_on_player_died)
++	enemy.exploded.connect(_on_enemy_destroyed)
++	hud.restart_requested.connect(restart_room)
++	hud.resume_requested.connect(set_paused.bind(false))
++	hud.quit_requested.connect(_quit_game)
++	hud.pause_requested.connect(func(): set_paused(not paused))
++	# A robot is intentionally used to validate the original hit/laser pipeline.
++	hud.set_status("Neutralizza il robot di collaudo. Usa i blocchi come copertura.")
++
++
++func set_paused(value: bool) -> void:
++	if player.health_component.current <= 0:
++		return
++	paused = value
++	get_tree().paused = value
++	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE if value else Input.MOUSE_MODE_CAPTURED
++	hud.show_pause(value)
++
++
++func restart_room() -> void:
++	if restart_pending:
++		return
++	restart_pending = true
++	get_tree().paused = false
++	stop_audio()
++	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
++	restarted.emit()
++	get_tree().call_deferred("reload_current_scene")
++
++
++func _on_player_died() -> void:
++	# Stop pending animation callbacks and all further enemy attacks.
++	enemy.player = null
++	enemy.set_physics_process(false)
++	enemy.get_node("ShootAnimation").stop()
++	hud.show_death()
++
++
++func _on_enemy_destroyed() -> void:
++	hud.set_status("COLLAUDO SUPERATO  /  Movimento, mira e danni collegati. R per ripetere.")
++
++
++func stop_audio() -> void:
++	# Stop animation audio before removing the room during rapid restarts.
++	for tree in find_children("*", "AnimationTree", true, false):
++		tree.active = false
++	for animation in find_children("*", "AnimationPlayer", true, false):
++		animation.stop()
++	for audio in find_children("*", "AudioStreamPlayer", true, false):
++		audio.stop()
++	for audio in find_children("*", "AudioStreamPlayer3D", true, false):
++		audio.stop()
++
++
++func _quit_game() -> void:
++	stop_audio()
++	get_tree().quit()
+diff --git a/arca/test_room.gd.uid b/arca/test_room.gd.uid
+new file mode 100644
+index 0000000..dd540c3
+--- /dev/null
++++ b/arca/test_room.gd.uid
+@@ -0,0 +1 @@
++uid://cxc4mtifchpdp
+diff --git a/arca/test_room.tscn b/arca/test_room.tscn
+new file mode 100644
+index 0000000..31175f9
+--- /dev/null
++++ b/arca/test_room.tscn
+@@ -0,0 +1,969 @@
++[gd_scene load_steps=119 format=3]
++
++[ext_resource type="Script" path="res://arca/test_room.gd" id="1_script"]
++[ext_resource type="PackedScene" path="res://arca/player/arca_player.tscn" id="2_player"]
++[ext_resource type="PackedScene" path="res://enemies/red_robot/red_robot.tscn" id="3_enemy"]
++[ext_resource type="PackedScene" path="res://arca/ui/hud.tscn" id="4_hud"]
++[ext_resource type="Environment" path="res://default_env.tres" id="5_env"]
++
++[sub_resource type="StandardMaterial3D" id="MatFloor"]
++albedo_color = Color(0.115, 0.15, 0.17, 1)
++metallic = 0.25
++roughness = 0.8
++
++[sub_resource type="StandardMaterial3D" id="MatWall"]
++albedo_color = Color(0.18, 0.23, 0.25, 1)
++metallic = 0.3
++roughness = 0.75
++
++[sub_resource type="StandardMaterial3D" id="MatTrim"]
++albedo_color = Color(0.06, 0.085, 0.10, 1)
++metallic = 0.6
++roughness = 0.45
++
++[sub_resource type="StandardMaterial3D" id="MatCover"]
++albedo_color = Color(0.24, 0.30, 0.29, 1)
++metallic = 0.4
++roughness = 0.65
++
++[sub_resource type="StandardMaterial3D" id="MatAmber"]
++albedo_color = Color(0.62, 0.39, 0.11, 1)
++metallic = 0.25
++roughness = 0.6
++
++[sub_resource type="StandardMaterial3D" id="MatCyan"]
++albedo_color = Color(0.25, 0.8, 0.85, 1)
++metallic = 0.1
++roughness = 0.6
++emission_enabled = true
++emission = Color(0.2, 0.75, 0.85, 1)
++emission_energy_multiplier = 1.6
++
++[sub_resource type="StandardMaterial3D" id="MatRed"]
++albedo_color = Color(0.9, 0.17, 0.11, 1)
++metallic = 0.1
++roughness = 0.6
++emission_enabled = true
++emission = Color(0.85, 0.10, 0.05, 1)
++emission_energy_multiplier = 1.6
++
++[sub_resource type="BoxMesh" id="MeshFloor"]
++size = Vector3(22, 0.6, 28)
++material = SubResource("MatFloor")
++
++[sub_resource type="BoxShape3D" id="ShapeFloor"]
++size = Vector3(22, 0.6, 28)
++
++[sub_resource type="BoxMesh" id="MeshWallBack"]
++size = Vector3(22, 4.8, 0.4)
++material = SubResource("MatWall")
++
++[sub_resource type="BoxShape3D" id="ShapeWallBack"]
++size = Vector3(22, 4.8, 0.4)
++
++[sub_resource type="BoxMesh" id="MeshWallFront"]
++size = Vector3(22, 4.8, 0.4)
++material = SubResource("MatWall")
++
++[sub_resource type="BoxShape3D" id="ShapeWallFront"]
++size = Vector3(22, 4.8, 0.4)
++
++[sub_resource type="BoxMesh" id="MeshWallLeft"]
++size = Vector3(0.4, 4.8, 28)
++material = SubResource("MatWall")
++
++[sub_resource type="BoxShape3D" id="ShapeWallLeft"]
++size = Vector3(0.4, 4.8, 28)
++
++[sub_resource type="BoxMesh" id="MeshWallRight"]
++size = Vector3(0.4, 4.8, 28)
++material = SubResource("MatWall")
++
++[sub_resource type="BoxShape3D" id="ShapeWallRight"]
++size = Vector3(0.4, 4.8, 28)
++
++[sub_resource type="BoxMesh" id="MeshRibL0"]
++size = Vector3(0.22, 4.6, 0.32)
++material = SubResource("MatTrim")
++
++[sub_resource type="BoxMesh" id="MeshWallPanelL0"]
++size = Vector3(0.08, 1.8, 3.45)
++material = SubResource("MatCover")
++
++[sub_resource type="BoxMesh" id="MeshLightStripL0"]
++size = Vector3(0.08, 0.1, 2.7)
++material = SubResource("MatRed")
++
++[sub_resource type="BoxMesh" id="MeshRibL1"]
++size = Vector3(0.22, 4.6, 0.32)
++material = SubResource("MatTrim")
++
++[sub_resource type="BoxMesh" id="MeshWallPanelL1"]
++size = Vector3(0.08, 1.8, 3.45)
++material = SubResource("MatCover")
++
++[sub_resource type="BoxMesh" id="MeshLightStripL1"]
++size = Vector3(0.08, 0.1, 2.7)
++material = SubResource("MatCyan")
++
++[sub_resource type="BoxMesh" id="MeshRibL2"]
++size = Vector3(0.22, 4.6, 0.32)
++material = SubResource("MatTrim")
++
++[sub_resource type="BoxMesh" id="MeshWallPanelL2"]
++size = Vector3(0.08, 1.8, 3.45)
++material = SubResource("MatCover")
++
++[sub_resource type="BoxMesh" id="MeshLightStripL2"]
++size = Vector3(0.08, 0.1, 2.7)
++material = SubResource("MatCyan")
++
++[sub_resource type="BoxMesh" id="MeshRibL3"]
++size = Vector3(0.22, 4.6, 0.32)
++material = SubResource("MatTrim")
++
++[sub_resource type="BoxMesh" id="MeshWallPanelL3"]
++size = Vector3(0.08, 1.8, 3.45)
++material = SubResource("MatCover")
++
++[sub_resource type="BoxMesh" id="MeshLightStripL3"]
++size = Vector3(0.08, 0.1, 2.7)
++material = SubResource("MatRed")
++
++[sub_resource type="BoxMesh" id="MeshRibL4"]
++size = Vector3(0.22, 4.6, 0.32)
++material = SubResource("MatTrim")
++
++[sub_resource type="BoxMesh" id="MeshWallPanelL4"]
++size = Vector3(0.08, 1.8, 3.45)
++material = SubResource("MatCover")
++
++[sub_resource type="BoxMesh" id="MeshLightStripL4"]
++size = Vector3(0.08, 0.1, 2.7)
++material = SubResource("MatCyan")
++
++[sub_resource type="BoxMesh" id="MeshRibL5"]
++size = Vector3(0.22, 4.6, 0.32)
++material = SubResource("MatTrim")
++
++[sub_resource type="BoxMesh" id="MeshWallPanelL5"]
++size = Vector3(0.08, 1.8, 3.45)
++material = SubResource("MatCover")
++
++[sub_resource type="BoxMesh" id="MeshLightStripL5"]
++size = Vector3(0.08, 0.1, 2.7)
++material = SubResource("MatCyan")
++
++[sub_resource type="BoxMesh" id="MeshRibL6"]
++size = Vector3(0.22, 4.6, 0.32)
++material = SubResource("MatTrim")
++
++[sub_resource type="BoxMesh" id="MeshWallPanelL6"]
++size = Vector3(0.08, 1.8, 3.45)
++material = SubResource("MatCover")
++
++[sub_resource type="BoxMesh" id="MeshLightStripL6"]
++size = Vector3(0.08, 0.1, 2.7)
++material = SubResource("MatRed")
++
++[sub_resource type="BoxMesh" id="MeshBaseTrimL"]
++size = Vector3(0.1, 0.3, 27.8)
++material = SubResource("MatTrim")
++
++[sub_resource type="BoxMesh" id="MeshPipeL"]
++size = Vector3(0.12, 0.12, 27.8)
++material = SubResource("MatAmber")
++
++[sub_resource type="BoxMesh" id="MeshRibR0"]
++size = Vector3(0.22, 4.6, 0.32)
++material = SubResource("MatTrim")
++
++[sub_resource type="BoxMesh" id="MeshWallPanelR0"]
++size = Vector3(0.08, 1.8, 3.45)
++material = SubResource("MatCover")
++
++[sub_resource type="BoxMesh" id="MeshLightStripR0"]
++size = Vector3(0.08, 0.1, 2.7)
++material = SubResource("MatRed")
++
++[sub_resource type="BoxMesh" id="MeshRibR1"]
++size = Vector3(0.22, 4.6, 0.32)
++material = SubResource("MatTrim")
++
++[sub_resource type="BoxMesh" id="MeshWallPanelR1"]
++size = Vector3(0.08, 1.8, 3.45)
++material = SubResource("MatCover")
++
++[sub_resource type="BoxMesh" id="MeshLightStripR1"]
++size = Vector3(0.08, 0.1, 2.7)
++material = SubResource("MatCyan")
++
++[sub_resource type="BoxMesh" id="MeshRibR2"]
++size = Vector3(0.22, 4.6, 0.32)
++material = SubResource("MatTrim")
++
++[sub_resource type="BoxMesh" id="MeshWallPanelR2"]
++size = Vector3(0.08, 1.8, 3.45)
++material = SubResource("MatCover")
++
++[sub_resource type="BoxMesh" id="MeshLightStripR2"]
++size = Vector3(0.08, 0.1, 2.7)
++material = SubResource("MatCyan")
++
++[sub_resource type="BoxMesh" id="MeshRibR3"]
++size = Vector3(0.22, 4.6, 0.32)
++material = SubResource("MatTrim")
++
++[sub_resource type="BoxMesh" id="MeshWallPanelR3"]
++size = Vector3(0.08, 1.8, 3.45)
++material = SubResource("MatCover")
++
++[sub_resource type="BoxMesh" id="MeshLightStripR3"]
++size = Vector3(0.08, 0.1, 2.7)
++material = SubResource("MatRed")
++
++[sub_resource type="BoxMesh" id="MeshRibR4"]
++size = Vector3(0.22, 4.6, 0.32)
++material = SubResource("MatTrim")
++
++[sub_resource type="BoxMesh" id="MeshWallPanelR4"]
++size = Vector3(0.08, 1.8, 3.45)
++material = SubResource("MatCover")
++
++[sub_resource type="BoxMesh" id="MeshLightStripR4"]
++size = Vector3(0.08, 0.1, 2.7)
++material = SubResource("MatCyan")
++
++[sub_resource type="BoxMesh" id="MeshRibR5"]
++size = Vector3(0.22, 4.6, 0.32)
++material = SubResource("MatTrim")
++
++[sub_resource type="BoxMesh" id="MeshWallPanelR5"]
++size = Vector3(0.08, 1.8, 3.45)
++material = SubResource("MatCover")
++
++[sub_resource type="BoxMesh" id="MeshLightStripR5"]
++size = Vector3(0.08, 0.1, 2.7)
++material = SubResource("MatCyan")
++
++[sub_resource type="BoxMesh" id="MeshRibR6"]
++size = Vector3(0.22, 4.6, 0.32)
++material = SubResource("MatTrim")
++
++[sub_resource type="BoxMesh" id="MeshWallPanelR6"]
++size = Vector3(0.08, 1.8, 3.45)
++material = SubResource("MatCover")
++
++[sub_resource type="BoxMesh" id="MeshLightStripR6"]
++size = Vector3(0.08, 0.1, 2.7)
++material = SubResource("MatRed")
++
++[sub_resource type="BoxMesh" id="MeshBaseTrimR"]
++size = Vector3(0.1, 0.3, 27.8)
++material = SubResource("MatTrim")
++
++[sub_resource type="BoxMesh" id="MeshPipeR"]
++size = Vector3(0.12, 0.12, 27.8)
++material = SubResource("MatAmber")
++
++[sub_resource type="BoxMesh" id="MeshFloorSeam0"]
++size = Vector3(21.4, 0.006, 0.035)
++material = SubResource("MatTrim")
++
++[sub_resource type="BoxMesh" id="MeshFloorSeam2"]
++size = Vector3(21.4, 0.006, 0.035)
++material = SubResource("MatTrim")
++
++[sub_resource type="BoxMesh" id="MeshFloorSeam4"]
++size = Vector3(21.4, 0.006, 0.035)
++material = SubResource("MatTrim")
++
++[sub_resource type="BoxMesh" id="MeshFloorSeam6"]
++size = Vector3(21.4, 0.006, 0.035)
++material = SubResource("MatTrim")
++
++[sub_resource type="BoxMesh" id="MeshFloorSeam8"]
++size = Vector3(21.4, 0.006, 0.035)
++material = SubResource("MatTrim")
++
++[sub_resource type="BoxMesh" id="MeshFloorSeam10"]
++size = Vector3(21.4, 0.006, 0.035)
++material = SubResource("MatTrim")
++
++[sub_resource type="BoxMesh" id="MeshFloorSeam12"]
++size = Vector3(21.4, 0.006, 0.035)
++material = SubResource("MatTrim")
++
++[sub_resource type="BoxMesh" id="MeshFloorSeam14"]
++size = Vector3(21.4, 0.006, 0.035)
++material = SubResource("MatTrim")
++
++[sub_resource type="BoxMesh" id="MeshFloorSeam16"]
++size = Vector3(21.4, 0.006, 0.035)
++material = SubResource("MatTrim")
++
++[sub_resource type="BoxMesh" id="MeshFloorSeam18"]
++size = Vector3(21.4, 0.006, 0.035)
++material = SubResource("MatTrim")
++
++[sub_resource type="BoxMesh" id="MeshFloorSeam20"]
++size = Vector3(21.4, 0.006, 0.035)
++material = SubResource("MatTrim")
++
++[sub_resource type="BoxMesh" id="MeshFloorSeam22"]
++size = Vector3(21.4, 0.006, 0.035)
++material = SubResource("MatTrim")
++
++[sub_resource type="BoxMesh" id="MeshFloorSeam24"]
++size = Vector3(21.4, 0.006, 0.035)
++material = SubResource("MatTrim")
++
++[sub_resource type="BoxMesh" id="MeshFloorSeam26"]
++size = Vector3(21.4, 0.006, 0.035)
++material = SubResource("MatTrim")
++
++[sub_resource type="BoxMesh" id="MeshFloorLongm7"]
++size = Vector3(0.035, 0.01, 27.6)
++material = SubResource("MatTrim")
++
++[sub_resource type="BoxMesh" id="MeshFloorLongm3p5"]
++size = Vector3(0.035, 0.01, 27.6)
++material = SubResource("MatTrim")
++
++[sub_resource type="BoxMesh" id="MeshFloorLong0"]
++size = Vector3(0.035, 0.01, 27.6)
++material = SubResource("MatTrim")
++
++[sub_resource type="BoxMesh" id="MeshFloorLong3p5"]
++size = Vector3(0.035, 0.01, 27.6)
++material = SubResource("MatTrim")
++
++[sub_resource type="BoxMesh" id="MeshFloorLong7"]
++size = Vector3(0.035, 0.01, 27.6)
++material = SubResource("MatTrim")
++
++[sub_resource type="BoxMesh" id="MeshLaneL"]
++size = Vector3(0.09, 0.012, 23)
++material = SubResource("MatAmber")
++
++[sub_resource type="BoxMesh" id="MeshLaneR"]
++size = Vector3(0.09, 0.012, 23)
++material = SubResource("MatAmber")
++
++[sub_resource type="BoxMesh" id="MeshGuide0"]
++size = Vector3(0.5, 0.015, 0.15)
++material = SubResource("MatCyan")
++
++[sub_resource type="BoxMesh" id="MeshGuide1"]
++size = Vector3(0.5, 0.015, 0.15)
++material = SubResource("MatCyan")
++
++[sub_resource type="BoxMesh" id="MeshGuide2"]
++size = Vector3(0.5, 0.015, 0.15)
++material = SubResource("MatCyan")
++
++[sub_resource type="BoxMesh" id="MeshGuide3"]
++size = Vector3(0.5, 0.015, 0.15)
++material = SubResource("MatCyan")
++
++[sub_resource type="BoxMesh" id="MeshGuide4"]
++size = Vector3(0.5, 0.015, 0.15)
++material = SubResource("MatCyan")
++
++[sub_resource type="BoxMesh" id="MeshGuide5"]
++size = Vector3(0.5, 0.015, 0.15)
++material = SubResource("MatCyan")
++
++[sub_resource type="BoxMesh" id="MeshGuide6"]
++size = Vector3(0.5, 0.015, 0.15)
++material = SubResource("MatCyan")
++
++[sub_resource type="BoxMesh" id="MeshGuide7"]
++size = Vector3(0.5, 0.015, 0.15)
++material = SubResource("MatCyan")
++
++[sub_resource type="BoxMesh" id="MeshCover0"]
++size = Vector3(2.4, 1.7, 1.6)
++material = SubResource("MatCover")
++
++[sub_resource type="BoxShape3D" id="ShapeCover0"]
++size = Vector3(2.4, 1.7, 1.6)
++
++[sub_resource type="BoxMesh" id="MeshCoverTop0"]
++size = Vector3(2.5, 0.08, 1.7)
++material = SubResource("MatTrim")
++
++[sub_resource type="BoxMesh" id="MeshCoverStripe0"]
++size = Vector3(2.1, 0.12, 0.02)
++material = SubResource("MatAmber")
++
++[sub_resource type="BoxMesh" id="MeshCover1"]
++size = Vector3(2.4, 1.7, 1.6)
++material = SubResource("MatCover")
++
++[sub_resource type="BoxShape3D" id="ShapeCover1"]
++size = Vector3(2.4, 1.7, 1.6)
++
++[sub_resource type="BoxMesh" id="MeshCoverTop1"]
++size = Vector3(2.5, 0.08, 1.7)
++material = SubResource("MatTrim")
++
++[sub_resource type="BoxMesh" id="MeshCoverStripe1"]
++size = Vector3(2.1, 0.12, 0.02)
++material = SubResource("MatAmber")
++
++[sub_resource type="BoxMesh" id="MeshCover2"]
++size = Vector3(2.4, 1.7, 1.6)
++material = SubResource("MatCover")
++
++[sub_resource type="BoxShape3D" id="ShapeCover2"]
++size = Vector3(2.4, 1.7, 1.6)
++
++[sub_resource type="BoxMesh" id="MeshCoverTop2"]
++size = Vector3(2.5, 0.08, 1.7)
++material = SubResource("MatTrim")
++
++[sub_resource type="BoxMesh" id="MeshCoverStripe2"]
++size = Vector3(2.1, 0.12, 0.02)
++material = SubResource("MatAmber")
++
++[sub_resource type="BoxMesh" id="MeshCover3"]
++size = Vector3(2.4, 1.7, 1.6)
++material = SubResource("MatCover")
++
++[sub_resource type="BoxShape3D" id="ShapeCover3"]
++size = Vector3(2.4, 1.7, 1.6)
++
++[sub_resource type="BoxMesh" id="MeshCoverTop3"]
++size = Vector3(2.5, 0.08, 1.7)
++material = SubResource("MatTrim")
++
++[sub_resource type="BoxMesh" id="MeshCoverStripe3"]
++size = Vector3(2.1, 0.12, 0.02)
++material = SubResource("MatAmber")
++
++[sub_resource type="BoxMesh" id="MeshDoorFrame"]
++size = Vector3(4.6, 4.5, 0.4)
++material = SubResource("MatTrim")
++
++[sub_resource type="BoxMesh" id="MeshSealedDoor"]
++size = Vector3(3.8, 3.4, 0.22)
++material = SubResource("MatCover")
++
++[sub_resource type="BoxMesh" id="MeshDoorCenter"]
++size = Vector3(0.06, 3.4, 0.04)
++material = SubResource("MatTrim")
++
++[sub_resource type="BoxMesh" id="MeshDoorStatus"]
++size = Vector3(3.5, 0.12, 0.1)
++material = SubResource("MatRed")
++
++[sub_resource type="BoxMesh" id="MeshBackPanel"]
++size = Vector3(6, 2.7, 0.15)
++material = SubResource("MatTrim")
++
++[node name="ArcaTestRoom" type="Node3D"]
++process_mode = 1
++script = ExtResource("1_script")
++
++[node name="Floor" type="StaticBody3D" parent="."]
++position = Vector3(0, -0.3, 0)
++
++[node name="Mesh" type="MeshInstance3D" parent="Floor"]
++mesh = SubResource("MeshFloor")
++
++[node name="Collision" type="CollisionShape3D" parent="Floor"]
++shape = SubResource("ShapeFloor")
++
++[node name="WallBack" type="StaticBody3D" parent="."]
++position = Vector3(0, 2.4, -14)
++
++[node name="Mesh" type="MeshInstance3D" parent="WallBack"]
++mesh = SubResource("MeshWallBack")
++
++[node name="Collision" type="CollisionShape3D" parent="WallBack"]
++shape = SubResource("ShapeWallBack")
++
++[node name="WallFront" type="StaticBody3D" parent="."]
++position = Vector3(0, 2.4, 14)
++
++[node name="Mesh" type="MeshInstance3D" parent="WallFront"]
++mesh = SubResource("MeshWallFront")
++
++[node name="Collision" type="CollisionShape3D" parent="WallFront"]
++shape = SubResource("ShapeWallFront")
++
++[node name="WallLeft" type="StaticBody3D" parent="."]
++position = Vector3(-11, 2.4, 0)
++
++[node name="Mesh" type="MeshInstance3D" parent="WallLeft"]
++mesh = SubResource("MeshWallLeft")
++
++[node name="Collision" type="CollisionShape3D" parent="WallLeft"]
++shape = SubResource("ShapeWallLeft")
++
++[node name="WallRight" type="StaticBody3D" parent="."]
++position = Vector3(11, 2.4, 0)
++
++[node name="Mesh" type="MeshInstance3D" parent="WallRight"]
++mesh = SubResource("MeshWallRight")
++
++[node name="Collision" type="CollisionShape3D" parent="WallRight"]
++shape = SubResource("ShapeWallRight")
++
++[node name="RibL0" type="MeshInstance3D" parent="."]
++position = Vector3(-10.72, 2.3, -12)
++mesh = SubResource("MeshRibL0")
++
++[node name="WallPanelL0" type="MeshInstance3D" parent="."]
++position = Vector3(-10.72, 1.5, -10.1)
++mesh = SubResource("MeshWallPanelL0")
++
++[node name="LightStripL0" type="MeshInstance3D" parent="."]
++position = Vector3(-10.72, 3.8, -10.1)
++mesh = SubResource("MeshLightStripL0")
++
++[node name="RibL1" type="MeshInstance3D" parent="."]
++position = Vector3(-10.72, 2.3, -8)
++mesh = SubResource("MeshRibL1")
++
++[node name="WallPanelL1" type="MeshInstance3D" parent="."]
++position = Vector3(-10.72, 1.5, -6.1)
++mesh = SubResource("MeshWallPanelL1")
++
++[node name="LightStripL1" type="MeshInstance3D" parent="."]
++position = Vector3(-10.72, 3.8, -6.1)
++mesh = SubResource("MeshLightStripL1")
++
++[node name="RibL2" type="MeshInstance3D" parent="."]
++position = Vector3(-10.72, 2.3, -4)
++mesh = SubResource("MeshRibL2")
++
++[node name="WallPanelL2" type="MeshInstance3D" parent="."]
++position = Vector3(-10.72, 1.5, -2.1)
++mesh = SubResource("MeshWallPanelL2")
++
++[node name="LightStripL2" type="MeshInstance3D" parent="."]
++position = Vector3(-10.72, 3.8, -2.1)
++mesh = SubResource("MeshLightStripL2")
++
++[node name="RibL3" type="MeshInstance3D" parent="."]
++position = Vector3(-10.72, 2.3, 0)
++mesh = SubResource("MeshRibL3")
++
++[node name="WallPanelL3" type="MeshInstance3D" parent="."]
++position = Vector3(-10.72, 1.5, 1.9)
++mesh = SubResource("MeshWallPanelL3")
++
++[node name="LightStripL3" type="MeshInstance3D" parent="."]
++position = Vector3(-10.72, 3.8, 1.9)
++mesh = SubResource("MeshLightStripL3")
++
++[node name="RibL4" type="MeshInstance3D" parent="."]
++position = Vector3(-10.72, 2.3, 4)
++mesh = SubResource("MeshRibL4")
++
++[node name="WallPanelL4" type="MeshInstance3D" parent="."]
++position = Vector3(-10.72, 1.5, 5.9)
++mesh = SubResource("MeshWallPanelL4")
++
++[node name="LightStripL4" type="MeshInstance3D" parent="."]
++position = Vector3(-10.72, 3.8, 5.9)
++mesh = SubResource("MeshLightStripL4")
++
++[node name="RibL5" type="MeshInstance3D" parent="."]
++position = Vector3(-10.72, 2.3, 8)
++mesh = SubResource("MeshRibL5")
++
++[node name="WallPanelL5" type="MeshInstance3D" parent="."]
++position = Vector3(-10.72, 1.5, 9.9)
++mesh = SubResource("MeshWallPanelL5")
++
++[node name="LightStripL5" type="MeshInstance3D" parent="."]
++position = Vector3(-10.72, 3.8, 9.9)
++mesh = SubResource("MeshLightStripL5")
++
++[node name="RibL6" type="MeshInstance3D" parent="."]
++position = Vector3(-10.72, 2.3, 12)
++mesh = SubResource("MeshRibL6")
++
++[node name="WallPanelL6" type="MeshInstance3D" parent="."]
++position = Vector3(-10.72, 1.5, 13.9)
++mesh = SubResource("MeshWallPanelL6")
++
++[node name="LightStripL6" type="MeshInstance3D" parent="."]
++position = Vector3(-10.72, 3.8, 13.9)
++mesh = SubResource("MeshLightStripL6")
++
++[node name="BaseTrimL" type="MeshInstance3D" parent="."]
++position = Vector3(-10.72, 0.16, 0)
++mesh = SubResource("MeshBaseTrimL")
++
++[node name="PipeL" type="MeshInstance3D" parent="."]
++position = Vector3(-10.72, 3.3, 0)
++mesh = SubResource("MeshPipeL")
++
++[node name="RibR0" type="MeshInstance3D" parent="."]
++position = Vector3(10.72, 2.3, -12)
++mesh = SubResource("MeshRibR0")
++
++[node name="WallPanelR0" type="MeshInstance3D" parent="."]
++position = Vector3(10.72, 1.5, -10.1)
++mesh = SubResource("MeshWallPanelR0")
++
++[node name="LightStripR0" type="MeshInstance3D" parent="."]
++position = Vector3(10.72, 3.8, -10.1)
++mesh = SubResource("MeshLightStripR0")
++
++[node name="RibR1" type="MeshInstance3D" parent="."]
++position = Vector3(10.72, 2.3, -8)
++mesh = SubResource("MeshRibR1")
++
++[node name="WallPanelR1" type="MeshInstance3D" parent="."]
++position = Vector3(10.72, 1.5, -6.1)
++mesh = SubResource("MeshWallPanelR1")
++
++[node name="LightStripR1" type="MeshInstance3D" parent="."]
++position = Vector3(10.72, 3.8, -6.1)
++mesh = SubResource("MeshLightStripR1")
++
++[node name="RibR2" type="MeshInstance3D" parent="."]
++position = Vector3(10.72, 2.3, -4)
++mesh = SubResource("MeshRibR2")
++
++[node name="WallPanelR2" type="MeshInstance3D" parent="."]
++position = Vector3(10.72, 1.5, -2.1)
++mesh = SubResource("MeshWallPanelR2")
++
++[node name="LightStripR2" type="MeshInstance3D" parent="."]
++position = Vector3(10.72, 3.8, -2.1)
++mesh = SubResource("MeshLightStripR2")
++
++[node name="RibR3" type="MeshInstance3D" parent="."]
++position = Vector3(10.72, 2.3, 0)
++mesh = SubResource("MeshRibR3")
++
++[node name="WallPanelR3" type="MeshInstance3D" parent="."]
++position = Vector3(10.72, 1.5, 1.9)
++mesh = SubResource("MeshWallPanelR3")
++
++[node name="LightStripR3" type="MeshInstance3D" parent="."]
++position = Vector3(10.72, 3.8, 1.9)
++mesh = SubResource("MeshLightStripR3")
++
++[node name="RibR4" type="MeshInstance3D" parent="."]
++position = Vector3(10.72, 2.3, 4)
++mesh = SubResource("MeshRibR4")
++
++[node name="WallPanelR4" type="MeshInstance3D" parent="."]
++position = Vector3(10.72, 1.5, 5.9)
++mesh = SubResource("MeshWallPanelR4")
++
++[node name="LightStripR4" type="MeshInstance3D" parent="."]
++position = Vector3(10.72, 3.8, 5.9)
++mesh = SubResource("MeshLightStripR4")
++
++[node name="RibR5" type="MeshInstance3D" parent="."]
++position = Vector3(10.72, 2.3, 8)
++mesh = SubResource("MeshRibR5")
++
++[node name="WallPanelR5" type="MeshInstance3D" parent="."]
++position = Vector3(10.72, 1.5, 9.9)
++mesh = SubResource("MeshWallPanelR5")
++
++[node name="LightStripR5" type="MeshInstance3D" parent="."]
++position = Vector3(10.72, 3.8, 9.9)
++mesh = SubResource("MeshLightStripR5")
++
++[node name="RibR6" type="MeshInstance3D" parent="."]
++position = Vector3(10.72, 2.3, 12)
++mesh = SubResource("MeshRibR6")
++
++[node name="WallPanelR6" type="MeshInstance3D" parent="."]
++position = Vector3(10.72, 1.5, 13.9)
++mesh = SubResource("MeshWallPanelR6")
++
++[node name="LightStripR6" type="MeshInstance3D" parent="."]
++position = Vector3(10.72, 3.8, 13.9)
++mesh = SubResource("MeshLightStripR6")
++
++[node name="BaseTrimR" type="MeshInstance3D" parent="."]
++position = Vector3(10.72, 0.16, 0)
++mesh = SubResource("MeshBaseTrimR")
++
++[node name="PipeR" type="MeshInstance3D" parent="."]
++position = Vector3(10.72, 3.3, 0)
++mesh = SubResource("MeshPipeR")
++
++[node name="FloorSeam0" type="MeshInstance3D" parent="."]
++position = Vector3(0, 0.003, -12)
++mesh = SubResource("MeshFloorSeam0")
++
++[node name="FloorSeam2" type="MeshInstance3D" parent="."]
++position = Vector3(0, 0.003, -10)
++mesh = SubResource("MeshFloorSeam2")
++
++[node name="FloorSeam4" type="MeshInstance3D" parent="."]
++position = Vector3(0, 0.003, -8)
++mesh = SubResource("MeshFloorSeam4")
++
++[node name="FloorSeam6" type="MeshInstance3D" parent="."]
++position = Vector3(0, 0.003, -6)
++mesh = SubResource("MeshFloorSeam6")
++
++[node name="FloorSeam8" type="MeshInstance3D" parent="."]
++position = Vector3(0, 0.003, -4)
++mesh = SubResource("MeshFloorSeam8")
++
++[node name="FloorSeam10" type="MeshInstance3D" parent="."]
++position = Vector3(0, 0.003, -2)
++mesh = SubResource("MeshFloorSeam10")
++
++[node name="FloorSeam12" type="MeshInstance3D" parent="."]
++position = Vector3(0, 0.003, 0)
++mesh = SubResource("MeshFloorSeam12")
++
++[node name="FloorSeam14" type="MeshInstance3D" parent="."]
++position = Vector3(0, 0.003, 2)
++mesh = SubResource("MeshFloorSeam14")
++
++[node name="FloorSeam16" type="MeshInstance3D" parent="."]
++position = Vector3(0, 0.003, 4)
++mesh = SubResource("MeshFloorSeam16")
++
++[node name="FloorSeam18" type="MeshInstance3D" parent="."]
++position = Vector3(0, 0.003, 6)
++mesh = SubResource("MeshFloorSeam18")
++
++[node name="FloorSeam20" type="MeshInstance3D" parent="."]
++position = Vector3(0, 0.003, 8)
++mesh = SubResource("MeshFloorSeam20")
++
++[node name="FloorSeam22" type="MeshInstance3D" parent="."]
++position = Vector3(0, 0.003, 10)
++mesh = SubResource("MeshFloorSeam22")
++
++[node name="FloorSeam24" type="MeshInstance3D" parent="."]
++position = Vector3(0, 0.003, 12)
++mesh = SubResource("MeshFloorSeam24")
++
++[node name="FloorSeam26" type="MeshInstance3D" parent="."]
++position = Vector3(0, 0.003, 14)
++mesh = SubResource("MeshFloorSeam26")
++
++[node name="FloorLongm7" type="MeshInstance3D" parent="."]
++position = Vector3(-7, 0.005, 0)
++mesh = SubResource("MeshFloorLongm7")
++
++[node name="FloorLongm3p5" type="MeshInstance3D" parent="."]
++position = Vector3(-3.5, 0.005, 0)
++mesh = SubResource("MeshFloorLongm3p5")
++
++[node name="FloorLong0" type="MeshInstance3D" parent="."]
++position = Vector3(0, 0.005, 0)
++mesh = SubResource("MeshFloorLong0")
++
++[node name="FloorLong3p5" type="MeshInstance3D" parent="."]
++position = Vector3(3.5, 0.005, 0)
++mesh = SubResource("MeshFloorLong3p5")
++
++[node name="FloorLong7" type="MeshInstance3D" parent="."]
++position = Vector3(7, 0.005, 0)
++mesh = SubResource("MeshFloorLong7")
++
++[node name="LaneL" type="MeshInstance3D" parent="."]
++position = Vector3(-1.8, 0.012, -1)
++mesh = SubResource("MeshLaneL")
++
++[node name="LaneR" type="MeshInstance3D" parent="."]
++position = Vector3(1.8, 0.012, -1)
++mesh = SubResource("MeshLaneR")
++
++[node name="Guide0" type="MeshInstance3D" parent="."]
++position = Vector3(0, 0.016, -11)
++mesh = SubResource("MeshGuide0")
++
++[node name="Guide1" type="MeshInstance3D" parent="."]
++position = Vector3(0, 0.016, -8)
++mesh = SubResource("MeshGuide1")
++
++[node name="Guide2" type="MeshInstance3D" parent="."]
++position = Vector3(0, 0.016, -5)
++mesh = SubResource("MeshGuide2")
++
++[node name="Guide3" type="MeshInstance3D" parent="."]
++position = Vector3(0, 0.016, -2)
++mesh = SubResource("MeshGuide3")
++
++[node name="Guide4" type="MeshInstance3D" parent="."]
++position = Vector3(0, 0.016, 1)
++mesh = SubResource("MeshGuide4")
++
++[node name="Guide5" type="MeshInstance3D" parent="."]
++position = Vector3(0, 0.016, 4)
++mesh = SubResource("MeshGuide5")
++
++[node name="Guide6" type="MeshInstance3D" parent="."]
++position = Vector3(0, 0.016, 7)
++mesh = SubResource("MeshGuide6")
++
++[node name="Guide7" type="MeshInstance3D" parent="."]
++position = Vector3(0, 0.016, 10)
++mesh = SubResource("MeshGuide7")
++
++[node name="Cover0" type="StaticBody3D" parent="."]
++position = Vector3(-3.8, 0.85, -3)
++
++[node name="Mesh" type="MeshInstance3D" parent="Cover0"]
++mesh = SubResource("MeshCover0")
++
++[node name="Collision" type="CollisionShape3D" parent="Cover0"]
++shape = SubResource("ShapeCover0")
++
++[node name="CoverTop0" type="MeshInstance3D" parent="."]
++position = Vector3(-3.8, 1.72, -3)
++mesh = SubResource("MeshCoverTop0")
++
++[node name="CoverStripe0" type="MeshInstance3D" parent="."]
++position = Vector3(-3.8, 1.1, -3.81)
++mesh = SubResource("MeshCoverStripe0")
++
++[node name="Cover1" type="StaticBody3D" parent="."]
++position = Vector3(4, 0.85, 1)
++
++[node name="Mesh" type="MeshInstance3D" parent="Cover1"]
++mesh = SubResource("MeshCover1")
++
++[node name="Collision" type="CollisionShape3D" parent="Cover1"]
++shape = SubResource("ShapeCover1")
++
++[node name="CoverTop1" type="MeshInstance3D" parent="."]
++position = Vector3(4, 1.72, 1)
++mesh = SubResource("MeshCoverTop1")
++
++[node name="CoverStripe1" type="MeshInstance3D" parent="."]
++position = Vector3(4, 1.1, 0.18999999999999995)
++mesh = SubResource("MeshCoverStripe1")
++
++[node name="Cover2" type="StaticBody3D" parent="."]
++position = Vector3(-6, 0.85, 6)
++
++[node name="Mesh" type="MeshInstance3D" parent="Cover2"]
++mesh = SubResource("MeshCover2")
++
++[node name="Collision" type="CollisionShape3D" parent="Cover2"]
++shape = SubResource("ShapeCover2")
++
++[node name="CoverTop2" type="MeshInstance3D" parent="."]
++position = Vector3(-6, 1.72, 6)
++mesh = SubResource("MeshCoverTop2")
++
++[node name="CoverStripe2" type="MeshInstance3D" parent="."]
++position = Vector3(-6, 1.1, 5.1899999999999995)
++mesh = SubResource("MeshCoverStripe2")
++
++[node name="Cover3" type="StaticBody3D" parent="."]
++position = Vector3(6, 0.85, -7)
++
++[node name="Mesh" type="MeshInstance3D" parent="Cover3"]
++mesh = SubResource("MeshCover3")
++
++[node name="Collision" type="CollisionShape3D" parent="Cover3"]
++shape = SubResource("ShapeCover3")
++
++[node name="CoverTop3" type="MeshInstance3D" parent="."]
++position = Vector3(6, 1.72, -7)
++mesh = SubResource("MeshCoverTop3")
++
++[node name="CoverStripe3" type="MeshInstance3D" parent="."]
++position = Vector3(6, 1.1, -7.8100000000000005)
++mesh = SubResource("MeshCoverStripe3")
++
++[node name="DoorFrame" type="MeshInstance3D" parent="."]
++position = Vector3(0, 2.25, 13.65)
++mesh = SubResource("MeshDoorFrame")
++
++[node name="SealedDoor" type="MeshInstance3D" parent="."]
++position = Vector3(0, 1.7, 13.35)
++mesh = SubResource("MeshSealedDoor")
++
++[node name="DoorCenter" type="MeshInstance3D" parent="."]
++position = Vector3(0, 1.7, 13.2)
++mesh = SubResource("MeshDoorCenter")
++
++[node name="DoorStatus" type="MeshInstance3D" parent="."]
++position = Vector3(0, 3.7, 13.35)
++mesh = SubResource("MeshDoorStatus")
++
++[node name="BackPanel" type="MeshInstance3D" parent="."]
++position = Vector3(-6.2, 2, -13.72)
++mesh = SubResource("MeshBackPanel")
++
++[node name="UtilityLight0" type="OmniLight3D" parent="."]
++position = Vector3(-7,3.8,-7)
++light_color = Color(0.52, 0.76, 0.87, 1)
++light_energy = 2.0
++omni_range = 12.0
++shadow_enabled = true
++
++[node name="UtilityLight1" type="OmniLight3D" parent="."]
++position = Vector3(7,3.8,5)
++light_color = Color(0.52, 0.76, 0.87, 1)
++light_energy = 2.0
++omni_range = 12.0
++shadow_enabled = true
++
++[node name="UtilityLight2" type="OmniLight3D" parent="."]
++position = Vector3(-6,3.8,8)
++light_color = Color(0.52, 0.76, 0.87, 1)
++light_energy = 2.0
++omni_range = 12.0
++shadow_enabled = true
++
++[node name="UtilityLight3" type="OmniLight3D" parent="."]
++position = Vector3(5,3.8,-9)
++light_color = Color(0.52, 0.76, 0.87, 1)
++light_energy = 2.0
++omni_range = 12.0
++shadow_enabled = true
++
++[node name="FillLight" type="DirectionalLight3D" parent="."]
++rotation_degrees = Vector3(-65,-25,0)
++light_color = Color(0.65,0.76,0.85,1)
++light_energy = 0.7
++shadow_enabled = true
++
++[node name="EmergencyLight" type="OmniLight3D" parent="."]
++position = Vector3(0,3.5,11)
++light_color = Color(1,0.19,0.08,1)
++light_energy = 2.5
++omni_range = 7.0
++
++[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
++environment = ExtResource("5_env")
++
++[node name="SignFront" type="Label3D" parent="."]
++position = Vector3(0,4.35,13.35)
++rotation_degrees = Vector3(0,180,0)
++text = "ARCA  /  MANUTENZIONE 01"
++font_size = 88
++pixel_size = 0.006
++modulate = Color(0.7,0.9,0.9,1)
++no_depth_test = false
++
++[node name="SignSide" type="Label3D" parent="."]
++position = Vector3(-10.65,2.7,-8)
++rotation_degrees = Vector3(0,90,0)
++text = "STAZIONE DI CONTINUITÀ\nSETTORE DI COLLAUDO"
++font_size = 58
++pixel_size = 0.006
++modulate = Color(0.75,0.85,0.85,1)
++[node name="Player" parent="." instance=ExtResource("2_player")]
++position = Vector3(0, 0.05, -9)
++
++[node name="RedRobot" parent="." instance=ExtResource("3_enemy")]
++position = Vector3(0, 0.05, 7)
++rotation = Vector3(0, 3.14159265, 0)
++damage_per_shot = 25
++
++[node name="HUD" parent="." instance=ExtResource("4_hud")]
+diff --git a/arca/tests/capture.gd b/arca/tests/capture.gd
+new file mode 100644
+index 0000000..1ad825d
+--- /dev/null
++++ b/arca/tests/capture.gd
+@@ -0,0 +1,25 @@
++extends SceneTree
++## Optional visual capture with an active display; not a performance benchmark.
++
++func _initialize() -> void:
++	call_deferred("run")
++
++
++func run() -> void:
++	var scene: Node3D = load("res://arca/test_room.tscn").instantiate()
++	root.add_child(scene)
++	current_scene = scene
++	for i in 100:
++		await physics_frame
++	await RenderingServer.frame_post_draw
++	var args: PackedStringArray = OS.get_cmdline_user_args()
++	var destination: String = args[0] if not args.is_empty() else "user://ARCA_Prototipo.png"
++	root.get_texture().get_image().save_png(destination)
++	print("Saved gameplay capture: ", destination)
++	scene.stop_audio()
++	scene.queue_free()
++	await process_frame
++	Engine.max_fps = 60
++	for i in 15:
++		await process_frame
++	quit()
+diff --git a/arca/tests/first_playable_test.gd b/arca/tests/first_playable_test.gd
+new file mode 100644
+index 0000000..51f5b10
+--- /dev/null
++++ b/arca/tests/first_playable_test.gd
+@@ -0,0 +1,190 @@
++extends SceneTree
++## Integration checks against actual Godot scenes, physics and upstream input.
++## Run after importing: godot --headless --fixed-fps 60 --path . -s res://arca/tests/first_playable_test.gd
++
++var failures: int = 0
++var checks: int = 0
++var room: Node3D
++
++
++func _initialize() -> void:
++	call_deferred("run")
++
++
++func check(condition: bool, message: String) -> void:
++	checks += 1
++	if condition:
++		print("PASS: ", message)
++	else:
++		failures += 1
++		push_error("FAIL: " + message)
++
++
++func frames(count: int) -> void:
++	for i in count:
++		await physics_frame
++	await process_frame
++
++
++func reset_room() -> void:
++	for action in ["shoot", "aim", "move_forward", "move_back", "move_left", "move_right"]:
++		Input.action_release(action)
++	if is_instance_valid(room):
++		room.restart_room()
++		await process_frame
++		await process_frame
++		room = current_scene
++	else:
++		room = load("res://arca/test_room.tscn").instantiate()
++		root.add_child(room)
++		current_scene = room
++	await frames(30)
++
++
++func shoot_once_at(target: Vector3) -> void:
++	var player = room.player
++	var camera: Camera3D = player.player_input.camera_camera
++	camera.look_at(target)
++	camera.start_rotation = camera.rotation
++	# Camera projection uses an interpolated transform: settle before firing.
++	await frames(4)
++	Input.action_press("shoot")
++	await frames(3)
++	Input.action_release("shoot")
++	await frames(55)
++
++
++func run() -> void:
++	await reset_room()
++	check(room.player.is_on_floor(), "Original player lands on the ARCA floor")
++	check(room.player.health_component.current == 100, "Player starts with 100 HP")
++	check(room.enemy.health == 5, "One upstream enemy starts with five hit points")
++	check(room.enemy.ray_mesh.global_basis.z.normalized().dot(room.enemy.ray_from.global_basis.y.normalized()) < -0.99,
++		"Visible laser and damage ray share the cannon's forward axis")
++	room.enemy.set_physics_process(false)
++	var start: Vector3 = room.player.position
++	Input.action_press("move_forward")
++	await frames(75)
++	Input.action_release("move_forward")
++	await frames(20)
++	check(room.player.position.distance_to(start) > 2.0, "WASD drives the original animated root-motion controller")
++	var yaw: float = room.player.player_input.camera_base.rotation.y
++	var event := InputEventMouseMotion.new()
++	event.screen_relative = Vector2(100, 0)
++	Input.parse_input_event(event)
++	await frames(2)
++	check(absf(room.player.player_input.camera_base.rotation.y - yaw) > 0.05, "Mouse input rotates the original camera")
++
++	room.set_paused(true)
++	var paused_at: Vector3 = room.player.position
++	Input.action_press("move_forward")
++	await frames(45)
++	check(room.player.position.is_equal_approx(paused_at), "Pause freezes gameplay physics")
++	var escape := InputEventAction.new()
++	escape.action = "quit"
++	escape.pressed = true
++	Input.parse_input_event(escape)
++	await process_frame
++	check(not paused, "Escape unpauses through the live HUD")
++	Input.action_release("move_forward")
++
++	await reset_room()
++	room.enemy.set_physics_process(false)
++	# A short range removes dispersion from the native camera shake.
++	room.enemy.position = Vector3(0, 0.05, -3)
++	await frames(10)
++	Input.action_press("aim")
++	await frames(45)
++	var hp: int = room.enemy.health
++	await shoot_once_at(room.enemy.global_position + Vector3.UP * 1.1)
++	check(room.enemy.health == hp - 1, "One native projectile subtracts exactly one enemy hit point")
++	for i in 4:
++		await shoot_once_at(room.enemy.global_position + Vector3.UP * 1.1)
++	check(room.enemy.dead, "Native weapon can kill the upstream enemy")
++	var before: int = room.player.health_component.current
++	room.enemy.shoot()
++	room.enemy.shoot_check()
++	room.enemy.play_shoot()
++	await frames(180)
++	check(room.player.health_component.current == before, "A dead enemy cannot deliver a queued shot")
++
++	await reset_room()
++	room.enemy.set_physics_process(false)
++	room.enemy.position = Vector3(0, 0.05, -3)
++	var cover := StaticBody3D.new()
++	var shape := CollisionShape3D.new()
++	var box := BoxShape3D.new()
++	box.size = Vector3(8, 4, 0.3)
++	shape.shape = box
++	cover.add_child(shape)
++	room.add_child(cover)
++	cover.position = Vector3(0, 2, -6)
++	await frames(5)
++	Input.action_press("aim")
++	await frames(45)
++	await shoot_once_at(room.enemy.global_position + Vector3.UP)
++	check(room.enemy.health == 5, "A solid wall blocks the actual projectile")
++	# Put a thin wall between the chest and the muzzle, then inspect origin.
++	var chest: Vector3 = room.player.global_position + Vector3.UP * 1.4
++	var muzzle: Vector3 = room.player.shoot_from.global_position
++	cover.position = (chest + muzzle) * 0.5
++	box.size = Vector3(4, 4, 0.03)
++	await frames(3)
++	var safe_origin: Vector3 = room.player.get_shoot_origin()
++	check(safe_origin.distance_to(chest) < muzzle.distance_to(chest), "The muzzle cannot spawn a projectile across nearby cover")
++
++	await reset_room()
++	# Exercise the real enemy animation event and line-of-sight query.
++	for i in 950:
++		await frames(1)
++		if room.player.health_component.current < 100:
++			break
++	check(room.player.health_component.current == 75, "A real robot laser hit inflicts the configured 25 HP")
++	var hp_after_laser: int = room.player.health_component.current
++	await frames(30)
++	check(room.player.health_component.current == hp_after_laser, "Laser damage is not applied every physics frame")
++	room.enemy.set_physics_process(false)
++	room.player.take_damage(25)
++	check(room.player.health_component.current == hp_after_laser, "Damage cooldown rejects immediate repeat packets")
++
++	for cycle in 5:
++		if cycle > 0:
++			await reset_room()
++		room.enemy.set_physics_process(false)
++		await frames(60)
++		room.player.take_damage(1000)
++		check(room.player.health_component.current == 0 and room.hud.modal.visible,
++			"Death opens the restart panel, cycle %d" % (cycle + 1))
++		Input.action_press("aim")
++		Input.action_press("shoot")
++		await frames(60)
++		check(not room.player.is_physics_processing() and not room.player.player_input.shooting,
++			"Dead player cannot move or fire, cycle %d" % (cycle + 1))
++		room.player.take_damage(1000)
++		check(room.player.health_component.current == 0, "Further damage after death is ignored")
++		await reset_room()
++		check(get_nodes_in_group("arca_player").size() == 1 and get_nodes_in_group("arca_room").size() == 1,
++			"Restart does not duplicate actors, cycle %d" % (cycle + 1))
++		check(room.player.health_component.current == 100 and room.enemy.health == 5
++			and room.get_children().filter(func(n): return n is CanvasLayer).size() == 1,
++			"Restart restores player/enemy/HUD, cycle %d" % (cycle + 1))
++
++	# Run into a perimeter wall; the player capsule must remain in the room.
++	room.enemy.set_physics_process(false)
++	room.player.position = Vector3(0, 0.05, 12)
++	Input.action_press("move_forward")
++	await frames(180)
++	Input.action_release("move_forward")
++	check(room.player.position.z < 13.5 and room.player.position.y > -0.1,
++		"Perimeter walls retain the moving player")
++	print("RESULT: %d checks, %d failures" % [checks, failures])
++	room.stop_audio()
++	current_scene = null
++	room.queue_free()
++	await process_frame
++	await process_frame
++	# Let the audio worker release voices before the test process exits.
++	Engine.max_fps = 60
++	for i in 15:
++		await process_frame
++	quit(0 if failures == 0 else 1)
+diff --git a/arca/tests/first_playable_test.gd.uid b/arca/tests/first_playable_test.gd.uid
+new file mode 100644
+index 0000000..d97b546
+--- /dev/null
++++ b/arca/tests/first_playable_test.gd.uid
+@@ -0,0 +1 @@
++uid://u1hj41p1kmmt
+diff --git a/arca/tests/last_run.txt b/arca/tests/last_run.txt
+new file mode 100644
+index 0000000..9e50184
+--- /dev/null
++++ b/arca/tests/last_run.txt
+@@ -0,0 +1,45 @@
++Godot Engine v4.5.1.stable.official.f62fdbde1 - https://godotengine.org
++
++PASS: Original player lands on the ARCA floor
++PASS: Player starts with 100 HP
++PASS: One upstream enemy starts with five hit points
++PASS: Visible laser and damage ray share the cannon's forward axis
++PASS: WASD drives the original animated root-motion controller
++PASS: Mouse input rotates the original camera
++PASS: Pause freezes gameplay physics
++PASS: Escape unpauses through the live HUD
++PASS: One native projectile subtracts exactly one enemy hit point
++PASS: Native weapon can kill the upstream enemy
++PASS: A dead enemy cannot deliver a queued shot
++PASS: A solid wall blocks the actual projectile
++PASS: The muzzle cannot spawn a projectile across nearby cover
++PASS: A real robot laser hit inflicts the configured 25 HP
++PASS: Laser damage is not applied every physics frame
++PASS: Damage cooldown rejects immediate repeat packets
++PASS: Death opens the restart panel, cycle 1
++PASS: Dead player cannot move or fire, cycle 1
++PASS: Further damage after death is ignored
++PASS: Restart does not duplicate actors, cycle 1
++PASS: Restart restores player/enemy/HUD, cycle 1
++PASS: Death opens the restart panel, cycle 2
++PASS: Dead player cannot move or fire, cycle 2
++PASS: Further damage after death is ignored
++PASS: Restart does not duplicate actors, cycle 2
++PASS: Restart restores player/enemy/HUD, cycle 2
++PASS: Death opens the restart panel, cycle 3
++PASS: Dead player cannot move or fire, cycle 3
++PASS: Further damage after death is ignored
++PASS: Restart does not duplicate actors, cycle 3
++PASS: Restart restores player/enemy/HUD, cycle 3
++PASS: Death opens the restart panel, cycle 4
++PASS: Dead player cannot move or fire, cycle 4
++PASS: Further damage after death is ignored
++PASS: Restart does not duplicate actors, cycle 4
++PASS: Restart restores player/enemy/HUD, cycle 4
++PASS: Death opens the restart panel, cycle 5
++PASS: Dead player cannot move or fire, cycle 5
++PASS: Further damage after death is ignored
++PASS: Restart does not duplicate actors, cycle 5
++PASS: Restart restores player/enemy/HUD, cycle 5
++PASS: Perimeter walls retain the moving player
++RESULT: 42 checks, 0 failures
+diff --git a/arca/ui/hud.gd b/arca/ui/hud.gd
+new file mode 100644
+index 0000000..95f7832
+--- /dev/null
++++ b/arca/ui/hud.gd
+@@ -0,0 +1,82 @@
++extends CanvasLayer
++
++signal restart_requested
++signal resume_requested
++signal quit_requested
++signal pause_requested
++
++@onready var hp_label: Label = $Frame/HealthPanel/Margin/VBox/Health
++@onready var health_bar: ProgressBar = $Frame/HealthPanel/Margin/VBox/Bar
++@onready var status_label: Label = $Frame/ObjectivePanel/Margin/Objective
++@onready var enemy_label: Label = $Frame/Telemetry/Enemy
++@onready var fps_label: Label = $Frame/Telemetry/FPS
++@onready var modal: Control = $Frame/Modal
++@onready var modal_title: Label = $Frame/Modal/Center/Panel/Margin/VBox/Title
++@onready var modal_text: Label = $Frame/Modal/Center/Panel/Margin/VBox/Text
++@onready var resume_button: Button = $Frame/Modal/Center/Panel/Margin/VBox/Resume
++var enemy: CharacterBody3D
++var health: ArcaHealth
++
++
++func _ready() -> void:
++	$Frame/Modal/Center/Panel/Margin/VBox/Restart.pressed.connect(func(): restart_requested.emit())
++	$Frame/Modal/Center/Panel/Margin/VBox/Resume.pressed.connect(func(): resume_requested.emit())
++	$Frame/Modal/Center/Panel/Margin/VBox/Quit.pressed.connect(func(): quit_requested.emit())
++
++
++func bind(component: ArcaHealth, target: CharacterBody3D) -> void:
++	health = component
++	enemy = target
++	health.changed.connect(_update_health)
++	_update_health(health.current, health.max_health)
++
++
++func _process(_delta: float) -> void:
++	fps_label.text = "%s  /  %d FPS  /  F3 dettagli" % [RenderingServer.get_current_rendering_method(), Engine.get_frames_per_second()]
++	if is_instance_valid(enemy):
++		var state_name: String = ["AVVICINAMENTO", "MIRA", "TIRO"][enemy.state]
++		enemy_label.text = "BERSAGLIO %d/5  /  %s" % [maxi(enemy.health, 0), "DISTRUTTO" if enemy.dead else state_name]
++	else:
++		enemy_label.text = "BERSAGLIO DISTRUTTO"
++
++
++func _input(event: InputEvent) -> void:
++	if event.is_echo():
++		return
++	if event.is_action_pressed("arca_restart"):
++		restart_requested.emit()
++		get_viewport().set_input_as_handled()
++	elif event.is_action_pressed("quit"):
++		pause_requested.emit()
++		get_viewport().set_input_as_handled()
++	elif event.is_action_pressed("toggle_debug"):
++		$Frame/Telemetry.visible = not $Frame/Telemetry.visible
++
++
++func _update_health(value: int, maximum: int) -> void:
++	hp_label.text = "SALUTE  %03d / %03d" % [value, maximum]
++	health_bar.max_value = maximum
++	health_bar.value = value
++	$Frame/DamageFlash.color.a = 0.22 if value < maximum else 0.0
++	create_tween().tween_property($Frame/DamageFlash, "color:a", 0.0, 0.45)
++
++
++func set_status(message: String) -> void:
++	status_label.text = message
++
++
++func show_death() -> void:
++	modal.show()
++	modal_title.text = "SEGNALE PERSO"
++	modal_text.text = "Sei stato neutralizzato. Il riavvio ripristina salute e bersaglio."
++	resume_button.hide()
++	$Frame/Modal/Center/Panel/Margin/VBox/Restart.grab_focus()
++
++
++func show_pause(value: bool) -> void:
++	modal.visible = value
++	modal_title.text = "COLLAUDO IN PAUSA"
++	modal_text.text = "ARCA / settore di manutenzione 01"
++	resume_button.show()
++	if value:
++		resume_button.grab_focus()
+diff --git a/arca/ui/hud.gd.uid b/arca/ui/hud.gd.uid
+new file mode 100644
+index 0000000..d43e7b1
+--- /dev/null
++++ b/arca/ui/hud.gd.uid
+@@ -0,0 +1 @@
++uid://b4387tfi0jtil
+diff --git a/arca/ui/hud.tscn b/arca/ui/hud.tscn
+new file mode 100644
+index 0000000..f9ad85b
+--- /dev/null
++++ b/arca/ui/hud.tscn
+@@ -0,0 +1,227 @@
++[gd_scene load_steps=8 format=3]
++
++[ext_resource type="Script" path="res://arca/ui/hud.gd" id="1"]
++
++[sub_resource type="StyleBoxFlat" id="Panel"]
++bg_color = Color(0.025, 0.045, 0.055, 0.94)
++border_width_left = 2
++border_color = Color(0.36, 0.73, 0.75, 1)
++content_margin_left = 18.0
++content_margin_top = 14.0
++content_margin_right = 18.0
++content_margin_bottom = 14.0
++
++[sub_resource type="StyleBoxFlat" id="BarBack"]
++bg_color = Color(0.12, 0.19, 0.21, 1)
++
++[sub_resource type="StyleBoxFlat" id="BarFill"]
++bg_color = Color(0.42, 0.78, 0.69, 1)
++
++[sub_resource type="StyleBoxFlat" id="Button"]
++bg_color = Color(0.12, 0.23, 0.26, 1)
++content_margin_top = 12.0
++content_margin_bottom = 12.0
++
++[sub_resource type="StyleBoxFlat" id="ButtonHover"]
++bg_color = Color(0.21, 0.38, 0.41, 1)
++content_margin_top = 12.0
++content_margin_bottom = 12.0
++border_width_bottom = 2
++border_color = Color(0.55, 0.85, 0.78, 1)
++
++[sub_resource type="Theme" id="Theme"]
++default_font_size = 17
++Label/colors/font_color = Color(0.82, 0.89, 0.89, 1)
++Button/styles/normal = SubResource("Button")
++Button/styles/hover = SubResource("ButtonHover")
++Button/styles/focus = SubResource("ButtonHover")
++
++[node name="HUD" type="CanvasLayer"]
++process_mode = 3
++layer = 10
++script = ExtResource("1")
++
++[node name="Frame" type="Control" parent="."]
++layout_mode = 3
++anchors_preset = 15
++anchor_right = 1.0
++anchor_bottom = 1.0
++grow_horizontal = 2
++grow_vertical = 2
++mouse_filter = 2
++theme = SubResource("Theme")
++
++[node name="DamageFlash" type="ColorRect" parent="Frame"]
++layout_mode = 1
++anchors_preset = 15
++anchor_right = 1.0
++anchor_bottom = 1.0
++mouse_filter = 2
++color = Color(0.7, 0.08, 0.03, 0)
++
++[node name="Brand" type="Label" parent="Frame"]
++offset_left = 32.0
++offset_top = 22.0
++offset_right = 270.0
++offset_bottom = 70.0
++theme_override_colors/font_color = Color(0.85, 0.94, 0.91, 1)
++theme_override_font_sizes/font_size = 38
++text = "A R C A"
++
++[node name="Subtitle" type="Label" parent="Frame"]
++offset_left = 34.0
++offset_top = 72.0
++offset_right = 500.0
++offset_bottom = 95.0
++theme_override_font_sizes/font_size = 13
++text = "STAZIONE DI CONTINUITÀ   /   PROTOTIPO 0.1"
++
++[node name="Tag" type="Label" parent="Frame"]
++layout_mode = 1
++anchor_left = 1.0
++anchor_right = 1.0
++offset_left = -480.0
++offset_top = 32.0
++offset_right = -32.0
++offset_bottom = 80.0
++theme_override_colors/font_color = Color(0.58, 0.82, 0.75, 1)
++theme_override_font_sizes/font_size = 14
++text = "MODULO 01 / COLLAUDO TPS\nROBOT E GRAFICA PROVVISORI"
++horizontal_alignment = 2
++
++[node name="ObjectivePanel" type="PanelContainer" parent="Frame"]
++offset_left = 32.0
++offset_top = 115.0
++offset_right = 458.0
++offset_bottom = 183.0
++mouse_filter = 2
++theme_override_styles/panel = SubResource("Panel")
++
++[node name="Margin" type="MarginContainer" parent="Frame/ObjectivePanel"]
++layout_mode = 2
++
++[node name="Objective" type="Label" parent="Frame/ObjectivePanel/Margin"]
++custom_minimum_size = Vector2(380, 0)
++layout_mode = 2
++theme_override_font_sizes/font_size = 16
++text = "Neutralizza il bersaglio."
++autowrap_mode = 2
++
++[node name="HealthPanel" type="PanelContainer" parent="Frame"]
++layout_mode = 1
++anchor_top = 1.0
++anchor_bottom = 1.0
++offset_left = 32.0
++offset_top = -120.0
++offset_right = 317.0
++offset_bottom = -32.0
++mouse_filter = 2
++theme_override_styles/panel = SubResource("Panel")
++
++[node name="Margin" type="MarginContainer" parent="Frame/HealthPanel"]
++layout_mode = 2
++
++[node name="VBox" type="VBoxContainer" parent="Frame/HealthPanel/Margin"]
++layout_mode = 2
++theme_override_constants/separation = 12
++
++[node name="Health" type="Label" parent="Frame/HealthPanel/Margin/VBox"]
++layout_mode = 2
++theme_override_font_sizes/font_size = 20
++text = "SALUTE  100 / 100"
++
++[node name="Bar" type="ProgressBar" parent="Frame/HealthPanel/Margin/VBox"]
++custom_minimum_size = Vector2(240, 7)
++layout_mode = 2
++theme_override_styles/background = SubResource("BarBack")
++theme_override_styles/fill = SubResource("BarFill")
++value = 100.0
++show_percentage = false
++
++[node name="Controls" type="Label" parent="Frame"]
++layout_mode = 1
++anchor_left = 1.0
++anchor_top = 1.0
++anchor_right = 1.0
++anchor_bottom = 1.0
++offset_left = -455.0
++offset_top = -122.0
++offset_right = -32.0
++offset_bottom = -32.0
++theme_override_font_sizes/font_size = 15
++text = "WASD  movimento    /    MOUSE  camera\nDX  mira    /    SX  spara    /    SPAZIO  salta\nR  riavvia    /    ESC  pausa\nMunizioni illimitate nel collaudo"
++horizontal_alignment = 2
++
++[node name="Telemetry" type="VBoxContainer" parent="Frame"]
++visible = false
++layout_mode = 1
++anchor_top = 1.0
++anchor_bottom = 1.0
++offset_left = 340.0
++offset_top = -84.0
++offset_right = 800.0
++offset_bottom = -30.0
++mouse_filter = 2
++
++[node name="Enemy" type="Label" parent="Frame/Telemetry"]
++layout_mode = 2
++theme_override_font_sizes/font_size = 13
++text = "BERSAGLIO 5/5"
++
++[node name="FPS" type="Label" parent="Frame/Telemetry"]
++layout_mode = 2
++theme_override_font_sizes/font_size = 12
++text = "F3 dettagli"
++
++[node name="Modal" type="ColorRect" parent="Frame"]
++visible = false
++layout_mode = 1
++anchors_preset = 15
++anchor_right = 1.0
++anchor_bottom = 1.0
++color = Color(0.012, 0.023, 0.03, 0.82)
++
++[node name="Center" type="CenterContainer" parent="Frame/Modal"]
++layout_mode = 1
++anchors_preset = 15
++anchor_right = 1.0
++anchor_bottom = 1.0
++
++[node name="Panel" type="PanelContainer" parent="Frame/Modal/Center"]
++layout_mode = 2
++custom_minimum_size = Vector2(550, 0)
++theme_override_styles/panel = SubResource("Panel")
++
++[node name="Margin" type="MarginContainer" parent="Frame/Modal/Center/Panel"]
++layout_mode = 2
++theme_override_constants/margin_left = 16
++theme_override_constants/margin_top = 16
++theme_override_constants/margin_right = 16
++theme_override_constants/margin_bottom = 16
++
++[node name="VBox" type="VBoxContainer" parent="Frame/Modal/Center/Panel/Margin"]
++layout_mode = 2
++theme_override_constants/separation = 18
++
++[node name="Title" type="Label" parent="Frame/Modal/Center/Panel/Margin/VBox"]
++layout_mode = 2
++theme_override_font_sizes/font_size = 32
++text = "SEGNALE PERSO"
++
++[node name="Text" type="Label" parent="Frame/Modal/Center/Panel/Margin/VBox"]
++layout_mode = 2
++custom_minimum_size = Vector2(450, 48)
++text = "Riavvia il collaudo."
++autowrap_mode = 2
++
++[node name="Resume" type="Button" parent="Frame/Modal/Center/Panel/Margin/VBox"]
++layout_mode = 2
++text = "RIPRENDI"
++
++[node name="Restart" type="Button" parent="Frame/Modal/Center/Panel/Margin/VBox"]
++layout_mode = 2
++text = "RIAVVIA  [R]"
++
++[node name="Quit" type="Button" parent="Frame/Modal/Center/Panel/Margin/VBox"]
++layout_mode = 2
++text = "ESCI"
+diff --git a/default_env.tres b/default_env.tres
+new file mode 100644
+index 0000000..991bc7d
+--- /dev/null
++++ b/default_env.tres
+@@ -0,0 +1,13 @@
++[gd_resource type="Environment" format=3]
++
++[resource]
++background_mode = 1
++background_color = Color(0.023, 0.035, 0.045, 1)
++ambient_light_source = 3
++ambient_light_color = Color(0.42, 0.58, 0.65, 1)
++ambient_light_energy = 0.62
++reflected_light_source = 2
++tonemap_mode = 0
++fog_enabled = true
++fog_light_color = Color(0.05, 0.08, 0.10, 1)
++fog_density = 0.004
+diff --git a/enemies/red_robot/parts/part.gd b/enemies/red_robot/parts/part.gd
+index 7bdb6a1..110b640 100644
+--- a/enemies/red_robot/parts/part.gd
++++ b/enemies/red_robot/parts/part.gd
+@@ -36,8 +36,11 @@ func explode() -> void:
+ 	$Col2.disabled = false
+ 	linear_velocity = 3.0 * Vector3.UP
+ 	angular_velocity = (Vector3(randf(), randf(), randf()).normalized() * 2.0 - Vector3.ONE) * 10.0
+-	await get_tree().create_timer(lifetime + lifetime_random * randf()).timeout
+-	set_process(true)
++	var timer := Timer.new()
++	add_child(timer)
++	timer.one_shot = true
++	timer.timeout.connect(set_process.bind(true))
++	timer.start(lifetime + lifetime_random * randf())
+ 
+ 
+ func _process(delta: float) -> void:
+@@ -53,5 +56,8 @@ func destroy() -> void:
+ 	var puff: CPUParticles3D = puff_effect.instantiate()
+ 	get_parent().add_child(puff)
+ 	puff.global_transform.origin = global_transform.origin
+-	await get_tree().create_timer(0.2).timeout
+-	queue_free()
++	var timer := Timer.new()
++	add_child(timer)
++	timer.one_shot = true
++	timer.timeout.connect(queue_free)
++	timer.start(0.2)
+diff --git a/enemies/red_robot/parts/part_disappear_effect/part_disappear.gd b/enemies/red_robot/parts/part_disappear_effect/part_disappear.gd
+index bf0403d..511f784 100644
+--- a/enemies/red_robot/parts/part_disappear_effect/part_disappear.gd
++++ b/enemies/red_robot/parts/part_disappear_effect/part_disappear.gd
+@@ -3,7 +3,8 @@ extends CPUParticles3D
+ 
+ func _ready() -> void:
+ 	$MiniBlasts.emitting = true
+-	await get_tree().create_timer(0.2).timeout
+-	emitting = true
+-	await get_tree().create_timer(lifetime * 2.0).timeout
+-	queue_free()
++	var tween := create_tween()
++	tween.tween_interval(0.2)
++	tween.tween_callback(set.bind("emitting", true))
++	tween.tween_interval(lifetime * 2.0)
++	tween.tween_callback(queue_free)
+diff --git a/enemies/red_robot/red_robot.gd b/enemies/red_robot/red_robot.gd
+index 9490819..b938e18 100644
+--- a/enemies/red_robot/red_robot.gd
++++ b/enemies/red_robot/red_robot.gd
+@@ -21,6 +21,7 @@ const BLEND_AIM_SPEED: float = 0.05
+ 
+ @export var target_position := Vector3()
+ @export var health: int = 5
++@export var damage_per_shot: int = 25
+ @export var state: State = State.APPROACH
+ @export var dead: bool = false
+ @export var aim_preparing: float = AIM_PREPARE_TIME
+@@ -57,6 +58,12 @@ func _ready() -> void:
+ 	orientation = global_transform
+ 	orientation.origin = Vector3()
+ 	$AnimationTree.active = true
++	# The imported model also supplies these nodes; set the final local axes
++	# explicitly after inherited-scene properties have been applied.
++	ray_mesh.rotation = Vector3(PI / 2.0, 0.0, 0.0)
++	laser_raycast.rotation = Vector3(PI / 2.0, 0.0, 0.0)
++	laser_raycast.enabled = true
++	laser_raycast.add_exception(self)
+ 	if test_shoot:
+ 		shoot_countdown = 0.0
+ 
+@@ -84,6 +91,7 @@ func hit() -> void:
+ 	health -= 1
+ 	if health == 0:
+ 		dead = true
++		shoot_animation.stop()
+ 		animation_tree.active = false
+ 		model.visible = false
+ 		death.visible = true
+@@ -100,35 +108,44 @@ func hit() -> void:
+ 		exploded.emit()
+ 
+ 		if multiplayer.is_server():
+-			await get_tree().create_timer(10.0).timeout
+-			queue_free()
++			# A child timer is freed with this room on restart.
++			var despawn_timer := Timer.new()
++			add_child(despawn_timer)
++			despawn_timer.one_shot = true
++			despawn_timer.timeout.connect(queue_free)
++			despawn_timer.start(10.0)
+ 
+ 
+ func shoot() -> void:
++	if dead:
++		return
+ 	var gt: Transform3D = ray_from.global_transform
+ 	var ray_origin: Vector3 = ray_from.global_transform.origin
+-	var ray_dir: Vector3 = -gt.basis.z
++	# CannonAnimRecoil points along +Y. Its -Z axis points into the floor.
++	var ray_dir: Vector3 = gt.basis.y.normalized()
+ 	var max_dist: float = 1000.0
+ 
+ 	var col: Dictionary = get_world_3d().direct_space_state.intersect_ray(PhysicsRayQueryParameters3D.create(ray_origin, ray_origin + ray_dir * max_dist, 0xFFFFFFFF, [self] ))
+ 	if not col.is_empty():
+ 		max_dist = ray_origin.distance_to(col.position)
+ 		if col.collider == player:
+-			pass # Kill.
++			if player.has_method("take_damage"):
++				player.take_damage(damage_per_shot)
+ 	# Clip ray in shader.
+ 	_clip_ray(max_dist)
+ 	# Position laser ember particles
+-	var mesh_offset: float = ray_mesh.position.z
++	var mesh_offset: float = ray_mesh.position.y
+ 	var laser_ember: CPUParticles3D = $RedRobotModel/Armature/Skeleton3D/RayFrom/LaserEmber
+-	laser_ember.position = Vector3(0.0, 0.0, -max_dist / 2.0 - mesh_offset)
+-	laser_ember.emission_box_extents.z = (max_dist - absf(mesh_offset)) / 2.0
++	laser_ember.position = Vector3(0.0, (max_dist + mesh_offset) / 2.0, 0.0)
++	laser_ember.emission_box_extents.y = maxf(0.01, (max_dist - mesh_offset) / 2.0)
+ 	if not col.is_empty():
+ 		var blast = blast_scene.instantiate()
+-		get_tree().get_root().add_child(blast)
++		get_parent().add_child(blast)
+ 		blast.global_transform.origin = col.position
+-		if col.collider == player and player is Player:
++		if col.collider == player and player is Player and not player.has_method("take_damage"):
+ 			await get_tree().create_timer(0.1).timeout
+-			player.add_camera_shake_trauma(13.0)
++			if is_instance_valid(player):
++				player.add_camera_shake_trauma(13.0)
+ 
+ 
+ func animate(delta: float) -> void:
+@@ -256,17 +273,20 @@ func _physics_process(delta: float) -> void:
+ 
+ @rpc("call_local")
+ func play_shoot() -> void:
++	if dead:
++		return
+ 	shoot_animation.play(&"shoot")
+ 
+ 
+ func shoot_check() -> void:
+-	test_shoot = true
++	if not dead:
++		test_shoot = true
+ 
+ 
+ func _clip_ray(length: float) -> void:
+-	var mesh_offset: float = ray_mesh.position.z
++	var mesh_offset: float = ray_mesh.position.y
+ 	if not OS.has_feature("dedicated_server"):
+-		ray_mesh.get_surface_override_material(0).set_shader_parameter("clip", length + mesh_offset)
++		ray_mesh.get_surface_override_material(0).set_shader_parameter("clip", maxf(0.01, length - mesh_offset))
+ 
+ 
+ func _on_area_body_entered(body: Node3D) -> void:
+diff --git a/enemies/red_robot/red_robot.tscn b/enemies/red_robot/red_robot.tscn
+index c5dd532..f86f51c 100644
+--- a/enemies/red_robot/red_robot.tscn
++++ b/enemies/red_robot/red_robot.tscn
+@@ -10663,7 +10663,7 @@ mesh = ExtResource("3_53w75")
+ surface_material_override/0 = ExtResource("4_6f0x2")
+ 
+ [node name="RayMesh" type="MeshInstance3D" parent="RedRobotModel/Armature/Skeleton3D/RayFrom"]
+-transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 1.25, 0)
++transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 1.25, 0)
+ mesh = ExtResource("5_knbdw")
+ surface_material_override/0 = SubResource("ShaderMaterial_p5m1n")
+ 
+@@ -10758,8 +10758,7 @@ scale_amount_curve = SubResource("Curve_3tvin")
+ color_ramp = SubResource("Gradient_1e1e6")
+ 
+ [node name="RayCast" type="RayCast3D" parent="RedRobotModel/Armature/Skeleton3D/RayFrom"]
+-transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0)
+-enabled = false
++transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0, 0)
+ target_position = Vector3(0, 0, -1000)
+ collision_mask = 3
+ 
+diff --git a/player/bullet/bullet.gd b/player/bullet/bullet.gd
+index 2698fe8..f6c6f5d 100644
+--- a/player/bullet/bullet.gd
++++ b/player/bullet/bullet.gd
+@@ -24,6 +24,7 @@ func _physics_process(delta: float) -> void:
+ 	if time_alive < 0.0:
+ 		hit = true
+ 		explode.rpc()
++		return
+ 	var displacement: Vector3 = -delta * BULLET_VELOCITY * transform.basis.z
+ 	var col: KinematicCollision3D = move_and_collide(displacement)
+ 	if col:
+diff --git a/player/model/player.glb b/player/model/player.glb
+index d4cfd9ac472f1a9798f6daa1ad0e78b6c75a5575..ef4d53a9b5fa816ac612211a09fdc30458dae1a1 100644
+GIT binary patch
+delta 1581
+zcmW;MMN}046h+YmqO_n0D0YE>2qG4Wh+TkyfPfN8+ue%t?N03O!oV)<?(XjHj&mLC
+zv)=5^Uhb-F%Uom_j10zxJO&d(UPC^EX^z<kdyCYB?kP!eVQHOHvO=tFowA}G&0I$M
+zIhes57O;dBtdSo!utfnBgdGaO9u9CsVHANAilP{bqXbH#6iTBE%Ay>~!x`GI09Uxd
+z9Tnk$O7MgiD#II9;Df5DhU%z+n(##})P^7Gz#nxHfO@Ep255*zXpAOkie_kz76?QT
+zg3%Ho2t^oLAsi8iL~BGL8Zl^twunU>;*o%MXpclBAsH!1MH<r40Ugl^ozVqd(GA_v
+z13l3Tz0n7K(GUGG00S`ygE0gd7>Z%YgaN}b0wXaBqcH|!F%IJ~0TVF^lQ9KTF%8o(
+z16i1fS(uGEn2ULsj|EtWMOcg_Sc+v>julvmRalKRSc`R7k8EtfMr^`n<X{W7VjH$&
+z2X<l?c4H6rVjps`9|v#{hj182a1_UI94BxRr*Il)a2Drq9v5&Cmv9+Za23~Z9XD_j
+zw{RPGa2NM*9}n;lkMI~z@D$JR953(^ukadg@D}gz9v|=#pYR!9@D<<i9Y63BzwjG>
+z@OP}AgV97N#!4Q=M9Hh<Q%n^z#ayvaEEOxoTFI~2D7H!grJ!P`6jJP!|7(uA3M)kv
+zC#9%TOewCEP)aJLl+sEWrL0m;DX%yyE=mQ(RdG|?m5PdoQc3Ytyp+m{w^Bv%QK~A{
+zl<G<irKaMm)KY3Ieo7t1U#Y7EDD{;3N&}^#(nx8nG*Ox=&6MU!3nfqqQi7G1N{AAw
+zgek3*a3w;CR9Y)hO0*KAv{BkBu}Yj0uOuk#l=e!ZlB6UnDN3r6rlcF~<I@;r?)?Xv
+ClG^_O
+
+delta 1582
+zcmW;MS6B`J6o>IA#78pHl!OpzNJ*uTjAT<ZRYF-s_FkX8XZBv%kv+=Zd+)vX-sAnd
+z_`T1$JLl@;WNb9c!BC@#F_$s7F^|#InAeyu%kaU<EFmQ&H6<=MIUy}6J=59THa*hD
+zP+@eSwE_820A?r%a}+{h6hTo~pcpJ+1#8&A7Ir8Odz63!O2QGPP#R_6gt91y@^FT3
+zs0bHSf-BtM4i8j@C#t{;-lz&6RD&=4;E(DEKp<+MCTbxFwGoUusEc~2j}SCKC>o*>
+z8lwrCq8XZ_1zI8u;b?`{h(IKw5RDkbq7C8@j|8+uBHE!nIv@$j=!j0}j4tSk6r`dX
+zx+4ue&=bAT8-36h{m>r+Fc5<<7(*}=!!R5pV8lp_!f1@aSd7DXOu$4;!emUrR7}Hk
+z%)m^{LONz+4(4JW=3@aCVi6W&36^3RmSY80Vii^+18cAr>#!ahuo0V(iOtx8ENsO#
+zY{w4l#4hZ{9_+<FWFrUraR3K#2#0Y5M{x|taRMiC3a4=fXK@baaRC=`372sNS8)y3
+zaRWDT3%79xcX1E*@c<9;2#@guPw@=T@d7XL3a{}7Z}ATA@c|$437_!=U-1p!@dH2c
+z3%~IPf5!(}n@on1OUbR|QB0M*N<PJ)<W~wPW=cWDTq&d!R*EP^6$_=9VyRdu|F_v_
+zvQ_Mq;)=aeLUB+^DvnAirL<B;aZ<`E<&^S@vr<8+sJJMV6j#MfaaTN)%8I8_Me$O+
+zm8y!5Qcdwy{1ktsx)PuSDm9dvN-ZTwsjUPnb(FeFJ*B=9qBKxKm4-?qrLodPX{t0+
+znky}omP(isuC!8GD-lYh5~V~dF-ok`Mu}76l?0`&lBl#(+AAHDBqdqtsB|*P=F^yr
+G*!K_JL)+W{
+
+diff --git a/player/player.gd b/player/player.gd
+index 42b6c3d..9f75466 100644
+--- a/player/player.gd
++++ b/player/player.gd
+@@ -131,7 +131,7 @@ func apply_input(delta: float) -> void:
+ 		root_motion = Transform3D(animation_tree.get_root_motion_rotation(), animation_tree.get_root_motion_position())
+ 
+ 		if player_input.shooting and fire_cooldown.time_left == 0:
+-			var shoot_origin: Vector3 = shoot_from.global_transform.origin
++			var shoot_origin: Vector3 = get_shoot_origin()
+ 			var shoot_dir: Vector3 = (player_input.shoot_target - shoot_origin).normalized()
+ 
+ 			var bullet: CharacterBody3D = preload("res://player/bullet/bullet.tscn").instantiate()
+@@ -182,6 +182,10 @@ func jump() -> void:
+ 	sound_effect_jump.play()
+ 
+ 
++func get_shoot_origin() -> Vector3:
++	return shoot_from.global_transform.origin
++
++
+ @rpc("call_local")
+ func land() -> void:
+ 	animate(Animations.JUMP_DOWN, 0.0)
+diff --git a/player/player_input.gd b/player/player_input.gd
+index e062ebf..1789284 100644
+--- a/player/player_input.gd
++++ b/player/player_input.gd
+@@ -88,7 +88,7 @@ func _process(delta: float) -> void:
+ 		var ray_from = camera_camera.project_ray_origin(ch_pos)
+ 		var ray_dir = camera_camera.project_ray_normal(ch_pos)
+ 
+-		var col = get_parent().get_world_3d().direct_space_state.intersect_ray(PhysicsRayQueryParameters3D.create(ray_from, ray_from + ray_dir * 1000, 0b11, Array([self], TYPE_RID, "", null)))
++		var col = get_parent().get_world_3d().direct_space_state.intersect_ray(PhysicsRayQueryParameters3D.create(ray_from, ray_from + ray_dir * 1000, 0b11, [get_parent().get_rid()]))
+ 		if col.is_empty():
+ 			shoot_target = ray_from + ray_dir * 1000.0
+ 		else:
+diff --git a/project.godot b/project.godot
+index f8d1369..b932864 100644
+--- a/project.godot
++++ b/project.godot
+@@ -10,10 +10,10 @@ config_version=5
+ 
+ [application]
+ 
+-config/name="Godot Third-Person Shooter Demo"
+-config/description="Godot Third Person Shooter with high quality assets and lighting"
+-run/main_scene="res://main/main.tscn"
+-config/features=PackedStringArray("4.5")
++config/name="ARCA — Prototipo 0.1"
++config/description="ARCA: stanza di collaudo TPS, salute, combattimento e riavvio."
++run/main_scene="res://arca/test_room.tscn"
++config/features=PackedStringArray("4.5", "GL Compatibility")
+ config/icon="res://icon.png"
+ 
+ [autoload]
+@@ -22,11 +22,11 @@ Settings="*res://menu/settings.gd"
+ 
+ [display]
+ 
+-window/size/viewport_width=1920
+-window/size/viewport_height=1080
++window/size/viewport_width=1280
++window/size/viewport_height=720
+ window/stretch/mode="canvas_items"
+ window/stretch/aspect="expand"
+-window/size/fullscreen=true
++window/size/mode=0
+ 
+ [editor]
+ 
+@@ -175,6 +175,11 @@ toggle_debug={
+ ]
+ }
+ 
++arca_restart={
++"deadzone": 0.2,
++"events": [Object(InputEventKey,"physical_keycode":82)]
++}
++
+ [layer_names]
+ 
+ 3d_physics/layer_1="Level"
+@@ -183,14 +188,17 @@ toggle_debug={
+ 
+ [physics]
+ 
+-3d/physics_engine="Bullet"
++3d/physics_engine="GodotPhysics3D"
+ common/physics_interpolation=true
+ 
+ [rendering]
+ 
++renderer/rendering_method="gl_compatibility"
++renderer/rendering_method.mobile="gl_compatibility"
++
+ reflections/sky_reflections/texture_array_reflections=false
+ textures/default_filters/anisotropic_filtering_level=4
+-scaling_3d/mode=2
++scaling_3d/mode=0
+ textures/decals/filter=1
+ textures/light_projectors/filter=1
+ anti_aliasing/quality/use_debanding=true

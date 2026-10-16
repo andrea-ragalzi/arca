@@ -1,0 +1,25 @@
+# Godot caches; source-side .import settings and .uid files MUST stay tracked.
+.godot/
+.import/
+.mono/
+mono_crash.*.json
+*.translation
+
+# Local output, exports and diagnostics.
+.artifacts/
+build/
+exports/
+*.log
+
+# Credentials and local environment overrides.
+.env
+.env.*
+!.env.example
+export_credentials.cfg
+
+# Editor/OS temporary files.
+.DS_Store
+.directory
+*~
+*.swp
+*.blend[0-9]*

@@ -1,0 +1,9 @@
+ARCA prototype 0.1
+Date: 2026-10-16
+Engine: 4.5.1.stable.official.f62fdbde1
+Upstream: godotengine/tps-demo
+Tag: 4.5-90f2e38
+Upstream SHA: 90f2e38d7b5cf9e6fd0b788d0da1df4b84d49269
+Local ARCA commit: d55d9ccfb733a5fb8171db850c57dad7d9a7b636
+Branch: arca/first-playable
+Tests: 42 passed, 0 failed

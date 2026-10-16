@@ -1,0 +1,4 @@
+interface:
+  display_name: "ARCA Godot"
+  short_description: "Build and verify small ARCA gameplay changes"
+  default_prompt: "Use $arca-godot to implement one small gameplay change and verify it in Godot."

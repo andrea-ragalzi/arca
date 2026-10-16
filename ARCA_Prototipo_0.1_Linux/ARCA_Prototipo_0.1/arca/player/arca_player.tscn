@@ -1,0 +1,11 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="PackedScene" path="res://player/player.tscn" id="1_base"]
+[ext_resource type="Script" path="res://arca/player/arca_player.gd" id="2_script"]
+[ext_resource type="Script" path="res://arca/components/health_component.gd" id="3_health"]
+
+[node name="Player" instance=ExtResource("1_base")]
+script = ExtResource("2_script")
+
+[node name="HealthComponent" type="Node" parent="."]
+script = ExtResource("3_health")

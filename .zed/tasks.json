@@ -1,0 +1,32 @@
+[
+  {
+    "label": "ARCA: Open Godot editor (NVIDIA)",
+    "command": "bash",
+    "args": ["scripts/editor.sh", "--nvidia"],
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "allow_concurrent_runs": false,
+    "reveal": "no_focus"
+  },
+  {
+    "label": "ARCA: Play (NVIDIA)",
+    "command": "bash",
+    "args": ["scripts/run.sh", "--nvidia"],
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "allow_concurrent_runs": false,
+    "reveal": "no_focus"
+  },
+  {
+    "label": "ARCA: Check project",
+    "command": "bash",
+    "args": ["scripts/check.sh"],
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "allow_concurrent_runs": false,
+    "reveal": "always"
+  },
+  {
+    "label": "ARCA: Git status",
+    "command": "git",
+    "args": ["status", "--short", "--branch"],
+    "cwd": "$ZED_WORKTREE_ROOT"
+  }
+]

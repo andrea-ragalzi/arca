@@ -1,0 +1,27 @@
+Godot Engine v4.5.1.stable.official.f62fdbde1 - https://godotengine.org
+
+PASS: Six real animation clips are loaded from the GLB
+PASS: Baked navigation geometry is present
+PASS: The robot is replaced by exactly one predator
+PASS: Predator waits while the player stays far away
+PASS: Player detection advances through alert into chase
+PASS: The navigation agent moves the predator toward the player
+PASS: Melee attack has a visible preparation phase
+PASS: Windup does not deal early damage
+PASS: One bite subtracts exactly 20 HP
+PASS: The bite does not damage the player every frame
+PASS: Retreating out of reach dodges the bite
+PASS: A cover block occludes the player's body
+PASS: The predator paths around solid cover instead of running into it
+PASS: A wall blocks bite damage even within reach
+PASS: Death during windup cancels the queued bite
+PASS: The death clip is played without restarting the attack
+PASS: The original player weapon hits the predator's body
+PASS: Six real projectiles can kill the predator
+PASS: Player death stops predator combat, cycle 1
+PASS: Restart restores one healthy predator, cycle 1
+PASS: Player death stops predator combat, cycle 2
+PASS: Restart restores one healthy predator, cycle 2
+PASS: Player death stops predator combat, cycle 3
+PASS: Restart restores one healthy predator, cycle 3
+RAPTOR RESULT: 24 checks, 0 failures
