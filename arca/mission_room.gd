@@ -3,10 +3,16 @@ extends "res://arca/raptor_room.gd"
 
 signal ambush_started
 
+enum AmbushPhase { IDLE, WARNING, OPENING, EMERGING, ACTIVE, CANCELLED }
+
+const HATCH_OPEN_DURATION: float = 1.0
+const HATCH_LIFT: float = 3.3
+
 @export var ambush_delay: float = 1.4
 @onready var fuse: ArcaInteractionPoint = $FusePickup
 @onready var panel: ArcaInteractionPoint = $PowerPanel
 @onready var door: Node3D = $ExitDoor
+@onready var hatch: AnimatableBody3D = $ServiceHatch/Leaf
 var has_fuse: bool = false
 var power_restored: bool = false
 var mission_complete: bool = false
@@ -14,12 +20,16 @@ var interaction_target: ArcaInteractionPoint
 var notice_remaining: float = 0.0
 var ambush_remaining: float = -1.0
 var ambush_triggered: bool = false
+var ambush_phase: AmbushPhase = AmbushPhase.IDLE
+var hatch_elapsed: float = 0.0
+var hatch_closed_y: float
 
 func _ready() -> void:
 	super._ready()
 	player.player_input.camera_base.rotation.y = 1.1
 	enemy.position = $AmbushSpawn.position
 	enemy.prepare_ambush()
+	hatch_closed_y = hatch.position.y
 	fuse.collected.connect(_on_fuse_pickup_collected)
 	panel.powered.connect(_on_panel_powered)
 	$ExitZone.body_entered.connect(_on_exit_entered)
@@ -33,11 +43,7 @@ func _ready() -> void:
 func _physics_process(delta: float) -> void:
 	if mission_complete or player.health_component.current <= 0:
 		return
-	if ambush_remaining >= 0.0:
-		ambush_remaining = maxf(ambush_remaining - delta, 0.0)
-		$AlarmLight.light_energy = 1.8 + sin(Time.get_ticks_msec() * 0.012) * 1.2
-		if ambush_remaining == 0.0:
-			_start_ambush()
+	_advance_ambush(delta)
 	interaction_target = _find_interaction_target()
 	var text: String = ""
 	if is_instance_valid(interaction_target):
@@ -49,6 +55,29 @@ func _physics_process(delta: float) -> void:
 		notice_remaining -= delta
 		if notice_remaining <= 0.0:
 			hud.set_notice("")
+
+func _advance_ambush(delta: float) -> void:
+	match ambush_phase:
+		AmbushPhase.WARNING:
+			ambush_remaining = maxf(ambush_remaining - delta, 0.0)
+			$AlarmLight.light_energy = 1.8 + sin(Time.get_ticks_msec() * 0.012) * 1.2
+			if ambush_remaining == 0.0:
+				ambush_remaining = -1.0
+				ambush_phase = AmbushPhase.OPENING
+				_notify("SERVICE HATCH OPENING - stand clear! Fight or reach the green exit.")
+		AmbushPhase.OPENING:
+			hatch_elapsed = minf(hatch_elapsed + delta, HATCH_OPEN_DURATION)
+			var progress: float = smoothstep(0.0, HATCH_OPEN_DURATION, hatch_elapsed)
+			hatch.position.y = hatch_closed_y + HATCH_LIFT * progress
+			if hatch_elapsed >= HATCH_OPEN_DURATION:
+				_start_ambush()
+		AmbushPhase.EMERGING:
+			if enemy.state != ArcaRaptor.State.EMERGE:
+				ambush_phase = AmbushPhase.ACTIVE
+
+func _cancel_ambush() -> void:
+	ambush_remaining = -1.0
+	ambush_phase = AmbushPhase.CANCELLED
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("interact") and not event.is_echo():
@@ -89,6 +118,8 @@ func _on_fuse_pickup_collected() -> void:
 	print("Fuse collected: inventory updated")
 
 func _on_panel_powered() -> void:
+	if power_restored or mission_complete or player.health_component.current <= 0:
+		return
 	has_fuse = false
 	power_restored = true
 	$PowerSound.play()
@@ -96,22 +127,25 @@ func _on_panel_powered() -> void:
 	hud.set_interaction("")
 	_update_objective()
 	ambush_remaining = maxf(ambush_delay, 0.0)
+	ambush_phase = AmbushPhase.WARNING
 	$AlarmLight.show()
 	$BreachWarning.show()
-	_notify("POWER RESTORED - containment failure! Movement near the service bay.")
+	_notify("POWER RESTORED - containment failure! Watch the marked service hatch.")
 
 func _on_door_opened() -> void:
-	if ambush_remaining < 0.0 and not ambush_triggered:
+	if ambush_phase == AmbushPhase.IDLE:
 		_notify("Door open. Reach the green exit marker.")
 
 func _start_ambush() -> void:
-	ambush_remaining = -1.0
+	if ambush_phase != AmbushPhase.OPENING or hatch_elapsed < HATCH_OPEN_DURATION:
+		return
 	if ambush_triggered or mission_complete or player.health_component.current <= 0:
 		return
-	if enemy.activate_ambush():
+	if enemy.emerge_from_hatch($HatchClearance.global_position):
 		ambush_triggered = true
+		ambush_phase = AmbushPhase.EMERGING
 		_update_objective()
-		_notify("PREDATOR IN THE ROOM - fight or reach the green exit!")
+		_notify("PREDATOR EMERGING - fight or reach the green exit!")
 		ambush_started.emit()
 
 func _update_objective() -> void:
@@ -130,12 +164,13 @@ func _notify(message: String) -> void:
 	hud.set_notice(message)
 
 func _on_enemy_destroyed() -> void:
+	_cancel_ambush()
 	$AlarmLight.hide()
 	$BreachWarning.hide()
 	_notify("PREDATOR DOWN - continue to the exit.")
 
 func _on_player_died() -> void:
-	ambush_remaining = -1.0
+	_cancel_ambush()
 	super._on_player_died()
 	hud.set_interaction("")
 	hud.set_notice("")
@@ -146,7 +181,7 @@ func _on_exit_entered(body: Node3D) -> void:
 	if player.health_component.current <= 0:
 		return
 	mission_complete = true
-	ambush_remaining = -1.0
+	_cancel_ambush()
 	enemy.stop_combat()
 	stop_audio()
 	hud.set_interaction("")
@@ -155,6 +190,11 @@ func _on_exit_entered(body: Node3D) -> void:
 	hud.show_success()
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	get_tree().paused = true
+
+func restart_room() -> void:
+	_cancel_ambush()
+	enemy.stop_combat()
+	super.restart_room()
 
 func set_paused(value: bool) -> void:
 	if not mission_complete:

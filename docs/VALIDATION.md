@@ -1,14 +1,14 @@
 # Validation
 
-Validated on 2026-10-16 with **Godot 4.5.1 Standard** on Linux using the Compatibility renderer. Run `bash scripts/check.sh` to reproduce the import and headless suites.
+Validated on 2026-10-17 with **Godot 4.5.1 Standard** on Linux using the Compatibility renderer. Run `bash scripts/check.sh` to reproduce the import and headless suites.
 
 | Suite | Checks passed | Coverage |
 | --- | ---: | --- |
 | `first_playable_test.gd` | 42 | Real TPS input, movement, aiming, projectiles, cover, laser damage, death, pause and restart |
 | `raptor_test.gd` | 24 | Imported animation clips, detection, navigation around cover, bite windup/dodge/occlusion, death and actual weapon hits |
 | `mission_test.gd` | 52 | Mission interactions/lifecycle, corridor visibility/occlusion, actual walking and return timing, camera clearance, predator traversal both ways |
-| `ambush_test.gd` | 17 | Dormant immunity/collision, power trigger, warning, pause timing, single activation, navigation, death/restart cancellation and escape without a kill |
-| **Total** | **135** | Logic and physics checks against actual scenes |
+| `ambush_test.gd` | 44 | Dormancy, real hatch collision/motion, continuous physical emergence, phase-specific pause/death/restart/completion, threshold obstruction, emergence death, single activation and navigation |
+| **Total** | **162** | Logic and physics checks against actual scenes |
 
 The new ambush suite restores power through the actual interaction input path. It does not require killing the predator to complete the mission. The existing raptor suite separately verifies that actual player projectiles can kill it.
 
@@ -44,13 +44,32 @@ Focused regression coverage now includes initial entrance framing/sightline, fus
 
 Rechecked with Godot 4.5.1 after the corridor changes: **135 gameplay checks and 13 launcher checks passed with zero failures**, using the documented local ripgrep PATH workaround. `git diff --check` passed in both the ARCA root and the nested `arca` Git worktree. No commits were made in either worktree.
 
-The scripted ordinary-walking return measured **19.6 simulated seconds**, including brief settling at six waypoints. Manual F5 acceptance is pending: verify entrance recognition from spawn, actual exploration to find the fuse, and roughly 10–20 seconds from fuse pickup to the panel prompt while walking normally without inspection stops. Test camera rotation at both turns, returning from the alcove and near the outer wall; try jumping against the partitions, then complete the original ambush/escape loop and restart.
+The scripted ordinary-walking return measured **19.6 simulated seconds**, including brief settling at six waypoints. On **2026-10-17**, the user reported: "The service corridor works in my F5 playtest." The corridor is accepted by the user. No human timing measurement or separate camera/performance observations were supplied; do not treat the automated timing or staged captures as those measurements.
 
 Software-OpenGL staged captures were generated using `capture_mission.gd` and inspected for the initial view, entrance, alcove screen and fuse. The helper now captures those corridor views as well as the original start/ambush views. Captures are local ignored artifacts under `.artifacts/corridor-captures/`; they do not establish human route timing, GPU performance or final visual acceptance. The rendered run reports existing X11 input-method/V-Sync warnings on this software display, not gameplay script errors. The navigation bake reports its existing agent-height voxel-rounding warning.
 
+## Physical service-hatch entrance
+
+Implemented on 2026-10-17 with mission-only primitive bay/hatch geometry, existing warning lights/signage and the existing raptor Walk clip. The bay reuses the corridor partition as its back wall. Power starts a 1.4-second warning, one second of physical hatch opening, then about 2.3 seconds of collision-aware emergence before the existing alert/combat flow. The exit opens independently and needs no kill.
+
+`bash scripts/check.sh` passed using the existing local ripgrep PATH workaround: **162 gameplay checks and 13 launcher checks, zero failures**, with no script/runtime errors. The unchanged first-playable (42), raptor (24) and mission (52) suites passed, including real projectile kills and corridor traversal. The extended ambush suite passed **44 checks** covering:
+
+- Closed/moving/cleared hatch collision; sign sightline above cover from the panel approach; hidden, non-solid and immune dormancy.
+- The same raptor revealed inside the bay, continuous physics movement through the opening, Walk animation/telemetry, no wall contact or early bite damage, and real subsequent navigation progress.
+- Separate pause freezes during warning, opening and emergence; death, restart and kill-optional completion cancellation during each phase; no duplicate activation or predator.
+- A player obstructing the threshold blocks emergence without clipping or bites; moving away allows handoff. Weapon hits can kill the emerging raptor without a later revival/movement callback.
+
+Mission navigation was rebaked against static bay geometry with the movable leaf clear/excluded. To reproduce in the editor, temporarily raise `ServiceHatch/Leaf` from Y `1.5` to `4.8`, bake/save the mission navigation resource, then restore the leaf to Y `1.5` before saving the scene. Keep the bay walls and closed powered-exit barrier in the bake. The bake reports agent-height voxel rounding and, in the temporary headless bake helper, navigation-map cell-size/height mismatch warnings; the normal gameplay gate reports no script/runtime errors. No navigation settings or warning suppression was changed.
+
+`capture_mission.gd` now stages the panel sightline, closed hatch, partially open hatch, raptor inside the open bay and raptor outside, as well as the accepted corridor views. Rendered using X11/Compatibility and Mesa llvmpipe software OpenGL; captures are ignored under `.artifacts/hatch-captures/`. X11 input-method and unsupported V-Sync warnings remain on this software display. These captures are visual inspection aids, not a human F5 playtest or GPU performance measurement.
+
+Editor diagnostics for the changed mission, raptor and ambush GDScript files report no errors or warnings. The aggregate editor report is not clean: it also attempts to parse Markdown as GDScript (for example, README prose produces "Unexpected identifier ... in class body") and reports Markdown line-length warnings. These are separate from the passing Godot import/gameplay gate; no editor/language-server configuration was changed.
+
+Remaining manual acceptance: use the three-step F5 checklist in `README.md` to judge warning visibility/reaction time, the opening/walk-out, optional shooting/escape and pause/restart behavior. No hatch F5 acceptance has been reported.
+
 ## Known limits
 
-- The predator appears at `AmbushSpawn` after the warning; no animated hatch breach exists yet.
+- The hatch is a primitive sliding panel and shallow bay, not bespoke dinosaur breach animation, final environment art or new sound design.
 - Art, character, sound design and level geometry remain temporary; the enemy is not a scientific species reconstruction.
 - Ammunition is unlimited; inventory and progress reset on restart. No save/load system exists.
 - Zed settings/tasks were syntax checked, not exercised in the user's installed Zed/ACP version. Explicit file-reading prompts provide a fallback if agent or skill auto-discovery differs.

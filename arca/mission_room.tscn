@@ -1,4 +1,4 @@
-[gd_scene load_steps=29 format=3]
+[gd_scene load_steps=38 format=3]
 
 [ext_resource type="PackedScene" path="res://arca/raptor_room.tscn" id="1"]
 [ext_resource type="Script" path="res://arca/mission_room.gd" id="2"]
@@ -86,6 +86,39 @@ material = SubResource("ServiceYellow")
 size = Vector3(4.6, 0.02, 0.3)
 material = SubResource("ServiceYellow")
 
+[sub_resource type="BoxMesh" id="BaySideMesh"]
+size = Vector3(3.4, 4.8, 0.3)
+material = SubResource("Partition")
+
+[sub_resource type="BoxShape3D" id="BaySideShape"]
+size = Vector3(3.4, 4.8, 0.3)
+
+
+[sub_resource type="BoxMesh" id="BayRoofMesh"]
+size = Vector3(3.0, 0.3, 4.2)
+material = SubResource("Partition")
+
+[sub_resource type="BoxShape3D" id="BayRoofShape"]
+size = Vector3(3.0, 0.3, 4.2)
+
+[sub_resource type="BoxMesh" id="HatchMesh"]
+size = Vector3(0.25, 3.0, 3.6)
+material = SubResource("Yellow")
+
+[sub_resource type="BoxShape3D" id="HatchShape"]
+size = Vector3(0.25, 3.0, 3.6)
+
+[sub_resource type="BoxMesh" id="HatchHeaderMesh"]
+size = Vector3(0.2, 1.8, 4.2)
+material = SubResource("Partition")
+
+[sub_resource type="BoxShape3D" id="HatchHeaderShape"]
+size = Vector3(0.2, 1.8, 4.2)
+
+[sub_resource type="BoxMesh" id="HatchRibMesh"]
+size = Vector3(0.07, 0.08, 3.4)
+material = SubResource("ServiceYellow")
+
 [node name="ArcaMissionRoom" instance=ExtResource("1")]
 script = ExtResource("2")
 
@@ -171,11 +204,14 @@ position = Vector3(-7, 1.1, -9.81)
 navigation_mesh = ExtResource("8")
 
 [node name="AmbushSpawn" type="Marker3D" parent="."]
-position = Vector3(5, 0.05, 8.5)
+position = Vector3(4.1, 0.05, 8.55)
+
+[node name="HatchClearance" type="Marker3D" parent="."]
+position = Vector3(0.4, 0.05, 8.55)
 
 [node name="AlarmLight" type="OmniLight3D" parent="."]
 visible = false
-position = Vector3(5, 3.1, 8.5)
+position = Vector3(1.7, 3.4, 8.55)
 light_color = Color(1, 0.12, 0.035, 1)
 light_energy = 2.0
 omni_range = 8.0
@@ -263,9 +299,85 @@ modulate = Color(1, 0.8, 0.3, 1)
 
 [node name="BreachWarning" type="Label3D" parent="."]
 visible = false
-position = Vector3(5, 3.0, 10.5)
+position = Vector3(1.7, 2.8, 8.55)
 billboard = 1
 text = "CONTAINMENT FAILURE"
-font_size = 52
-pixel_size = 0.006
+font_size = 32
+pixel_size = 0.004
 modulate = Color(1, 0.25, 0.12, 1)
+
+[node name="ServiceHatch" type="Node3D" parent="."]
+
+[node name="SideNear" type="StaticBody3D" parent="ServiceHatch"]
+position = Vector3(3.9, 2.4, 6.6)
+
+[node name="Mesh" type="MeshInstance3D" parent="ServiceHatch/SideNear"]
+mesh = SubResource("BaySideMesh")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="ServiceHatch/SideNear"]
+shape = SubResource("BaySideShape")
+
+[node name="SideFar" type="StaticBody3D" parent="ServiceHatch"]
+position = Vector3(3.9, 2.4, 10.5)
+
+[node name="Mesh" type="MeshInstance3D" parent="ServiceHatch/SideFar"]
+mesh = SubResource("BaySideMesh")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="ServiceHatch/SideFar"]
+shape = SubResource("BaySideShape")
+
+
+[node name="Roof" type="StaticBody3D" parent="ServiceHatch"]
+position = Vector3(3.9, 4.65, 8.55)
+
+[node name="Mesh" type="MeshInstance3D" parent="ServiceHatch/Roof"]
+mesh = SubResource("BayRoofMesh")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="ServiceHatch/Roof"]
+shape = SubResource("BayRoofShape")
+
+[node name="Header" type="StaticBody3D" parent="ServiceHatch"]
+position = Vector3(1.95, 3.9, 8.55)
+
+[node name="Mesh" type="MeshInstance3D" parent="ServiceHatch/Header"]
+mesh = SubResource("HatchHeaderMesh")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="ServiceHatch/Header"]
+shape = SubResource("HatchHeaderShape")
+
+[node name="Sign" type="Label3D" parent="ServiceHatch"]
+position = Vector3(1.83, 3.5, 8.55)
+rotation_degrees = Vector3(0, -90, 0)
+text = "SERVICE HATCH\nKEEP CLEAR"
+font_size = 48
+pixel_size = 0.005
+modulate = Color(1, 0.8, 0.3, 1)
+
+[node name="Leaf" type="AnimatableBody3D" parent="ServiceHatch"]
+position = Vector3(2.2, 1.5, 8.55)
+sync_to_physics = false
+
+[node name="Mesh" type="MeshInstance3D" parent="ServiceHatch/Leaf"]
+mesh = SubResource("HatchMesh")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="ServiceHatch/Leaf"]
+shape = SubResource("HatchShape")
+
+[node name="LowerRib" type="MeshInstance3D" parent="ServiceHatch/Leaf"]
+position = Vector3(-0.15, -0.8, 0)
+mesh = SubResource("HatchRibMesh")
+
+[node name="MiddleRib" type="MeshInstance3D" parent="ServiceHatch/Leaf"]
+position = Vector3(-0.15, 0, 0)
+mesh = SubResource("HatchRibMesh")
+
+[node name="UpperRib" type="MeshInstance3D" parent="ServiceHatch/Leaf"]
+position = Vector3(-0.15, 0.8, 0)
+mesh = SubResource("HatchRibMesh")
+
+[node name="BayLight" type="OmniLight3D" parent="ServiceHatch"]
+position = Vector3(3.9, 2.8, 8.55)
+light_color = Color(1, 0.5, 0.2, 1)
+light_energy = 1.3
+omni_range = 4.0
+shadow_enabled = true

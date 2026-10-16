@@ -1,5 +1,5 @@
 extends SceneTree
-## Render the real mission before and after power restoration; requires a display.
+## Render the corridor and physical hatch entrance; requires a display.
 
 func _initialize() -> void:
 	call_deferred("run")
@@ -31,11 +31,37 @@ func run() -> void:
 			await physics_frame
 		await capture(directory.path_join(view[0]))
 	room.fuse.collect()
-	room.player.position = Vector3(-2, 0.05, 2.5)
-	room.player.player_input.camera_base.rotation.y = 0.0
+	room.player.position = Vector3(-8.8, 0.05, 5.1)
+	room.player.player_input.camera_base.rotation.y = 1.27
 	room.player.reset_physics_interpolation()
+	for i in 20:
+		await physics_frame
+	await capture(directory.path_join("hatch_panel_view.png"))
+	# Stage a closer view; captures do not establish human reaction time.
+	room.player.position = Vector3(-2, 0.05, 5.5)
+	room.player.player_input.camera_base.rotation.y = 0.94
+	room.player.reset_physics_interpolation()
+	for i in 20:
+		await physics_frame
+	await capture(directory.path_join("hatch_closed.png"))
 	room.panel.activate(room.has_fuse)
-	for i in 92:
+	for i in 120:
+		if room.ambush_phase == room.AmbushPhase.OPENING:
+			break
+		await physics_frame
+	for i in 24:
+		await physics_frame
+	await capture(directory.path_join("hatch_opening.png"))
+	for i in 120:
+		if room.ambush_phase == room.AmbushPhase.EMERGING:
+			break
+		await physics_frame
+	for i in 20:
+		await physics_frame
+	await capture(directory.path_join("hatch_emerging.png"))
+	for i in 240:
+		if room.enemy.state == ArcaRaptor.State.ALERT:
+			break
 		await physics_frame
 	room.enemy.stop_combat()
 	await capture(directory.path_join("mission_ambush.png"))

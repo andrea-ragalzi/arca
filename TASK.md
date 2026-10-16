@@ -1,4 +1,95 @@
-# Task: repository cleanup
+# Task: predator entrance through a service hatch
+
+Status: implemented following the user's explicit `implement` invocation against this plan. Full gameplay gate passed: 162 gameplay checks and 13 launcher checks, zero failures. Hatch reaction/readability acceptance remains pending the user's F5 playtest. All changes remain uncommitted.
+
+## Recorded feedback
+
+- On 2026-10-17, the user reported: "The service corridor works in my F5 playtest." Record the corridor as accepted by the user; it no longer blocks the hatch task.
+- No human return-time measurement or separate camera/performance observations were supplied. Do not infer those from this acceptance. The earlier 19.6-second result is an automated simulated walking measurement only.
+- Git status was clean before planning. Preserve the previous task records below as historical context.
+
+## Goal and mandatory contracts
+
+Make the existing raptor visibly emerge through an opening service hatch, with enough warning to react, using a small placeholder blockout.
+
+Visible acceptance conditions:
+
+- A recognizable, initially closed service hatch conceals the existing dormant raptor. Power restoration gives a readable warning, the hatch visibly opens, and that same raptor physically walks through the opening before normal combat begins. No appearance in the open room, wall clipping or second predator.
+- Retain the fuse/corridor/panel/exit mission, E interaction rules, TPS controls, camera controller, shooting, current combat balance and kill-optional escape. Do not hold the exit closed until the entrance sequence finishes.
+- Pause freezes every entrance phase. Death and completion cancel unfinished entrance actions; restart restores the closed hatch, hidden/non-solid/immune dormant raptor, fuse and unpowered mission. Repeated E cannot replay the sequence.
+- Preserve Godot 4.5.1 Standard, Compatibility rendering and the existing scene/script inheritance. Leave changes uncommitted.
+
+## Assumptions and non-goals
+
+- Use a shallow enclosed service bay within the existing main-room footprint near `AmbushSpawn`, facing the main room and readable from the panel approach. It is distinct from the accepted fuse corridor and the green exit. This avoids cutting through inherited perimeter walls or expanding the level.
+- Keep the existing 1.4-second warning, then add approximately one second of visible hatch opening and a short walk-out before the existing alert/windup can lead to damage. These are proposed starting values, not proof of sufficient reaction time; F5 acceptance decides readability.
+- Use primitive meshes, matching solid geometry and existing materials/lights/animations. No imported art, sound pack, dependency, general hatch framework, extra enemy, camera cut, control lock, resource economy or unrelated cleanup.
+- Exact bay dimensions/placement must be checked against the composed scene and the raptor's visible mesh, not only its capsule. No unresolved product question blocks this bounded plan.
+
+## Relevant files and inspected baseline
+
+- `arca/mission_room.tscn` inherits `raptor_room.tscn`, which inherits `test_room.tscn`; scripts mirror that chain. Keep hatch geometry in the mission scene. The current marker is `(5, 0.05, 8.5)`, close to the corridor partition at X `5.8` and the exit partition at Z `10.8`; do not cover either route with the new bay.
+- `arca/mission_room.gd`: `_ready()` moves the replacement raptor to the marker and calls `prepare_ambush()`. Power consumes the fuse, opens the exit and starts `ambush_remaining`. After 1.4 seconds `_start_ambush()` immediately reveals/activates the raptor and emits `ambush_started` once. Death/completion cancel the countdown; scene reload handles restart.
+- `arca/enemies/raptor.gd`: dormant state hides the predator, clears collision and ignores hits. `activate_ambush()` restores collision and enters the 0.7-second alert before chase. Reuse its imported Walk animation and collision-aware `CharacterBody3D` movement for emergence; retain the no-argument activation behavior used by existing tests/test rooms.
+- `arca/enemies/raptor.tscn`: capsule radius 0.45, height 1.45; navigation radius 0.55. Visible dinosaur geometry needs additional clearance. `arca/mission_navigation.tres` supplies static mission navigation.
+- `arca/tests/ambush_test.gd` inherits mission helpers and covers warning, single activation, navigation and lifecycle cancellation. Its fixed 90-frame activation wait assumes the old sequence and must become a bounded phase-aware wait, not a weakened assertion. `arca/tests/mission_test.gd` covers the accepted corridor and kill-optional exit; `arca/tests/raptor_test.gd` covers existing combat.
+- `scripts/check.sh` imports and runs launcher checks plus first-playable, raptor, mission and ambush suites. `README.md`, `docs/DESIGN.md` and `docs/VALIDATION.md` currently describe an appearing predator and pending corridor acceptance.
+
+## Approved implementation sequence
+
+1. After approval, inspect Git status again, stop play and save/reload any open Godot scene before external edits. Wait for active imports and establish the supported check baseline.
+2. Add a mission-only shallow bay: back/sides/frame, closed sliding hatch mesh with matching collision, an interior start marker and an outside clearance marker. Reposition the existing ambush marker only as needed. Keep the bay separated from the fuse alcove and powered exit; check a sightline from the panel approach. Reuse alarm/signage, placing the warning at the hatch.
+3. In the mission script, extend the single power-triggered sequence with explicit warning/opening/emergence/active progression. Animate the hatch panel and its collider together; begin emergence only after the opening is clear. Use scene-bound, pause-aware motion and explicitly cancel pending motion/callbacks on death/completion. Guard callbacks against cancellation, restart and duplicate starts. Preserve `ambush_started` as a once-only successful predator activation signal, now at the start of visible emergence.
+4. Add the smallest opt-in emergence behavior to the existing raptor script: reveal the same instance inside the bay, restore its normal collision, play Walk, and move toward the outside marker with real physics. Do not chase, turn toward a player behind the wall or bite until clear. Then hand off to the existing ALERT/CHASE flow. Keep normal activation unchanged outside this mission path. Dormant immunity ends on emergence; being shot/killed or `stop_combat()` must stop the movement without a later callback reviving combat. Include an appropriate telemetry label for the added state.
+5. Bake mission navigation for the new static bay/frame and clear hatch opening, excluding the movable closed leaf from the traversable bake where necessary. Closed-leaf physics still blocks passage. Do not alter base-room resources or create a route through the unpowered exit. Verify actual emergence and subsequent navigation, not just a nonempty path.
+6. Extend the existing ambush suite with focused phase/physics/lifecycle checks below. Retain corridor, controls and combat assertions. Update the three affected docs with user acceptance, the implemented entrance and actual verification results; keep this task's status and remaining F5 validation current.
+
+## Tests and validation
+
+Extend `arca/tests/ambush_test.gd` to verify:
+
+- Initially the hatch physically blocks its opening and the sole raptor is dormant, invisible, non-solid and immune to stray hits. Power starts one warning; no early reveal, movement or player damage occurs.
+- The hatch mesh/collider moves visibly over time, blocks while closed and clears before emergence. The same raptor moves from inside to outside through the opening over multiple physics frames, without teleporting or intersecting bay walls. No attack/damage before clearance; normal alert/chase and meaningful navigation progress follow.
+- Pause separately during warning, opening and emergence: countdown, hatch position and raptor movement freeze, then resume once. Death/restart/completion during each unfinished phase prevent delayed movement, activation or combat; restart restores closed/dormant state.
+- Repeated E produces one `ambush_started` signal and one predator. Killing the exposed raptor during emergence prevents later chase. The powered exit remains usable without a kill, including completion before the entrance finishes.
+- Use bounded phase-aware waits and sample real position/collision changes. Preserve existing progress, occlusion and cancellation assertions; do not merely replace old frame counts with larger arbitrary delays. A player blocking the threshold must not cause clipping, teleportation or an attack before clearance.
+
+Supported final command from the ARCA root (also use for the baseline):
+
+```sh
+bash scripts/check.sh
+```
+
+For focused iteration after imports, use the executable resolved by `scripts/godot_common.sh` with the existing runner arguments: `--headless --audio-driver Dummy --fixed-fps 60 --path . -s res://arca/tests/ambush_test.gd`. Set `GODOT_BIN` for the full check if discovery fails; inspect missing tools before relying on the historical local ripgrep workaround. Expect all suites to pass with no script/runtime errors; report actual counts only after running them. Also inspect `git diff --check` for touched files and the final diff/status. Do not commit.
+
+### Short F5 checklist after implementation
+
+1. Collect the corridor fuse, return to the panel and restore power. Confirm a clear warning, a visibly opening hatch and the same raptor walking out, with time to react and no control/camera takeover.
+2. Evade through the green exit without firing; restart, then separately confirm shooting the emerging/active raptor still works.
+3. Pause/resume during opening and walk-out; restart during the sequence. Check that motion freezes/resumes correctly and restart restores a closed hatch and no visible predator. Verify death/completion produces no later entrance action.
+
+## Risks and remaining validation
+
+- A hatch over an unchanged solid wall is not an entrance. Build a real recess/opening, size it for the visible mesh, and check moving collision/physics synchronization before activation.
+- Navigation must reflect static walls without treating the closed movable hatch as a permanent obstruction. Keep the existing exit collision contract and accepted corridor route intact.
+- Camping at the opening can obstruct the predator; never solve this by teleporting through the player or enabling premature melee. Test obstruction and recovery when the player moves away.
+- Added phases introduce late-callback hazards, especially death/completion during opening or emergence and shooting the raptor before handoff. Explicit cancellation and state guards are required.
+- Implementation and automated checks are complete; hatch F5 acceptance remains pending. Headless logic/physics cannot establish visual readability, reaction comfort or GPU performance.
+
+## Implementation handoff
+
+- `arca/mission_room.tscn`: added a shallow service bay facing the panel side, a matching mesh/collider sliding hatch, readable signage/light and an outside clearance marker. The accepted corridor partition supplies the bay's back wall; no redundant new wall or base-scene change is needed. Navigation is rebaked in `arca/mission_navigation.tres`.
+- `arca/mission_room.gd`: explicit warning/opening/emergence/active/cancelled phases. The one-second leaf animation is stepped in physics rather than a Tween: mesh/collision move together, pause naturally freezes it, and cancellation leaves no delayed callbacks. The original 1.4-second warning and independently opening exit remain.
+- `arca/enemies/raptor.gd`: opt-in EMERGE state walks the same shootable instance through the opening at 1.6 units/second, then hands off to the existing alert/chase. It cannot bite, chase, teleport through an obstruction or revive after death during emergence. Existing no-argument activation and normal combat are unchanged.
+- `arca/tests/ambush_test.gd`: 44 focused phase/physics/lifecycle checks, including obstruction recovery and death during emergence. Existing corridor, controls and combat suites are unchanged. `arca/tests/capture_mission.gd` now stages the entrance phases as well as corridor views.
+- `README.md`, `docs/DESIGN.md` and `docs/VALIDATION.md`: recorded corridor F5 acceptance, described the hatch and remaining visual acceptance, and documented checks/navigation rebaking.
+- Validation: baseline gate passed 135 gameplay + 13 launcher checks; implementation gate passed 162 + 13, using the already available ignored local ripgrep binary in PATH. Focused raptor, mission and ambush runs also passed after fixing implementation-time issues. Godot import/full-suite compilation is the repository's GDScript syntax/type gate. No engine, dependency, controller, combat-balance or base-room changes.
+- Rendered X11/Compatibility captures used Mesa llvmpipe software OpenGL, showing the closed/partially open hatch and the same raptor inside/outside. Artifacts are ignored under `.artifacts/hatch-captures/`; they are not manual acceptance or GPU performance results. See `docs/VALIDATION.md` for known bake/display warnings.
+- Remaining: run the short F5 checklist above to assess reaction comfort, readability and optional combat/escape. No commits or pushes were made.
+
+---
+
+# Previous task: repository cleanup
 
 Status: repository cleanup implemented, integrity checks passed and changes staged for review. The full staged whitespace check reports existing whitespace in the unchanged third-party license; see validation below. No commit or push authorized by this cleanup task.
 
@@ -18,13 +109,13 @@ Status: repository cleanup implemented, integrity checks passed and changes stag
 - Passed integrity checks: all 62 staged source files match the nested repository's original paths, modes and blob hashes; working-file hashes are unchanged; `arca/` resolves to the root repository; no nested `.git`, gitlinks or tracked generated outputs remain; the staged tree serializes successfully and the history backup is readable.
 - Whitespace validation: the full `git diff --cached --check` reports pre-existing trailing whitespace at line 9 and a blank line at EOF at line 12 in `arca/assets/raptor/LICENSE_QUATERNIUS.txt`. The license is byte-for-byte unchanged and retained as supplied. Documentation-only and unstaged whitespace checks passed.
 - Existing root history and the `origin` URL remain unchanged. No gameplay suite was run because this cleanup changes only Git tracking and documentation.
-- Gameplay behavior is unchanged. No new F5 acceptance is required for Git metadata changes; the previous corridor playtest remains pending as recorded below.
+- Gameplay behavior is unchanged. No new F5 acceptance is required for Git metadata changes. The corridor playtest was pending at this cleanup handoff; the user subsequently accepted it on 2026-10-17, as recorded in the current task above.
 
 ---
 
 # Previous task: service corridor and return route
 
-Status: approved for implementation, including the route-and-camera experiment below. Leave changes uncommitted for the user's F5 playtest.
+Status: implemented and subsequently accepted by the user in an F5 playtest on 2026-10-17: "The service corridor works in my F5 playtest." The plan and original handoff below are retained as history; no human return-time measurement was supplied.
 
 ## Goal and mandatory contracts
 
@@ -102,11 +193,11 @@ Manual F5 acceptance playtest:
 
 Implemented the mission-only corridor and screened alcove, concealed fuse/pedestal relocation, entrance/return signs and lighting, floor guide, initial camera framing and corridor wall lining. One inherited crate is repositioned in the mission only to reveal the entrance. Reused the existing scene/script inheritance, interactions and mission lifecycle; rebaked navigation and extended existing tests/capture helpers. No controller, movement speed, shooting, ambush timing or base-room changes.
 
-The automated return route measured about 19.6 simulated seconds with real root-motion walking and brief waypoint settling. Automated checks and staged software-rendered captures are recorded in `docs/VALIDATION.md`. Manual route-and-camera acceptance and human walking timing remain pending the user's F5 playtest. Leave all changes uncommitted.
+The automated return route measured about 19.6 simulated seconds with real root-motion walking and brief waypoint settling. Automated checks and staged software-rendered captures are recorded in `docs/VALIDATION.md`. At the original handoff, manual route-and-camera acceptance and human walking timing were pending. The user subsequently accepted the corridor on 2026-10-17; human walking timing was not reported.
 
 ## Commit handoff
 
-`AGENTS.md` now requires the current task, implementation status and remaining validation to stay documented in `TASK.md`. Every commit of task changes must include the corresponding `TASK.md` update in the same commit, never as a separate follow-up. This does not authorize automatic commits or change the pending F5 acceptance above.
+`AGENTS.md` now requires the current task, implementation status and remaining validation to stay documented in `TASK.md`. Every commit of task changes must include the corresponding `TASK.md` update in the same commit, never as a separate follow-up. This does not authorize automatic commits. The corridor's subsequently reported F5 acceptance is recorded above.
 
 ## Risks and edge cases
 

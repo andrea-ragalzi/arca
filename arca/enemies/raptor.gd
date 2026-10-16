@@ -6,7 +6,9 @@ signal exploded
 signal state_changed(value: int)
 signal attack_landed
 
-enum State { WAIT, ALERT, CHASE, WINDUP, ATTACK, RECOVER, DEAD, DORMANT }
+enum State { WAIT, ALERT, CHASE, WINDUP, ATTACK, RECOVER, DEAD, DORMANT, EMERGE }
+
+const EMERGENCE_SPEED: float = 1.6
 
 @export var move_speed: float = 3.2
 @export var detection_range: float = 10.0
@@ -30,6 +32,7 @@ var combat_enabled: bool = true
 var clips: Dictionary = {}
 var active_collision_layer: int
 var active_collision_mask: int
+var emergence_target: Vector3
 var dead: bool:
 	get: return state == State.DEAD
 var health: int:
@@ -64,9 +67,18 @@ func _physics_process(delta: float) -> void:
 	retarget_remaining -= delta
 	velocity.x = 0.0
 	velocity.z = 0.0
-	if state != State.WAIT and difference.length_squared() > 0.01:
+	if state not in [State.WAIT, State.EMERGE] and difference.length_squared() > 0.01:
 		rotation.y = lerp_angle(rotation.y, atan2(-difference.x, -difference.z), minf(1.0, delta * 8.0))
 	match state:
+		State.EMERGE:
+			var direction: Vector3 = emergence_target - global_position
+			direction.y = 0.0
+			if direction.length() <= 0.08:
+				_change_state(State.ALERT)
+			else:
+				var step: Vector3 = direction.normalized() * minf(EMERGENCE_SPEED, direction.length() / delta)
+				velocity.x = step.x
+				velocity.z = step.z
 		State.WAIT:
 			if distance <= detection_range and _can_see_player():
 				_change_state(State.ALERT)
@@ -138,6 +150,7 @@ func _change_state(value: State) -> void:
 	swing_checked = false
 	warning.visible = value in [State.ALERT, State.WINDUP]
 	match value:
+		State.EMERGE: _play("Walk")
 		State.CHASE: _play("Run")
 		State.ATTACK: _play("Attack")
 		State.DEAD: _play("Death")
@@ -189,8 +202,19 @@ func activate_ambush() -> bool:
 	return true
 
 
+func emerge_from_hatch(target: Vector3) -> bool:
+	if not activate_ambush():
+		return false
+	emergence_target = target
+	var direction: Vector3 = target - global_position
+	rotation.y = atan2(-direction.x, -direction.z)
+	reset_physics_interpolation()
+	_change_state(State.EMERGE)
+	return true
+
+
 func get_status_text() -> String:
 	if state == State.DORMANT:
 		return "NO CONTACT"
-	var labels := ["WAITING", "ALERT", "CHASING", "WINDUP", "ATTACK", "RECOVERY", "DOWN"]
+	var labels := ["WAITING", "ALERT", "CHASING", "WINDUP", "ATTACK", "RECOVERY", "DOWN", "DORMANT", "EMERGING"]
 	return "PREDATOR %d/%d  /  %s" % [health, health_component.max_health, labels[state]]

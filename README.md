@@ -35,7 +35,7 @@ Keep this same `ARCA` folder for future work. Commits identify changes; folder a
 
 1. Find the yellow **SERVICE / FUSE ACCESS** entrance framed by the starting camera. Enter the corridor, follow the floor stripe and explore around the far screen to find the concealed fuse. Collect it with **E**.
 2. Retrace the corridor into the maintenance room and install the fuse at the power panel with **E**.
-3. Power returns and the door opens, but containment fails. A red warning precedes the predator appearing near the service bay.
+3. Power returns and the exit opens, but containment fails. Watch the marked **SERVICE HATCH**: a red warning precedes it sliding open, then the existing raptor walks out before normal combat begins.
 4. Fight it or evade it and cross the green exit marker. Killing the predator is optional.
 
 | Input | Action |
@@ -52,7 +52,15 @@ Keep this same `ARCA` folder for future work. Commits identify changes; folder a
 
 This blockout increment is a route-and-camera experiment, not a new camera controller. From the starting area, the service entrance should be recognizable while the fuse itself remains concealed. The corridor uses a screened alcove, a return sign and the existing third-person spring arm; one inherited crate is repositioned in the mission only to reveal the entrance.
 
-Target **roughly 10–20 seconds of ordinary walking from the fuse back to the panel**. The automated root-motion route measured about **19.6 simulated seconds**, including brief waypoint settling. For the F5 playtest, time your own return from pickup to the panel's E prompt without aiming, jumping or stopping to inspect things. Record whether the entrance was obvious, the fuse required exploration, and the camera stayed comfortable at the entrance, alcove turn and return. Manual acceptance is still pending; a scripted route or staged screenshot is not a human playtest.
+The user accepted the service corridor in an F5 playtest on **2026-10-17**: "The service corridor works in my F5 playtest." The target remains **roughly 10–20 seconds of ordinary walking from fuse to panel**; the automated root-motion route measured **19.6 simulated seconds**, including brief waypoint settling. No human timing measurement was reported.
+
+### Service hatch F5 checklist
+
+1. Restore power and look toward the marked hatch beside the green exit. Check the red warning, visible sliding hatch and raptor walking through the opening, with enough time to react. Movement and camera control remain yours.
+2. Evade through the green exit without shooting. Restart and separately check that shooting the emerging/active raptor still works.
+3. Pause/resume during opening and walk-out, then restart during the sequence. Check that motion freezes/resumes and restart restores the closed hatch and hidden predator; death/completion must prevent later entrance movement.
+
+The sequence gives a 1.4-second warning, a one-second hatch opening and about 2.3 seconds of collision-aware walk-out before the existing alert/combat flow. Hatch reaction/readability acceptance is pending your F5 playtest; headless checks and staged captures cannot establish game feel.
 
 ## Develop with Zed and Godot
 
@@ -74,9 +82,9 @@ Requires Godot 4.5.1, Bash, `timeout` (coreutils) and `rg` (ripgrep). It imports
 
 | File | Responsibility |
 | --- | --- |
-| `arca/mission_room.tscn` | Main playable scene: service corridor, concealed fuse, panel, door, exit and ambush marker |
-| `arca/mission_room.gd` | Objectives, inventory, interaction and ambush countdown |
-| `arca/enemies/raptor.gd` | Predator state machine, navigation, melee and dormant activation |
+| `arca/mission_room.tscn` | Main playable scene: service corridor, concealed fuse, panel, exit and physical service-hatch bay |
+| `arca/mission_room.gd` | Objectives, inventory, interaction and warned hatch-entrance sequence |
+| `arca/enemies/raptor.gd` | Predator state machine, navigation, melee, dormant activation and physical emergence |
 | `arca/interactables/` | Reusable interaction points, fuse, panel and sliding door |
 | `arca/ui/hud.gd` | Health, objectives, prompts, notices and pause/death/completion panels |
 | `arca/player/arca_player.gd` | ARCA health and safe shooting origin around cover |
