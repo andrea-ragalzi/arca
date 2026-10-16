@@ -1,0 +1,36 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://arca/interactables/sliding_door.gd" id="1"]
+
+[sub_resource type="StandardMaterial3D" id="DoorMat"]
+albedo_color = Color(0.15, 0.26, 0.29, 1)
+roughness = 0.6
+
+[sub_resource type="BoxMesh" id="Leaf"]
+size = Vector3(3.2, 3.5, 0.4)
+material = SubResource("DoorMat")
+
+[sub_resource type="BoxShape3D" id="Solid"]
+size = Vector3(3.2, 3.5, 0.4)
+
+[node name="ExitDoor" type="Node3D"]
+script = ExtResource("1")
+
+[node name="DoorBody" type="AnimatableBody3D" parent="."]
+position = Vector3(0, 1.75, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="DoorBody"]
+shape = SubResource("Solid")
+
+[node name="DoorMesh" type="MeshInstance3D" parent="DoorBody"]
+position = Vector3(0, 0, 0)
+mesh = SubResource("Leaf")
+
+[node name="Status" type="Label3D" parent="."]
+position = Vector3(0, 4.1, 0)
+billboard = 1
+no_depth_test = false
+font_size = 38
+pixel_size = 0.007
+modulate = Color(1, 0.55, 0.3, 1)
+text = "03 / EXIT - NO POWER"

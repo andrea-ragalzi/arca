@@ -4,7 +4,7 @@
 
 Open the same folder containing `project.godot` in Zed and Godot. Keep Godot open for scene editing, asset import, and F5 playtesting; use Zed and its Codex agent for source changes. Work in one folder and use Git commits to keep working checkpoints.
 
-The archive includes no `.git` folder and no remote. Initialize your repository using the README commands, then use your own Git identity. A remote can be added later; local Git already provides history, but a copy on another disk or a remote is needed to protect against disk loss.
+Keep one Git repository at the `ARCA` root containing `project.godot`. The `arca/` source folder belongs to that repository; do not initialize a nested repository there. For a source archive without Git history, initialize Git using the README commands. For an existing clone, keep its history and configured remote. Use your own Git identity; local history needs a separate backup or remote to protect against disk loss.
 
 ## Zed
 
@@ -29,11 +29,11 @@ The launchers keep X11, Compatibility rendering and optional NVIDIA offload. Two
 
 Save work, stop the game, close the editor, and relaunch with `bash scripts/editor.sh --nvidia` for these process-local workarounds to take effect. Press F5, then F8, and repeat to check the console for fresh input-method or `BadWindow` messages. Personal Godot settings and system input-method configuration are not modified. Launcher regression checks run with `bash scripts/launcher_test.sh` and as part of `bash scripts/check.sh`.
 
-## Archived project copies
+## Historical project copies
 
-The three existing `ARCA_Prototipo_*_Linux/` directories are historical copies, not part of the active game. Each has a tracked `.gdignore` marker at its outer root so Godot does not scan its duplicate global script classes. Preserve these markers while keeping the copies inside ARCA. `.gitignore` alone does not exclude files from Godot's resource scanner. Keep future backups outside the project rather than adding more nested projects.
+The old `ARCA_Prototipo_*_Linux/` project copies have been removed from the active tree; their tracked contents remain in Git history. Keep future backups outside the project rather than adding duplicate Godot projects or nested Git repositories. `.gitignore` alone does not exclude files from Godot's resource scanner.
 
-After adding an exclusion, restart the Godot editor and reconnect Zed's GDScript language server to clear old diagnostics. Open `.import` metadata and Markdown documentation in Zed, not as Godot resources.
+Open `.import` metadata and Markdown documentation in Zed, not as Godot resources.
 
 ## Daily loop
 
@@ -43,13 +43,13 @@ After adding an exclusion, restart the Godot editor and reconnect Zed's GDScript
 4. Inspect `git diff --stat` and the relevant file changes.
 5. Run `bash scripts/check.sh` after gameplay changes. Do not run another import process during an active Godot import; wait for it to finish.
 6. In Godot, press F5 and test the actual player experience.
-7. Stage the relevant files and make a checkpoint commit when the result works.
+7. Update `TASK.md` with the task, implementation status and remaining validation. Stage it with the relevant files and include it in the same checkpoint commit when the result works.
 
 ```bash
 git switch -c feature/your-change
 # Implement, inspect and playtest.
 git diff --stat
-git add arca/ docs/
+git add arca/ docs/ TASK.md
 git commit -m "Describe the resulting behavior"
 ```
 

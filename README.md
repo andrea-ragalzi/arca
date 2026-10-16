@@ -19,7 +19,7 @@ Use `bash scripts/editor.sh` without `--nvidia` on a computer without NVIDIA off
 
 ## Start Git once
 
-The archive contains the working source tree, including project-specific editor and agent files. Git history and remotes are intentionally absent so you can create your own repository.
+If you downloaded a source archive without Git history, initialize Git once in the `ARCA` folder containing `project.godot`. If you cloned an existing repository, skip this step and keep its configured remote. The `arca/` source directory is a normal tracked folder, not a separate repository; do not run `git init` inside it.
 
 ```bash
 git init -b main

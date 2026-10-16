@@ -1,0 +1,271 @@
+[gd_scene load_steps=29 format=3]
+
+[ext_resource type="PackedScene" path="res://arca/raptor_room.tscn" id="1"]
+[ext_resource type="Script" path="res://arca/mission_room.gd" id="2"]
+[ext_resource type="PackedScene" path="res://arca/interactables/fuse_pickup.tscn" id="3"]
+[ext_resource type="PackedScene" path="res://arca/interactables/power_panel.tscn" id="4"]
+[ext_resource type="PackedScene" path="res://arca/interactables/sliding_door.tscn" id="5"]
+[ext_resource type="AudioStream" path="res://arca/audio/pickup.wav" id="6"]
+[ext_resource type="AudioStream" path="res://arca/audio/power.wav" id="7"]
+
+[ext_resource type="NavigationMesh" path="res://arca/mission_navigation.tres" id="8"]
+
+[sub_resource type="StandardMaterial3D" id="Partition"]
+albedo_color = Color(0.13, 0.19, 0.21, 1)
+roughness = 0.6
+
+[sub_resource type="StandardMaterial3D" id="Yellow"]
+albedo_color = Color(0.75, 0.48, 0.1, 1)
+roughness = 0.6
+
+[sub_resource type="StandardMaterial3D" id="Green"]
+albedo_color = Color(0.1, 0.6, 0.35, 1)
+roughness = 0.6
+
+[sub_resource type="BoxMesh" id="SideWall"]
+size = Vector3(9.4, 4.8, 0.4)
+material = SubResource("Partition")
+
+[sub_resource type="BoxMesh" id="Lintel"]
+size = Vector3(3.2, 1.3, 0.4)
+material = SubResource("Partition")
+
+[sub_resource type="BoxMesh" id="Pedestal"]
+size = Vector3(0.9, 0.8, 0.7)
+material = SubResource("Yellow")
+
+[sub_resource type="BoxMesh" id="ExitMark"]
+size = Vector3(3.0, 0.03, 1.0)
+material = SubResource("Green")
+
+[sub_resource type="BoxShape3D" id="SideSolid"]
+size = Vector3(9.4, 4.8, 0.4)
+
+[sub_resource type="BoxShape3D" id="TopSolid"]
+size = Vector3(3.2, 1.3, 0.4)
+
+[sub_resource type="BoxShape3D" id="PedestalSolid"]
+size = Vector3(0.9, 0.8, 0.7)
+
+[sub_resource type="BoxShape3D" id="ExitShape"]
+size = Vector3(3.0, 3.0, 1.0)
+
+[sub_resource type="BoxMesh" id="CorridorWallMesh"]
+size = Vector3(0.4, 4.8, 16.2)
+material = SubResource("Partition")
+
+[sub_resource type="BoxShape3D" id="CorridorWallShape"]
+size = Vector3(0.4, 4.8, 16.2)
+
+[sub_resource type="BoxMesh" id="AlcoveScreenMesh"]
+size = Vector3(2.8, 4.8, 0.4)
+material = SubResource("Partition")
+
+[sub_resource type="BoxShape3D" id="AlcoveScreenShape"]
+size = Vector3(2.8, 4.8, 0.4)
+
+[sub_resource type="StandardMaterial3D" id="ServiceYellow"]
+albedo_color = Color(0.95, 0.65, 0.12, 1)
+emission_enabled = true
+emission = Color(0.95, 0.45, 0.04, 1)
+emission_energy_multiplier = 0.5
+
+[sub_resource type="BoxMesh" id="ServicePostMesh"]
+size = Vector3(0.12, 4.0, 0.15)
+material = SubResource("ServiceYellow")
+
+[sub_resource type="BoxMesh" id="ServiceHeaderMesh"]
+size = Vector3(5.0, 0.7, 0.4)
+material = SubResource("Partition")
+
+[sub_resource type="BoxMesh" id="ServiceGuideMesh"]
+size = Vector3(0.12, 0.02, 10.8)
+material = SubResource("ServiceYellow")
+
+[sub_resource type="BoxMesh" id="ServiceThresholdMesh"]
+size = Vector3(4.6, 0.02, 0.3)
+material = SubResource("ServiceYellow")
+
+[node name="ArcaMissionRoom" instance=ExtResource("1")]
+script = ExtResource("2")
+
+[node name="FusePickup" parent="." instance=ExtResource("3")]
+position = Vector3(6.7, 1.0, 8.8)
+
+[node name="PowerPanel" parent="." instance=ExtResource("4")]
+position = Vector3(-8.8, 1.1, 6.5)
+
+[node name="ExitDoor" parent="." instance=ExtResource("5")]
+position = Vector3(0, 0, 10.8)
+
+[node name="PartitionLeft" type="StaticBody3D" parent="."]
+position = Vector3(-6.3, 2.4, 10.8)
+
+[node name="Mesh" type="MeshInstance3D" parent="PartitionLeft"]
+position = Vector3(0, 0, 0)
+mesh = SubResource("SideWall")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="PartitionLeft"]
+shape = SubResource("SideSolid")
+
+[node name="PartitionRight" type="StaticBody3D" parent="."]
+position = Vector3(6.3, 2.4, 10.8)
+
+[node name="Mesh" type="MeshInstance3D" parent="PartitionRight"]
+position = Vector3(0, 0, 0)
+mesh = SubResource("SideWall")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="PartitionRight"]
+shape = SubResource("SideSolid")
+
+[node name="Lintel" type="StaticBody3D" parent="."]
+position = Vector3(0, 4.15, 10.8)
+
+[node name="Mesh" type="MeshInstance3D" parent="Lintel"]
+position = Vector3(0, 0, 0)
+mesh = SubResource("Lintel")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Lintel"]
+shape = SubResource("TopSolid")
+
+[node name="FusePedestal" type="StaticBody3D" parent="."]
+position = Vector3(6.7, 0.4, 8.8)
+
+[node name="Mesh" type="MeshInstance3D" parent="FusePedestal"]
+position = Vector3(0, 0, 0)
+mesh = SubResource("Pedestal")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="FusePedestal"]
+shape = SubResource("PedestalSolid")
+
+[node name="ExitMark" type="MeshInstance3D" parent="."]
+position = Vector3(0, 0.025, 12.4)
+mesh = SubResource("ExitMark")
+
+[node name="ExitZone" type="Area3D" parent="."]
+position = Vector3(0, 1.5, 12.4)
+collision_layer = 0
+collision_mask = 2
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="ExitZone"]
+shape = SubResource("ExitShape")
+
+[node name="PickupSound" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("6")
+volume_db = -15.0
+
+[node name="PowerSound" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("7")
+volume_db = -15.0
+
+[node name="Cover3" parent="."]
+position = Vector3(-7, 0.85, -9)
+
+[node name="CoverTop3" parent="."]
+position = Vector3(-7, 1.72, -9)
+
+[node name="CoverStripe3" parent="."]
+position = Vector3(-7, 1.1, -9.81)
+
+[node name="NavigationRegion3D" parent="."]
+navigation_mesh = ExtResource("8")
+
+[node name="AmbushSpawn" type="Marker3D" parent="."]
+position = Vector3(5, 0.05, 8.5)
+
+[node name="AlarmLight" type="OmniLight3D" parent="."]
+visible = false
+position = Vector3(5, 3.1, 8.5)
+light_color = Color(1, 0.12, 0.035, 1)
+light_energy = 2.0
+omni_range = 8.0
+shadow_enabled = false
+
+[node name="ServiceCorridor" type="Node3D" parent="."]
+
+[node name="Partition" type="StaticBody3D" parent="ServiceCorridor"]
+position = Vector3(5.8, 2.4, 2.7)
+
+[node name="Mesh" type="MeshInstance3D" parent="ServiceCorridor/Partition"]
+mesh = SubResource("CorridorWallMesh")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="ServiceCorridor/Partition"]
+shape = SubResource("CorridorWallShape")
+
+[node name="WallLining" type="StaticBody3D" parent="ServiceCorridor"]
+position = Vector3(10.8, 2.4, 2.7)
+
+[node name="Mesh" type="MeshInstance3D" parent="ServiceCorridor/WallLining"]
+mesh = SubResource("CorridorWallMesh")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="ServiceCorridor/WallLining"]
+shape = SubResource("CorridorWallShape")
+
+[node name="AlcoveScreen" type="StaticBody3D" parent="ServiceCorridor"]
+position = Vector3(7, 2.4, 6)
+
+[node name="Mesh" type="MeshInstance3D" parent="ServiceCorridor/AlcoveScreen"]
+mesh = SubResource("AlcoveScreenMesh")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="ServiceCorridor/AlcoveScreen"]
+shape = SubResource("AlcoveScreenShape")
+
+[node name="EntranceLeft" type="MeshInstance3D" parent="ServiceCorridor"]
+position = Vector3(6.05, 2, -5.65)
+mesh = SubResource("ServicePostMesh")
+
+[node name="EntranceRight" type="MeshInstance3D" parent="ServiceCorridor"]
+position = Vector3(10.55, 2, -5.65)
+mesh = SubResource("ServicePostMesh")
+
+[node name="EntranceHeader" type="MeshInstance3D" parent="ServiceCorridor"]
+position = Vector3(8.3, 4.45, -5.4)
+mesh = SubResource("ServiceHeaderMesh")
+
+[node name="EntranceSign" type="Label3D" parent="ServiceCorridor"]
+position = Vector3(8.3, 3.2, -5.7)
+rotation_degrees = Vector3(0, -112, 0)
+text = "SERVICE\nFUSE ACCESS"
+double_sided = false
+font_size = 64
+pixel_size = 0.006
+modulate = Color(1, 0.8, 0.3, 1)
+
+[node name="Threshold" type="MeshInstance3D" parent="ServiceCorridor"]
+position = Vector3(8.3, 0.02, -5.5)
+mesh = SubResource("ServiceThresholdMesh")
+
+[node name="Guide" type="MeshInstance3D" parent="ServiceCorridor"]
+position = Vector3(9.4, 0.02, 0.2)
+mesh = SubResource("ServiceGuideMesh")
+
+[node name="EntranceLight" type="OmniLight3D" parent="ServiceCorridor"]
+position = Vector3(8.5, 3.5, -5)
+light_color = Color(1, 0.7, 0.25, 1)
+light_energy = 2.0
+omni_range = 5.0
+shadow_enabled = true
+
+[node name="AlcoveLight" type="OmniLight3D" parent="ServiceCorridor"]
+position = Vector3(8.5, 3.5, 8.8)
+light_color = Color(1, 0.7, 0.25, 1)
+light_energy = 1.5
+omni_range = 4.0
+shadow_enabled = true
+
+[node name="ReturnSign" type="Label3D" parent="ServiceCorridor"]
+position = Vector3(8.3, 3.2, -5.1)
+text = "RETURN TO\nMAINTENANCE"
+double_sided = false
+font_size = 48
+pixel_size = 0.006
+modulate = Color(1, 0.8, 0.3, 1)
+
+[node name="BreachWarning" type="Label3D" parent="."]
+visible = false
+position = Vector3(5, 3.0, 10.5)
+billboard = 1
+text = "CONTAINMENT FAILURE"
+font_size = 52
+pixel_size = 0.006
+modulate = Color(1, 0.25, 0.12, 1)

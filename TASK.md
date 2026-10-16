@@ -1,4 +1,28 @@
-# Plan: service corridor and return route
+# Task: repository cleanup
+
+Status: repository cleanup implemented, integrity checks passed and changes staged for review. The full staged whitespace check reports existing whitespace in the unchanged third-party license; see validation below. No commit or push authorized by this cleanup task.
+
+## Goal and acceptance conditions
+
+- Keep one Git repository at the `ARCA` root and preserve its existing `origin` remote.
+- Replace the `arca` gitlink with normally tracked source files, so the main repository contains the playable project without a separate remote.
+- Preserve every gameplay file, source-side `.import`, `.uid`, license and attribution without content changes.
+- Preserve the nested repository's complete Git metadata and history locally at `.git/arca-repository-backup`; do not delete or rewrite history.
+- Keep generated files ignored, update Git guidance and include this task update with the cleanup changes whenever they are committed.
+
+## Implementation and validation
+
+- The working trees were clean at the start. The old project copies had already been removed in commit `95e012f`; this task does not repeat or revert that cleanup.
+- Moved `arca/.git` into the local backup above, saved its original tracked-file manifest at `.git/arca-cleanup-index-before`, and replaced the root gitlink with staged source files. The local backup is not published or included in future clones.
+- Updated `README.md` and `docs/WORKFLOW.md` to describe one root repository and commit `TASK.md` alongside task changes.
+- Passed integrity checks: all 62 staged source files match the nested repository's original paths, modes and blob hashes; working-file hashes are unchanged; `arca/` resolves to the root repository; no nested `.git`, gitlinks or tracked generated outputs remain; the staged tree serializes successfully and the history backup is readable.
+- Whitespace validation: the full `git diff --cached --check` reports pre-existing trailing whitespace at line 9 and a blank line at EOF at line 12 in `arca/assets/raptor/LICENSE_QUATERNIUS.txt`. The license is byte-for-byte unchanged and retained as supplied. Documentation-only and unstaged whitespace checks passed.
+- Existing root history and the `origin` URL remain unchanged. No gameplay suite was run because this cleanup changes only Git tracking and documentation.
+- Gameplay behavior is unchanged. No new F5 acceptance is required for Git metadata changes; the previous corridor playtest remains pending as recorded below.
+
+---
+
+# Previous task: service corridor and return route
 
 Status: approved for implementation, including the route-and-camera experiment below. Leave changes uncommitted for the user's F5 playtest.
 

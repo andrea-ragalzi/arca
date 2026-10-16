@@ -1,0 +1,59 @@
+[gd_scene load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://arca/interactables/power_panel.gd" id="1"]
+
+[sub_resource type="StandardMaterial3D" id="Shell"]
+albedo_color = Color(0.12, 0.2, 0.23, 1)
+roughness = 0.6
+
+[sub_resource type="StandardMaterial3D" id="Red"]
+albedo_color = Color(0.85, 0.18, 0.08, 1)
+roughness = 0.6
+
+[sub_resource type="BoxMesh" id="Box"]
+size = Vector3(1.0, 1.4, 0.32)
+material = SubResource("Shell")
+
+[sub_resource type="BoxMesh" id="Screen"]
+size = Vector3(0.65, 0.3, 0.04)
+material = SubResource("Shell")
+
+[sub_resource type="SphereShape3D" id="Range"]
+radius = 2.0
+
+[node name="PowerPanel" type="Area3D"]
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("1")
+action_text = "Install fuse"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("Range")
+
+[node name="Housing" type="MeshInstance3D" parent="."]
+position = Vector3(0, 0, 0)
+mesh = SubResource("Box")
+
+[node name="Indicator" type="MeshInstance3D" parent="."]
+position = Vector3(0, 0.2, -0.18)
+mesh = SubResource("Screen")
+
+material_override = SubResource("Red")
+
+[node name="Title" type="Label3D" parent="."]
+position = Vector3(0, 1.25, 0)
+billboard = 1
+no_depth_test = false
+font_size = 38
+pixel_size = 0.007
+modulate = Color(0.75, 0.94, 0.9, 1)
+text = "02 / POWER PANEL"
+
+[node name="Status" type="Label3D" parent="."]
+position = Vector3(0, 0.95, 0)
+billboard = 1
+no_depth_test = false
+font_size = 38
+pixel_size = 0.007
+modulate = Color(1, 0.55, 0.3, 1)
+text = "FUSE MISSING"
