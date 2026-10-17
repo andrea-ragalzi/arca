@@ -64,9 +64,17 @@ The sequence gives a 1.4-second warning, a one-second hatch opening and about 2.
 
 ## Inspect the Regina character
 
-Open `arca/character_test.tscn` and press **F6** for a separate, static character inspection scene with neutral lighting, a metric ruler and labeled axes. Use the editor 3D viewport to orbit and inspect the rig. **F5 still runs the mission with the original robot**; no TPS replacement has been made.
+Open **`arca/character_locomotion_test.tscn`** and press **F6** for the isolated idle/walk/run experiment. It inherits the unchanged static `arca/character_test.tscn`, preserving its neutral lighting, ruler, axes and visual corrections. **F5 still runs the mission with the original robot**; no TPS replacement has been made.
 
-The imported model has 69 bones, nine materials, 17 textures and **no animation clips**. Its posed height is about 1.799 m. See [the Regina inspection report](docs/REGINA.md) for the complete inventory, appearance/source limitations, focused check command and movement/aim/shoot integration requirements. The original Regina FBX is not in the repository; source comparison remains pending.
+**Controls:** `1` idle, `2` walk, `3` run; `M` switches centered/root-travel playback and resets the lane; `Space` pauses/resumes; `R` restores centered idle; `V` cycles overview/front/side/back. The camera follows travel; the 12 m lane pauses at its end rather than teleporting.
+
+Short **F6 checklist**:
+
+1. Select all three clips. Check human scale against the ruler, -Z facing, and smooth loops/transitions.
+2. Cycle views with `V`: inspect planted feet, knee bends, shoulders/hands and attached costume/holster. Some shoulder/costume clipping remains visible during the run; this is not a final character-art acceptance.
+3. Press `M` and watch travel against the floor references; check no doubled motion or loop snap. Pause/resume, then reset with `R` while paused.
+
+The source model remains 69 bones, nine materials, 17 textures, approximately 1.799 m tall in reference pose, and **zero authored clips**. The supplied original FBX also has no animation objects/takes. This experiment uses separately retargeted **Quaternius CC0** animations after a less suitable trial of the existing CC BY 3.0 TPS set. Root-motion support is **conditional**, not a drop-in player swap: the source clips are in-place; the derived library adds measured -Z travel. See [the Regina report](docs/REGINA.md) for sources, mapping, measured contacts/speeds, checks and remaining TPS/visual limits.
 
 ## Develop with Zed and Godot
 
