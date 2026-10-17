@@ -1,0 +1,7 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="PackedScene" path="res://arca/character_test.tscn" id="1_inspection"]
+[ext_resource type="Script" path="res://arca/character_test.gd" id="2_locomotion"]
+
+[node name="CharacterLocomotionTest" instance=ExtResource("1_inspection")]
+script = ExtResource("2_locomotion")
