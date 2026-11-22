@@ -7,10 +7,10 @@ Validated on 2026-10-17 with **Godot 4.5.1 Standard** on Linux using the Compati
 | Suite | Checks passed | Coverage |
 | --- | ---: | --- |
 | `first_playable_test.gd` | 42 | Real TPS input, movement, aiming, projectiles, cover, laser damage, death, pause and restart |
-| `raptor_test.gd` | 24 | Imported animation clips, detection, navigation around cover, bite windup/dodge/occlusion, death and actual weapon hits |
+| `raptor_test.gd` | 59 | Ferocious model/source bindings, tracks, root anchoring, gait/bite timing and pause/resume; detection, navigation around cover, bite windup/dodge/occlusion, death and actual weapon hits |
 | `mission_test.gd` | 52 | Mission interactions/lifecycle, corridor visibility/occlusion, actual walking and return timing, camera clearance, predator traversal both ways |
 | `ambush_test.gd` | 44 | Dormancy, real hatch collision/motion, continuous physical emergence, phase-specific pause/death/restart/completion, threshold obstruction, emergence death, single activation and navigation |
-| **Total** | **162** | Logic and physics checks against actual scenes |
+| **Total** | **197** | Logic and physics checks against actual scenes |
 
 The new ambush suite restores power through the actual interaction input path. It does not require killing the predator to complete the mission. The existing raptor suite separately verifies that actual player projectiles can kill it.
 
@@ -19,6 +19,21 @@ Additional checks: shell syntax for all launch/check scripts; parsing of Zed JSO
 Rendered captures of the actual mission before and after power restoration were inspected using a software OpenGL GPU on a virtual X11 display. These checks confirm the English HUD, room, opened door, alarm and visible predator; they are not NVIDIA performance measurements. The capture script stages mission state for inspection and is not a manual completion of the mission.
 
 An optional visual helper is `arca/tests/capture_mission.gd`. It requires a display; run Godot with `-s res://arca/tests/capture_mission.gd -- /absolute/output/directory` after importing. `capture.gd`, `capture_raptor.gd` and `shadows_test.gd` remain optional diagnostic tools outside the standard headless command.
+
+## Ferocious Industries gameplay replacement (2026-10-17)
+
+Phase 0 recheck on 2026-11-22 with `bash scripts/check.sh`: launcher 13/0, first-playable 42/0, raptor 59/0, mission 52/0 and ambush 44/0 (checks/failures). Regina-player ran 373 checks with the same 3 failures described below.
+
+The user explicitly authorized replacing the existing raptor, not adding another enemy. Promoted only the audited official glTF, textures and notice, plus a derived presentation library and visual wrapper. `arca/enemies/raptor.gd`, mission/controller/Regina code, collision and combat values are unchanged. The previous Quaternius asset is retained as a source/reference, not instantiated as another predator.
+
+- Saved the clean active raptor scene before editing. Reloaded only that scene after integration and confirmed the new wrapper is active and the source AnimationPlayer is disabled through read-only editor inspection.
+- Baseline `bash scripts/ai_check.sh`: `.artifacts/ai-check-xecv7u8k`; first-playable 42, raptor 24, mission 52, ambush 44 pass; Regina-player **373 checks, 3 failures**.
+- Final post-change full gate: `.artifacts/ai-check-kzqb11kb` (an earlier equivalent pass/failure result is retained at `.artifacts/ai-check-vqxa_bn4`); launcher **13**, first-playable **42**, expanded raptor **59**, mission **52**, ambush **44** pass. Regina-player remains **373 checks, the same 3 failures** with the same aim/sole measurements. The full command still fails overall; no assertion was weakened or unrelated failure repaired.
+- New model checks cover all six authentic source mappings, original rig/root/jaw, valid finite tracks, no animation damage callbacks, source-driver exclusion, -Z facing/native scale, fixed root translation, calibrated walk/jog timing, unchanged 0.833333 s attack cycle, jaw opening/closure around the existing 0.24 s damage check, and pause/resume. Existing weapon, dodge, occlusion, navigation, death/restart and physical hatch tests still pass.
+- Reproducible offline baker produces the separate derived six-binding AnimationLibrary; source data and notices are preserved. Bite's preparation prefix is trimmed and presentation retimed rather than changing damage timing or recovery. World/root travel is held in the derived binding rather than applied on top of CharacterBody3D movement.
+- Rendered the actual staged mission/hatch sequence with **X11 / Compatibility / Mesa Intel Iris Xe** and inspected the new model in opening/emergence/after-emergence captures. Outputs: `.artifacts/raptor-replacement/`. Source material conversion warnings and contact limitations remain; no GPU performance, manual F5 acceptance or final art-quality verdict is claimed.
+- Preservation check caught Godot's scene-save operation also reserializing cached Regina libraries. Compared all animation keys, times and track layout against exact pre-task hash-matching snapshots: no pose/timing changes. Restored only those serialization side effects to their original bytes and repeated the full gate above. Regina/player/mission/AI/project sources are unchanged from the initial manifest.
+- User F5 acceptance recorded on 2026-11-22. To repeat: restore power, watch the new raptor walk through the hatch and chase, evade/bite/shoot it, inspect death, then pause/restart. Confirm only one predator and unchanged mission flow. Head/tail remain visual geometry around the unchanged collision capsule.
 
 ## Regina socket/grip follow-up (2026-10-17)
 

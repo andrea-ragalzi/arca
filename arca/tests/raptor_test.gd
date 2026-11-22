@@ -17,10 +17,89 @@ func reset_room() -> void:
 	await frames(30)
 
 
+func presentation_checks(predator: ArcaRaptor) -> void:
+	check(predator.skin.scene_file_path == "res://arca/enemies/ferocious_model.tscn",
+		"Gameplay uses the Ferocious Industries model wrapper")
+	check(predator.skin.scale.is_equal_approx(Vector3.ONE)
+		and predator.skin.basis.z.is_equal_approx(Vector3.FORWARD),
+		"Native model scale and -Z gameplay facing are preserved")
+	var capsule: CapsuleShape3D = predator.get_node("CollisionShape3D").shape
+	check(is_equal_approx(capsule.radius, 0.45) and is_equal_approx(capsule.height, 1.45)
+		and is_equal_approx(predator.move_speed, 3.2) and predator.attack_damage == 20,
+		"The visual replacement does not change collision, chase speed or damage")
+	var model: Node3D = load("res://arca/enemies/ferocious_model.tscn").instantiate()
+	root.add_child(model)
+	await process_frame
+	var animation: AnimationPlayer = model.get_node("AnimationPlayer")
+	var imported: AnimationPlayer = model.get_node("Model/AnimationPlayer")
+	check(not imported.active and imported.get_animation_list().size() == 26,
+		"All source clips remain available, but only the gameplay player drives the rig")
+	animation.callback_mode_process = AnimationMixer.ANIMATION_CALLBACK_MODE_PROCESS_MANUAL
+	var skeleton: Skeleton3D = model.find_children("*", "Skeleton3D", true, false)[0]
+	var root_bone: int = skeleton.find_bone("Root_02")
+	var jaw: int = skeleton.find_bone("Jaw_1_014")
+	check(skeleton.get_bone_count() == 137 and root_bone >= 0 and jaw >= 0,
+		"The original complete rig, root and jaw are bound")
+	var sources: Dictionary = {"Idle": "Idle_02", "Walk": "Walk", "Run": "Jog",
+		"Attack": "Bite_02", "Death": "Death_01", "Jump": "Leap_01"}
+	for action: String in sources:
+		var name: StringName = predator.clips[action]
+		var clip: Animation = animation.get_animation(name)
+		check(clip != null and clip.get_meta("source_clip") == sources[action],
+			"%s explicitly binds the intended real source clip" % action)
+		check(clip.loop_mode == (Animation.LOOP_LINEAR if action in ["Idle", "Walk", "Run"] else Animation.LOOP_NONE),
+			"%s has the intended loop/one-shot behavior" % action)
+		var valid: bool = true
+		for track: int in clip.get_track_count():
+			var path: NodePath = clip.track_get_path(track)
+			var target: Node = model.get_node_or_null(NodePath(path.get_concatenated_names()))
+			valid = valid and target != null and clip.track_get_type(track) not in [Animation.TYPE_METHOD, Animation.TYPE_AUDIO]
+			if target is Skeleton3D and path.get_subname_count() > 0:
+				valid = valid and skeleton.find_bone(path.get_subname(0)) >= 0
+		check(valid, "%s resolves every track and cannot trigger gameplay events" % action)
+		skeleton.reset_bone_poses()
+		animation.play(name)
+		var anchored: bool = true
+		var finite: bool = true
+		for phase: int in 5:
+			animation.seek(clip.length * phase / 4.0, true)
+			skeleton.force_update_all_bone_transforms()
+			anchored = anchored and skeleton.get_bone_pose_position(root_bone).length() < 0.0001
+			for bone: int in skeleton.get_bone_count():
+				finite = finite and skeleton.get_bone_global_pose(bone).is_finite()
+		check(anchored and finite, "%s retains finite poses without moving its physics-owned root" % action)
+	check(is_equal_approx(animation.get_animation(predator.clips["Walk"]).length, 2.9 / 1.6)
+		and is_equal_approx(animation.get_animation(predator.clips["Run"]).length, 3.2453 / 3.2),
+		"Walk and jog presentation match the unchanged gameplay movement speeds")
+	var attack: Animation = animation.get_animation(predator.clips["Attack"])
+	check(absf(attack.length - 5.0 / 6.0) < 0.00001,
+		"New attack presentation preserves the previous 0.833333 s combat cycle")
+	animation.play(predator.clips["Attack"])
+	animation.seek(0.0, true)
+	var closed: Quaternion = skeleton.get_bone_pose_rotation(jaw)
+	animation.seek(0.12, true)
+	check(closed.angle_to(skeleton.get_bone_pose_rotation(jaw)) > deg_to_rad(20.0),
+		"The bite visibly opens before the unchanged hit time")
+	animation.seek(0.24, true)
+	check(closed.angle_to(skeleton.get_bone_pose_rotation(jaw)) < deg_to_rad(5.0),
+		"The bite jaw closes near the existing 0.24 s damage check")
+	model.queue_free()
+	var before: float = predator.animation.current_animation_position
+	room.set_paused(true)
+	await frames(30)
+	check(is_equal_approx(predator.animation.current_animation_position, before),
+		"Pause freezes the replacement animation player")
+	room.set_paused(false)
+	await frames(2)
+	check(predator.animation.current_animation_position > before,
+		"Resume advances the same replacement clip")
+
+
 func run() -> void:
 	await reset_room()
 	var predator: ArcaRaptor = room.enemy
-	check(predator.clips.size() == 6, "Six real animation clips are loaded from the GLB")
+	check(predator.clips.size() == 6, "Six real source-backed gameplay animation bindings are loaded")
+	await presentation_checks(predator)
 	check(room.get_node("NavigationRegion3D").navigation_mesh.get_polygon_count() > 10,
 		"Baked navigation geometry is present")
 	check(not room.has_node("RedRobot") and get_nodes_in_group("arca_predator").size() == 1,

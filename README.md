@@ -62,6 +62,12 @@ The user accepted the service corridor in an F5 playtest on **2026-10-17**: "The
 
 The sequence gives a 1.4-second warning, a one-second hatch opening and about 2.3 seconds of collision-aware walk-out before the existing alert/combat flow. The user confirmed that the service hatch passed this F5 checklist on **2026-10-17**, accepting hatch readability and reaction comfort. The task was closed through documentation only; no gameplay fixes were needed. This acceptance is not a GPU performance measurement.
 
+## Gameplay raptor
+
+The mission and predator test room now use **Ferocious Industries' PBR Velociraptor**, licensed under CC BY 4.0. It replaces the previous visible raptor; it does not add another enemy. The existing AI, collision, health, 20-HP bite, navigation and hatch lifecycle remain unchanged. Its visual wrapper selects Idle_02, Walk, Jog, Bite_02 and Death_01; the source rig and clips remain intact. See [the source/adaptation notes](arca/assets/raptor/ferocious/README.md) and [credits](ATTRIBUTIONS.md).
+
+Press **F5**, restore power and inspect the new raptor emerging from the service hatch. Check its facing, walking/chasing, bite, death, pause and restart. Source contact/material limitations remain visible; this replacement does not resolve Regina's existing quality-gate failures.
+
 ## Inspect the Regina character
 
 Press **F5** to play the mission as Regina. Her gameplay model, animation bake and primitive prototype handgun are integrated into the shared ARCA player; the original TPS controller, camera, collision and projectile behavior remain in use. The base `player/player.tscn` remains the unchanged visible-robot reference. For the separate idle/walk/run experiment, open **`arca/character_locomotion_test.tscn`** and press **F6**; it still inherits the static `arca/character_test.tscn` and its inspection lighting, ruler and visual corrections.

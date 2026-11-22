@@ -2,11 +2,139 @@
 
 | Phase | Scope | Status |
 | --- | --- | --- |
-| 0 | Ferocious raptor F5 acceptance and three checkpoint commits (AI tooling, Regina player, Ferocious raptor) | User F5 accepted and baseline reproduced. AI tooling and Regina player checkpoints recorded. Ferocious raptor checkpoint pending. |
-| 1 | Source-based Regina upper aim | Pending Phase 0 |
+| 0 | Ferocious raptor F5 acceptance and three checkpoint commits (AI tooling, Regina player, Ferocious raptor) | Complete. User F5 accepted on 2026-11-22. Baseline reproduced and all three checkpoints recorded. |
+| 1 | Source-based Regina upper aim | Next. Source bake, regression checks and user F5 acceptance pending. |
 | 2 | Source-based Regina lateral soles | Pending Phase 1. Check the KayKit Free 1.1 inventory first and stop for user direction if lateral clips are absent. The full gate must pass from this phase onward. |
 | 3 | Limited ammo, reload, ammo box and medkit | Pending Phase 2 |
 | 4 | Win/death mission summary | Pending Phase 3 |
+
+Phase 0 reference baseline (2026-11-22, `.artifacts/ai-check-4gapfeve`): launcher 13/0, first-playable 42/0, raptor 59/0, mission 52/0 and ambush 44/0 (checks/failures). Regina-player ran 373 checks with 3 known failures: upper aim and both lateral soles.
+
+---
+
+Phase 0 recheck after user F5 acceptance: `bash scripts/check.sh` reproduced the reference baseline with Godot closed. Current logs are in `.artifacts/test-logs/`.
+
+---
+
+# Task: replace the gameplay raptor with Ferocious Industries
+
+Status: **implemented and accepted in the user F5 playtest** (2026-11-22). Explicitly authorized by the user to replace the existing raptor, not add another enemy. This supersedes the earlier evaluation-only integration prohibition for this bounded replacement; it does not approve any Regina change. Raptor/mission/ambush checks pass; the full gate retains the same three baseline Regina failures.
+
+## Goal and acceptance
+
+- The existing mission and predator room show the licensed Ferocious Industries raptor instead of Quaternius, with the same single predator, AI, collision, navigation, health, damage, bite timing, hatch sequence, pause, death and restart behavior.
+- Preserve `arca/enemies/raptor.gd` byte-for-byte. Preserve Regina, TPS/controller, mission scripts/scenes and project configuration. Keep the previous licensed raptor source available; do not delete user assets or commit changes.
+- Install only the audited official glTF source/license/textures and a small visual wrapper. A derived six-clip library maintains the existing `$Skin/AnimationPlayer` and suffix-based action contract; the imported source player must remain inactive.
+- Map Idle/Walk/Run/Attack/Death/unused Jump to Idle_02/Walk/Jog/Bite_02/Death_01/Leap_01. Use native model scale with the existing 180-degree facing correction. Anchor animated root translation so source travel cannot override physics, including death and the unused jump binding.
+- Presentation-only timing: calibrate Walk/Jog to existing 1.6/3.2 m/s using measured source RM distances. Trim Bite_02's initial preparation prefix at 14/24 s and retime to the unchanged 0.833333 s attack cycle, with jaw closure near the existing 0.24 s damage check. Preserve previous Death/Jump clip durations. No new damage events, hit/roar states, IK, rig repair or AI changes.
+
+## Files, validation and known limits
+
+- Source/provenance/baker/library: `arca/assets/raptor/ferocious/`; visual wrapper `arca/enemies/ferocious_model.tscn`; replace only Skin resource/scale in `arca/enemies/raptor.tscn`.
+- Add focused model/clip/track/facing/root-anchor/pause/death regression coverage to `arca/tests/raptor_test.gd`; retain every existing combat/navigation/projectile/lifecycle assertion. Update relevant credits, README/design and validation notes without overwriting their unrelated edits.
+- Baseline actually run before replacement: `bash scripts/ai_check.sh`, snapshot `.artifacts/ai-check-xecv7u8k`. Launcher 13, first-playable 42, raptor 24, mission 52, ambush 44 pass; Regina-player **373 checks, 3 existing failures** (upper aim and both lateral soles). Full gate fails; preserve and compare those failures, never weaken tests.
+- Bake/import in an isolated source snapshot to avoid competing with the live editor. Run focused raptor, mission and ambush checks, then the documented full gate through `bash scripts/ai_check.sh` while the editor remains open. Inspect rendered gameplay with Compatibility; provide F5 steps for the user's final judgment.
+- Existing audit limits remain: spec/gloss material conversion is approximate and some contact defects persist. The model's visible head/tail are not new collision shapes. The original fixed collision/damage ranges remain intentional for this replacement. No claim of final art/performance acceptance.
+- Editor identity verified as `/home/andrea/Workspace/ARCA`. The clean active raptor scene was saved before external edits; preserve other open scene buffers and reload this saved scene only when safe.
+
+---
+
+## Implementation handoff
+
+- The main game now uses `arca/enemies/ferocious_model.tscn` through the existing raptor scene. Original source, 26 source entries and credit are under `arca/assets/raptor/ferocious/source/`; a separate reproducible library provides the six existing suffix bindings. No dependency on the evaluation worktree or Downloads at runtime.
+- Idle_02/Walk/Jog/Bite_02/Death_01 and the unused Leap_01 binding retain source skeleton/body/morph data. Derived root positions are anchored; locomotion presentation matches existing speeds. Bite starts at source 14/24 s and is retimed to the previous 0.833333 s cycle; opening/closure around 0.24 s is checked. No AI, damage event or new state was added.
+- Post-change `bash scripts/ai_check.sh` runs `scripts/check.sh` in `.artifacts/ai-check-kzqb11kb/project` (final rerun after preservation checks): launcher **13/0**, first-playable **42/0**, raptor **59/0**, mission **52/0**, ambush **44/0**. Regina-player **373 checks, the same 3 pre-existing failures**. The overall gate remains failing, not a new raptor regression.
+- Source/license hashes verified; gameplay AI, controller/player/Regina, mission and project configuration preserved. Godot's editor save reserialized three cached Regina libraries; compared key/timing/track data to pre-task copies, restored only these serialization side effects from byte/hash-matching snapshots and reran the full gate. Final protected-file hashes match the initial manifest. Existing uncommitted edits and historical task records retained. No commits, branch changes, rig repairs or source-animation edits.
+- The clean active raptor scene was saved before editing and reloaded afterwards; editor inspection confirms the new Skin wrapper and inactive imported player. Staged Compatibility mission captures are under `.artifacts/raptor-replacement/`; emergence and post-emergence images were inspected and show the replacement.
+- The user accepted the raptor F5 checklist on 2026-11-22. Approximate spec/gloss conversion and source contact defects are still art limitations; collision remains intentionally unchanged. Do not treat automated logic checks or staged captures as human visual/performance acceptance.
+
+---
+
+# Previous task plan: evaluate two original Velociraptor models in an isolated worktree
+
+Status: **plan prepared; awaiting user approval** (2026-10-17). Planning only: no worktree, asset download, import, preview, screenshot or runtime test has been created/run. Only this task record is changed by this pass. The existing Regina plan and all preceding work are preserved below; they are not approved, completed or implemented by this task.
+
+## Goal and mandatory contracts
+
+Evaluate these exact original candidates for ARCA, using **Godot 4.5.1 Standard / Compatibility**:
+
+| Candidate | Official model page | Current evidence in this planning pass |
+| --- | --- | --- |
+| A — Velociraptor | <https://sketchfab.com/3d-models/velociraptor-59910f5d62f74e558499c166738b0e6d> | License, author, download access, geometry, rig, materials and clips **not yet verified**. |
+| B — PBR Velociraptor Animated | <https://sketchfab.com/3d-models/pbr-velociraptor-animated-8f1744af7b0847a2aabe3df90be802f0> | License, author, download access, geometry, rig, materials and clips **not yet verified**. |
+
+- Verify the exact asset license and permitted use, real acquisition availability, geometry, skeleton/skinning, materials/textures and **every included animation**, not just the seven requested roles.
+- For each candidate explicitly assess **Idle, Walk, Run, Attack, Hit, Roar and Death**, distinguishing an included usable clip from a missing clip, an included defective clip and an unverified asset. Model titles, viewer playback and marketing lists are not proof that downloadable source files contain those clips.
+- Import each legally obtainable candidate into its **own preview scene**, isolated from gameplay. Produce comparable Godot-rendered screenshots with identical lighting/cameras and an original neutral **1.80 m human silhouette/mannequin**, not Regina.
+- Recommend the stronger fit for a **3D survival horror with advanced-PS2 / early-PS3 aesthetics**, prioritizing visual quality and genuinely usable animation coverage. Do not select a winner from thumbnails or polygon count alone.
+- Do not modify Regina, controllers, AI, missions, the production raptor, the main scene or the main branch/ref. No final integration, commits, merges, pushes, purchases, engine/tool upgrades, rig repairs or replacement animations. Integration requires a separate explicit user approval.
+- The only current-checkout exception is this required planning update to `TASK.md`; all later evaluation files and imports belong to the isolated worktree, with a separate `.godot` cache. No production files are promoted back.
+
+## Assumptions, non-goals and acquisition gates
+
+- The existing checkout is on `main` at abbreviated commit `305a5cc`, with substantial unrelated tracked/untracked work. Only this checkout currently appears in `git worktree list`. Preserve its exact working state; never stash, reset, clean, switch branches or commit it for this experiment.
+- Use a **detached worktree from a freshly recorded HEAD**, not a clone or a copied source snapshot. A worktree does not include uncommitted changes: this is intentional because the independent previews must not depend on ongoing Regina work. Record this baseline distinction in the report and carry the approved task record into the worktree without overwriting unrelated task history.
+- Proposed location: a verified-unused external evaluation parent with a leaf folder named `ARCA` (for example `../arca-asset-review/ARCA`). Verify parent/path availability before creation; do not nest another Godot project under the live resource tree. Worktree creation writes Git administrative metadata but must not move `main` or change its files.
+- Download only through the author's/platform's permitted workflow. No viewer extraction, scraping of protected asset payloads, unauthorized mirrors, account/credential creation or recording signed download URLs/tokens. If login, payment, missing entitlement or platform restrictions block acquisition, document the exact blocker and ask only for the necessary user-authorized download/input; continue with the other available candidate.
+- Preserve original archives, source filenames and embedded notices. Verify redistribution/derivative/commercial restrictions and attribution duties separately from technical importability; a downloadable file is not necessarily usable for ARCA. Unclear or conflicting terms block import/recommendation until clarified. A listed license is not independent proof of the uploader's ownership; record provenance limits.
+- No clip creation, retargeting, invented action aliases, motion slicing or pose repairs to fill coverage gaps. A generic action name must be checked by playback; a stationary `RESET`/bind pose is not Idle, and Attack cannot silently stand in for Hit or Roar. If a single take contains apparent actions, report it as a combined take, not independent ready-to-use clips.
+- Preserve native dimensions and record axes/units first. Any preview-only uniform unit conversion, facing or floor offset must be explicit and reproducible. Do not resize each dinosaur to the same height or conceal a scale defect; physical-size judgments use the shared 1.80 m reference. Any optional proposed game scale is a separately labeled view, not the source-scale evidence.
+
+## Relevant files and current flow
+
+| Existing file | Responsibility / evaluation boundary |
+| --- | --- |
+| `README.md`, `docs/DESIGN.md`, `AGENTS.md` | Godot 4.5.1/Compatibility, current prototype direction, asset attribution and preservation rules. |
+| `project.godot` | Main scene is `arca/mission_room.tscn`, 1280×720 viewport and GL Compatibility; current checkout enables the MCP plugin. Preserve live configuration. |
+| `arca/enemies/raptor.tscn` | Production CharacterBody3D wraps the Quaternius GLB with 180-degree yaw and uniform 0.28 scale; collision/navigation are gameplay assumptions, not candidate dimensions. Do not instance this AI wrapper in the previews. |
+| `arca/enemies/raptor.gd` | Discovers suffixes Idle/Walk/Run/Attack/Death/Jump; gameplay drives Walk for emergence, Run for chase and Attack/Death for combat. Hit/Roar are not currently animation states. Record compatibility costs only; do not edit this mapping or AI. |
+| `arca/assets/raptor/raptor.glb`, `LICENSE_QUATERNIUS.txt` | Existing licensed CC0 predator remains unchanged; not either requested candidate. |
+| `arca/tests/capture_raptor.gd` | Existing capture instantiates a gameplay room and player, so it is unsuitable for this isolated comparison. Reference only. |
+| `arca/tests/capture_regina_locomotion.gd` | Reference for deterministic clip-phase captures, awaiting `frame_post_draw`, PNG output checks and contact sheets; do not run or edit the Regina scene for this task. |
+| `ATTRIBUTIONS.md` | Add exact candidate credits/license notices **only in the evaluation worktree** once verified assets are introduced. |
+| `scripts/godot_common.sh`, `scripts/check.sh`, `docs/WORKFLOW.md` | Pinned executable discovery, import/full regression gate, external scene safety and display-based visual validation. |
+
+Preview flow: authorized original archive -> preserved source/license and hash manifest -> isolated Godot import -> independent model instance and actual AnimationPlayer inventory -> shared comparison stage -> structural/continuous playback checks -> rendered captures -> evidence-based report. No dependency leads from the preview into mission/controller/AI data.
+
+## Proposed minimal solution and ordered implementation
+
+1. **Freeze identity and create isolation after approval.** Recheck Git status/worktrees and full HEAD/main refs; fingerprint live tracked/untracked production files and imports without exposing credentials. Verify a fresh external path and create the detached worktree. Preserve the approved plan there. Confirm that the engine executable is 4.5.1 Standard and use Compatibility explicitly; disable editor-bridge plugins only in the evaluation configuration if necessary so the live editor cannot be mistaken for the worktree. Keep its project name/folder ARCA. Never send mutations to the live editor.
+2. **Verify provenance and actual acquisition for A and B.** Record page/model ID, author, date, license/version/link, rights restrictions, listed formats and advertised animation claims with source evidence. Attempt authorized downloads, distinguishing listed-download, login-required, successfully downloaded, blocked and unavailable. Confirm actual archive/container signatures and integrity rather than accepting an HTTP success/login page. Hash the received archive and every imported source; inspect archive paths before extraction. Reconcile archive/embedded license notices with the page. Unknown rights block import; a blocked download leaves geometry/rig/clip findings unverified, not absent.
+3. **Inventory complete originals and import separately.** Keep candidates in distinct directories under a proposed `arca/asset_review/` subtree in the worktree, outside the production raptor directory. Keep non-importable archives/source extras outside the resource scan or behind `.gdignore`. Import every supplied relevant model/animation file and attached library; prefer an original glTF/GLB when available, with native FBX import/conversion only as necessary and documented. Inspect multiple supplied formats for clip/material omissions rather than declaring a clip missing from one incomplete conversion. Preserve originals, import settings, `.uid`, source-side `.import` and license notices. Record missing external textures/buffers, duplicate clips and conversion warnings explicitly.
+4. **Audit source and imported data.** For each candidate record vertices, triangles, surfaces/submeshes, mesh instances/LODs, world-space bounds/units, UVs/normals/tangents and obvious geometry defects. Distinguish source counts from Godot's imported vertex splitting. Record Skeleton3D count, bone count/hierarchy/rest orientation, skin bind mapping, weighted influences and deformation issues in jaw/neck/limbs/tail. Record material slots, texture names/resolutions/channels, alpha/two-sided behavior, PBR maps and missing/unsupported Compatibility features. Use original materials first; any narrowly necessary format correction must be labeled and compared, not an aesthetic repaint.
+5. **Audit every animation and the seven required roles.** Record exact source and Godot names, duration, key/channel/track counts, targeted bones, loop flag, root translation/rotation and whether playback is in-place. Inspect all clips at original 1× timing, with scrubbing plus continuous playback; check foot sliding, loop seams, jaw/neck/tail deformation, transitions back to idle, attack readability/contact phase, Hit recovery, Roar jaw/body motion and Death's ending/ground contact. Measure root displacement and plausible locomotion speed without changing controller/root-motion policy. Build a seven-row role matrix with candidate-specific evidence: present/usable, present/limited or broken, missing after complete inventory, or unverified due to unavailable data. List all extra clips and variants separately. Never synthesize substitutes to improve scores.
+6. **Build two independent previews on one shared stage.** Proposed files: `arca/asset_review/stage.tscn`, `candidate_a.tscn`, `candidate_b.tscn`, one small typed playback/capture script and one focused audit/check script. These are planned, not existing runnable entry points. Use fixed neutral key/fill/rim lighting, environment/exposure, shadows, backdrop/floor grid, identical front/side/three-quarter/detail cameras, viewport and physical camera positions. Add the same original 1.80 m human-shaped primitive mannequin and metric ruler to both scenes; verify actual ground-to-top bounds. Keep all bodies in the same coordinate frame, never independently auto-frame/auto-light each candidate. Fit the shared full-body camera to both dinosaurs including tails, with separate shared close-ups for detail. Provide clip selection, pause/scrub/replay and clear missing-action labels; no player, AI, navigation or gameplay events.
+7. **Capture controlled visual evidence.** Use a display-backed Compatibility run, not headless screenshots or Sketchfab thumbnails. Capture paired overview/front/side/three-quarter neutral poses with the human reference, identical close-ups, and labeled contact sheets at recorded phases for each real requested clip. Preserve lossless uncropped source PNGs and a capture manifest with camera/stage parameters, candidate scale, exact clip, timestamp/phase, engine/renderer and source hashes. For unequal durations show both seconds and normalized phase, without pretending semantic events occur at identical phases. Missing/unavailable actions get explicit report cells, not fake captures. Inspect several loops and complete one-shots in real time; stills alone cannot certify animation quality.
+8. **Deliver the comparison and stop before integration.** Write a worktree-local report (proposed `docs/VELOCIRAPTOR_REVIEW.md`) with license/download evidence, source/import inventories, all-clips appendix, seven-role matrix, matched screenshot links, defects, adaptation costs and a ranked recommendation. Prioritize readable threatening silhouette, skin/texture/material quality and coherent usable locomotion/combat/death over modern PBR marketing or minimum triangle count. Explain missing Hit/Roar and other costs without implementing them. If only one model is obtainable, recommend provisionally from tested evidence and explicitly leave the other unevaluated; if neither is available/legal, report no defensible winner and the exact blocked inputs. Leave all assets/scenes in the worktree, unintegrated and uncommitted, pending the user's decision. Record actual outcomes/remaining validation in its task record.
+
+## Tests, validation and expected outcomes
+
+### Focused evaluation checks to add/run after approval
+
+- Both preview scenes resolve all model/material/texture/animation paths and instantiate without script/import/runtime errors. Source and imported animation inventories reconcile; an intentionally absent clip is a documented coverage result, not silently skipped test coverage or substituted Idle.
+- The human reference is exactly 1.80 m high in world-space bounds; camera, lighting, environment, viewport and reference transforms match between previews. Check full-body frames contain the entire dinosaur/reference and close-ups use identical settings.
+- All clips have finite transforms, valid track/skin targets and reproducible seek/play/reset. Report missing skin weights/invalid data as defects. Check first/middle/last poses and loop endpoints; check actual loops continuously and one-shot completion/terminal poses without adding repairs. Animation event/method/audio tracks must not trigger gameplay side effects in the preview.
+- Capture writes must succeed with nonempty image output, visible lit geometry and the correct Compatibility renderer. Keep evidence of import/deformation/material failures instead of hiding them. Headless checks validate structure, not visual quality or GPU performance; no benchmark claim from headless timing.
+- Verify worktree status and live-file fingerprints/main ref before/after. Expected live delta from this planning pass is only the task-plan addition; no later experiment modifies the live working tree. Distinguish concurrent unrelated user edits rather than reverting them.
+
+### Existing repository-supported commands for later use
+
+Run commands **inside the isolated worktree only**, after imports finish, using the repository's pinned executable discovery / `GODOT_BIN` as needed and bounded process timeouts:
+
+```bash
+bash scripts/editor.sh
+bash scripts/check.sh
+```
+
+`editor.sh` is the interactive launch for F6 previews and requires manual closure; do not execute it as an unbounded terminal job. Record exact bounded import/audit/capture commands once their paths exist and the executable is verified; none of the proposed preview tools is runnable yet. `check.sh` is an optional broader regression gate after the focused asset checks, and mandatory if implementation unexpectedly affects gameplay (which would first require renewed scope approval). Compare with the unmodified detached baseline, not the dirty main checkout. Known Regina failures described in preserved tasks are not permission to weaken tests, nor proof that the detached baseline has identical results.
+
+Manual F6 acceptance in the **worktree editor**: open each candidate preview, compare the shared cameras and 1.80 m reference, play every included clip at 1×, scrub the seven requested roles when present, inspect loop seams/attack/Hit/Roar/Death, and confirm screenshot pairs match the stage. Do not change the main scene or use mission F5 to integrate/test the candidates.
+
+Planning validation: read-only repository/status inspection and `git diff --check -- TASK.md` only. No remote license/download claim, model quality verdict or runtime/screenshot result is established by this plan.
+
+## Risks and stop conditions
+
+Login/paywall/removed downloads, inconsistent license notices, unverified provenance, missing companion animation archives, baked/combined takes, unsupported materials, nonuniform units, broken binds, root-travel differences and skeleton import losses can invalidate a candidate. Distinguish each blocker from an actually missing clip. Stop before bypassing access controls, buying content, modifying source art/rigs, fabricating animations, changing gameplay or promoting a candidate. A recommendation may be conditional or negative; user approval of this plan authorizes evaluation only, not final adoption.
 
 ---
 

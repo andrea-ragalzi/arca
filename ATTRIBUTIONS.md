@@ -15,7 +15,17 @@ Upstream music is credited to Christian Fernando Perucchi under CC-BY 3.0. This 
 
 ARCA adaptations include the room and HUD, health component, offline integration, collision/laser/restart fixes, and renaming an unused player GLB animation clip. The player's remaining geometry, rig and animations are preserved. ARCA code and new scenes are MIT under `LICENSE_ARCA.md`; derived assets retain the attribution above.
 
-## Animated predator
+## Gameplay predator
+
+**"PBR Velociraptor (Animated)"** by **Ferocious Industries**.
+Source: <https://skfb.ly/oHoUE> / <https://sketchfab.com/3d-models/pbr-velociraptor-animated-8f1744af7b0847a2aabe3df90be802f0>.
+Author: <https://sketchfab.com/ferociousindustries.matthias>.
+Licensed under **Creative Commons Attribution 4.0 International (CC BY 4.0)**: <http://creativecommons.org/licenses/by/4.0/>.
+The original download notice is preserved in `arca/assets/raptor/ferocious/source/license.txt`.
+
+The official user-supplied Sketchfab glTF, binary, textures, rig and source clips are unchanged. Godot converts its specular/glossiness materials for Compatibility rendering. ARCA's separate derived gameplay library selects six real source clips, retimes presentation, trims the bite's initial preparation and anchors root translation to preserve the existing physics/combat contract; see `arca/assets/raptor/ferocious/README.md`. The derived animation resource retains CC BY 4.0; it is not MIT-only because its baker is code.
+
+## Retained Quaternius predator reference
 
 Velociraptor by **Quaternius**, Dinosaur Animated Pack (December 2018).
 CC0 1.0 Universal; the original license is in `arca/assets/raptor/LICENSE_QUATERNIUS.txt`.
@@ -71,4 +81,4 @@ The gameplay bake also corrects additive aim encoding: one constant rest-relativ
 Fuse, panel, door, divider geometry, the Regina prototype handgun's simple box meshes, mission and ambush logic, documentation and project workflow files are ARCA additions under MIT, as stated in `LICENSE_ARCA.md`. The handgun is original placeholder geometry, not extracted from the TPS robot or represented as final weapon art.
 The two short sounds `arca/audio/pickup.wav` and `arca/audio/power.wav` are original synthesized sounds distributed under the same MIT license; they are not extracted from games or third-party sound packs.
 
-The playable mission retains its credited TPS placeholder and Quaternius predator. The separate inspection scene includes the Regina fan model credited above; its underlying provenance has not been independently verified. Neither that model's stated CC license nor ARCA's broader fan-story concept grants rights to Capcom's names or characters.
+The playable mission retains its credited TPS foundation and uses the Ferocious Industries predator above. The Quaternius dinosaur source remains available as a retained reference, not a second gameplay enemy. The separate inspection scene includes the Regina fan model credited above; its underlying provenance has not been independently verified. Neither that model's stated CC license nor ARCA's broader fan-story concept grants rights to Capcom's names or characters.

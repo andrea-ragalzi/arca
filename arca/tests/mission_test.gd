@@ -16,6 +16,9 @@ func reset_mission() -> void:
 		current_scene = room
 	room.enemy.stop_combat()
 	await frames(15)
+	room.player.player_input.aiming = false
+	room.player.player_input.toggled_aim = false
+	room.player.player_input.aiming_timer = 0.0
 
 func move_player(position: Vector3) -> void:
 	room.player.position = position

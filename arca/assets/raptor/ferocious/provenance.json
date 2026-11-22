@@ -1,0 +1,25 @@
+{
+  "title": "PBR Velociraptor (Animated)",
+  "author": "Ferocious Industries",
+  "source": "https://sketchfab.com/3d-models/pbr-velociraptor-animated-8f1744af7b0847a2aabe3df90be802f0",
+  "license": "CC-BY-4.0",
+  "license_url": "http://creativecommons.org/licenses/by/4.0/",
+  "archive": "pbr_velociraptor_animated.zip",
+  "archive_sha256": "110add9c1ff229f2b57f61fc24a83f9f87a3242c43d59c52728a99b82e80efdc",
+  "source_files_sha256": {
+    "license.txt": "5a1a040a18e0d4f11828df45134eefe945dbba3c09ebac2ed3c5894ae15cef31",
+    "scene.bin": "4bff4bd4fa72cd8d86da1e8cd5d367e866f350674f0823ed40f0f0c3eb853eb9",
+    "scene.gltf": "be399c8d8dca4fc263af3b008cfeaa7786ea7baf5d2bd9c0cffc908bf5092366",
+    "textures/Body_Mat_normal.png": "3caec1efd9575d8319af3440b196174704000632cfb426b38f49281b7f2396e1",
+    "textures/Other_Mat_specularGlossiness.png": "ba2fd22e8c6e7caf8e0a705da110992006f1c45547668647896167bcd03b62db",
+    "textures/Body_Mat_occlusion.png": "c7eab396df9a84f9fe931dc84a5d4c94bca58b5f8c86091b96f6f874fc49d53d",
+    "textures/Other_Mat_occlusion.png": "031486fcc6355570f362ad19a12aebf57d2afb97f896ee3177dafb14855994c9",
+    "textures/Other_Mat_normal.png": "5484d7f28875885e5057deb921887cf727afd99ff6ccf66368419eb9db2d0baa",
+    "textures/Other_Mat_diffuse.png": "1e7e259d5efdd4b72ca731b41646869b868ac35f4fafa2fd2f28e1af0af6e984",
+    "textures/Body_Mat_diffuse.png": "6cd69b2a828cabb3688a37e81843bc62c0533b83583ac6b9a5794e47887f52d7",
+    "textures/Body_Mat_specularGlossiness.png": "bf089c380b9a73a3c2137334373ee73c592128ea56b6b8305e92c1735fc5b1a2"
+  },
+  "derived_library": "gameplay.tres",
+  "baker": "bake_animations.gd",
+  "adaptations": "Six explicit source bindings, body-root translation held constant, gait timing calibrated to unchanged movement speeds, bite anticipation trimmed and retimed to existing attack duration, death/jump retimed to existing durations. Source rig/animation/texture files unchanged."
+}
