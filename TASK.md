@@ -1,3 +1,15 @@
+# Prototype completion roadmap
+
+| Phase | Scope | Status |
+| --- | --- | --- |
+| 0 | Ferocious raptor F5 acceptance and three checkpoint commits (AI tooling, Regina player, Ferocious raptor) | User F5 accepted and baseline reproduced. AI tooling checkpoint recorded. Regina and raptor checkpoints pending. |
+| 1 | Source-based Regina upper aim | Pending Phase 0 |
+| 2 | Source-based Regina lateral soles | Pending Phase 1. Check the KayKit Free 1.1 inventory first and stop for user direction if lateral clips are absent. The full gate must pass from this phase onward. |
+| 3 | Limited ammo, reload, ammo box and medkit | Pending Phase 2 |
+| 4 | Win/death mission summary | Pending Phase 3 |
+
+---
+
 # Task: prove Regina locomotion in the isolated character test scene
 
 Status: **implemented following the user's explicit `implement` invocation**. Delivered an isolated inherited idle/walk/run preview and reproducible licensed animation bake. Clean-import validation passes: 68 locomotion + 93 static Regina + 162 gameplay + 13 launcher checks. The source FBX has no animation data; TPS adaptation was trialed first, then Quaternius CC0 motion was selected. Root-motion compatibility is conditional on a later explicit player integration. Small shoulder/costume clipping remains during run; user F6 acceptance and a fresh human F5 check are pending, not marked approved. Prior task records are preserved below.
@@ -559,3 +571,28 @@ The automated return route measured about 19.6 simulated seconds with real root-
 - The closed sliding exit must remain a real barrier after rebaking; escape must still require restored power and a fully opened door.
 - Relocating the fuse invalidates hard-coded positions in tests and any visual capture helper. Inspect affected helpers and update only location-dependent setup if needed; do not mistake staged captures for gameplay acceptance.
 - Headless checks cannot establish route readability, camera comfort or rendered quality. Manual F5 review is required before calling the layout accepted.
+
+---
+
+# Tooling task: configure the ARCA AI development environment
+
+Status (2026-10-17): **installation/configuration complete; standalone and native Zed end-to-end verification passed against an isolated ARCA editor; activation in the already-open working editor remains manual and unverified**. This tooling-only handoff is appended to preserve the concurrently edited Regina task records above. It does not accept, modify or supersede any gameplay/animation work.
+
+## Result and scope
+
+- Kept Godot 4.5.1 Standard/Compatibility and the built-in Zed Agent with the existing ChatGPT subscription. No gameplay/source model/controller/animation changes, engine upgrade, second Godot MCP, new test framework, commit or push were made by this task.
+- Installed hybridindie MCP outside ARCA at `/home/andrea/Workspace/tools/godot-mcp` using frozen uv runtime dependencies. Current upstream failed 4.5.1 compilation on `EditorInterface.get_unsaved_scenes()`; pinned both server and the unmodified `addons/godot_mcp/` to compatible revision `ba5026d2a34073e8e4b68874cb8b03b691f04636` (package/addon 2026.09.19), retaining MIT notices and UIDs.
+- Backed up native `/home/andrea/.config/zed/settings.json` to `settings.json.before-arca-ai-20261017.bak`, added the stdio `godot` server with absolute executable/project paths and loopback bridge, and populated explicit profile allowlists. Build permits the pinned 191 tools; Plan/Review/Diagnose permit only 77 read-only tools. Existing subscription, model, permissions and other settings are preserved; inactive Flatpak settings were not changed.
+- Retained `arca-godot`; added four focused native skills for 3D patterns, animation audits, debugging/regressions and MCP operation. Evaluated both requested repositories, excluded incompatible/incorrect examples and the overlapping bridge, and retained the adapted source's MIT notice.
+- Added `scripts/ai_check.sh` and `scripts/mcp_smoke.py`, plus Zed snapshot-check tasks. Checks use the real installed Godot and the existing local ripgrep fallback without importing into the open editor's cache. MCP smoke enables the addon only in its fresh isolated snapshot and uses port 19080.
+- Updated `AGENTS.md`, README, workflow/prompts, attributions and `docs/AI_ENVIRONMENT.md` with exact pins, safety boundaries, evidence, known failures and manual completion. The live `project.godot` and existing scenes were not rewritten.
+
+## Validation and remaining limits
+
+- Godot reports `4.5.1.stable.official.f62fdbde1`; the live GDScript LSP answered a real initialization request on port 6005. Existing uv 0.13.1, gdtoolkit 4.5.0 and GDScript extension 0.9.0 are available.
+- Pinned addon import/compilation passed. Real standalone MCP stdio calls returned bridge-connected health, ARCA project identity, active mission, `ArcaMissionRoom` hierarchy, script variables, `Floor.collision_layer=1` and `Player.position` approximately `(0, 0.05, -9)`. Captured stdout was valid JSON-RPC; no MCP mutation tools were invoked. `bash scripts/ai_check.sh --mcp` passed in `.artifacts/ai-check-on7bjr1c/`.
+- Initial baseline snapshot full gate passed launcher 13 and gameplay 42/24/52/44 checks; Regina-player reproduced the existing **301 checks, 2 sole-contact failures**, unchanged. Concurrent later Regina edits were detected and preserved. A later `bash scripts/ai_check.sh` run in `.artifacts/ai-check-smsh8fzw/` passed the same launcher/gameplay suites and reported **369 Regina checks with the same 2 failures**. Each result describes its copied state, not subsequent concurrent edits.
+- Non-writing gdlint/gdformat checks run successfully as tools but report existing mission-script style findings (12 lint issues; formatter would change the file). No mass formatting or unrelated fixes were made.
+- **Native Zed verification passed:** the Zed-owned server (parent is the running Zed editor) returned connected health, ARCA/4.5.1 project identity, the active mission, its depth-1 hierarchy and `Floor.collision_layer=1` through actual native tool calls. The verified editor was the isolated `.artifacts/ai-check-on7bjr1c/project/` copy. An initial short-lived probe expired between calls; a longer bounded retry passed. That temporary editor was stopped; the Zed server and original working editor were left running.
+- **Only manual completion remaining:** enable **Godot MCP** in the existing ARCA editor's Project Settings → Plugins, then repeat native health/project identity calls and require the live path `/home/andrea/Workspace/ARCA/`. No Zed restart is currently required. Live-project activation remains unverified, distinct from the successful native isolated-editor end-to-end test.
+- Full setup report and repeatable commands: `docs/AI_ENVIRONMENT.md`. Logs/snapshots are ignored local artifacts. No rendered-quality, GPU-performance or gameplay acceptance claim is made.

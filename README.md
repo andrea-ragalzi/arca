@@ -80,7 +80,7 @@ The source model remains 69 bones, nine materials, 17 textures, approximately 1.
 
 The project includes `.zed/settings.json` with save on focus change, plus `.zed/tasks.json` with editor, play, test and Git-status tasks. Open Zed's command palette, run **task: spawn**, and select an **ARCA:** task. Keep one Godot editor instance open on this folder.
 
-Use the bootstrap prompt in [docs/PROMPTS.md](docs/PROMPTS.md) for your first Codex conversation. `AGENTS.md` contains project instructions; `.agents/skills/arca-godot/SKILL.md` contains the optional reusable workflow. If the agent does not discover these automatically, explicitly ask it to read those paths. No custom slash commands or extra MCP server are needed.
+Use the **built-in Zed Agent with the existing ChatGPT subscription**, not an external Codex agent. The bootstrap prompt is in [docs/PROMPTS.md](docs/PROMPTS.md); `AGENTS.md` and `.agents/skills/` provide repository instructions and specialized Godot skills. [docs/AI_ENVIRONMENT.md](docs/AI_ENVIRONMENT.md) records the pinned Godot MCP installation, Zed settings, verified read-only checks and remaining live-editor activation steps. No custom slash-command registry or second Godot MCP is needed.
 
 Stop the game and save scenes before an agent edits them. Reload external scene changes from disk instead of overwriting them from an old editor tab. Godot auto-reload settings and daily steps are in [docs/WORKFLOW.md](docs/WORKFLOW.md).
 
@@ -89,6 +89,8 @@ Stop the game and save scenes before an agent edits them. Reload external scene 
 ```bash
 bash scripts/check.sh
 ```
+
+If Godot is already open, use `bash scripts/ai_check.sh` for the same gate in an isolated source snapshot, or `bash scripts/ai_check.sh --mcp` for a read-only MCP/4.5.1 check without touching live scenes. See [the AI environment guide](docs/AI_ENVIRONMENT.md) for logs and the existing local ripgrep fallback.
 
 Requires Godot 4.5.1, Bash, `timeout` (coreutils) and `rg` (ripgrep). It imports assets and runs the actual gameplay/physics suites. Logs go to ignored `.artifacts/test-logs/`. On Pop!_OS, install missing ripgrep with `sudo apt install ripgrep`.
 

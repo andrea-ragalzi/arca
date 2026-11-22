@@ -44,6 +44,16 @@ Obtained from the free Standard glTF mirror at <https://github.com/J-Ponzo/gltf-
 
 ARCA's derived `locomotion.tres` maps those clips onto the Regina reference rig, preserves its lengths/skin, closes small loop endpoint differences, calibrates constant foot-height offsets and -Z travel, and retimes the jog to 70% playback for the run. Source animation/mannequin data is CC0; the Regina rig/reference transforms retain the Otherspectre **CC BY 4.0** attribution and provenance limits above. The derived animation asset is not covered by the MIT code license merely because the baker is code. The previously credited TPS CC BY 3.0 set was inspected/trialed first but is not used in the final Regina library.
 
+## AI development tooling
+
+**hybridindie/godot-mcp** by John Doh / John D Studios, MIT.
+Source: <https://github.com/hybridindie/godot-mcp/tree/ba5026d2a34073e8e4b68874cb8b03b691f04636>.
+`addons/godot_mcp/` is the unchanged upstream addon at that pinned revision, with its original notice in `addons/godot_mcp/LICENSE`. The matching Python server is installed outside ARCA; see `docs/AI_ENVIRONMENT.md` for the Godot 4.5.1 compatibility decision.
+
+Selected Godot architecture, animation and debugging skill topics adapted from **vl4dt/godot-skills**, copyright (c) 2026 RoboCat, MIT.
+Source: <https://github.com/vl4dt/godot-skills/tree/1ae280d35f2cc3931d4d8eb63f4bac82d6acf4a0>.
+The focused `.agents/skills/godot-3d-patterns`, `godot-animation-audit` and `godot-debug-regression` adaptations exclude incompatible/incorrect examples and preserve the full upstream notice in `.agents/skills/LICENSE_GODOT_SKILLS.txt`. The upstream package and its overlapping MCP bridge are not installed.
+
 ## ARCA additions
 
 Fuse, panel, door, divider geometry, mission and ambush logic, documentation and project workflow files are ARCA additions under MIT, as stated in `LICENSE_ARCA.md`.

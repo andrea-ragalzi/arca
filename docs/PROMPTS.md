@@ -1,6 +1,6 @@
 # Agent prompts
 
-Paste one prompt at a time into the Codex agent in Zed, with the entire ARCA folder open. These are plain prompts; they do not require custom slash commands. All generated project content must be English. You can still ask questions in Italian.
+Paste one prompt at a time into the built-in Zed Agent using the existing ChatGPT subscription, with the entire ARCA folder open. These are plain prompts; they do not require custom slash commands. All generated project content must be English. You can still ask questions in Italian.
 
 ## Bootstrap a new conversation
 

@@ -12,6 +12,7 @@
 - Inspect `git status` first. Preserve unrelated and uncommitted work. Do not reset, clean or overwrite it.
 - Implement one bounded feature with visible acceptance conditions. Keep the tested upstream TPS movement, camera and shooting unless the task explicitly changes them.
 - Prefer small scripts, explicit state and signals over new frameworks. Use tabs and typed GDScript where it improves clarity.
+- Prefer modular composed scenes and Resources for new configuration; preserve established inheritance. Keep models, controllers and gameplay logic separate. Do not introduce ECS, generic state frameworks or new autoloads without a scoped requirement.
 - Check scene inheritance and node/resource paths when editing `.tscn` or `.tres`. Save/reload editor work before external scene edits. Never overwrite unsaved Godot scene changes.
 - Keep `.uid`, source-side `.import`, licenses and attributions tracked. Do not track `.godot/`, exports, logs, credentials or local artifacts.
 - Add assets only with a known source and license; update `ATTRIBUTIONS.md`. Preserve original license notices.
@@ -24,6 +25,11 @@
 - Run `bash scripts/check.sh` after gameplay changes, or the relevant suite during iteration. Set `GODOT_BIN` if the portable executable is not discovered. Wait for active imports to finish first.
 - Add focused regression checks for meaningful behavior changes; do not write tests solely to mirror cosmetic edits. Fix errors instead of hiding them or relaxing assertions.
 - Headless checks validate logic and physics, not GPU performance or visual quality. State what actually ran and give manual F5 steps for visual checks.
+
+## AI editor tooling
+
+- Use the built-in Zed Agent and specialized `.agents/skills/`; see `docs/AI_ENVIRONMENT.md` for the pinned MCP, profile safety and validation status. Do not upgrade the engine or add an overlapping Godot MCP.
+- MCP connectivity checks are read-only. Verify project identity and bridge connection before acting; scene mutation requires an authorized development task and saved editor work. Use `bash scripts/ai_check.sh [--mcp]` for isolated checks while the editor is open.
 
 ## Handoff and Git
 
