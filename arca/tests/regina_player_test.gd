@@ -338,8 +338,10 @@ func test_necessary_sole_contact() -> void:
 		check(minf(minima.x, minima.y) >= -0.002, "%s has no sole penetration below 2 mm" % clip)
 
 
-func hand_triangles(skeleton: Skeleton3D, regina: Node3D) -> Array[Array]:
+func hand_triangles(skeleton: Skeleton3D, regina: Node3D, side: String = "right") -> Array[Array]:
 	var triangles: Array[Array] = []
+	var wrist: StringName = &"arm right wrist_021" if side == "right" else &"arm left wrist_040"
+	var finger_prefix: String = "arm %s finger " % side
 	for mesh: MeshInstance3D in regina.find_children("*", "MeshInstance3D", true, false):
 		if mesh.skin == null:
 			continue
@@ -362,7 +364,7 @@ func hand_triangles(skeleton: Skeleton3D, regina: Node3D) -> Array[Array]:
 					probe["bones"].append(skeleton.find_bone(name))
 					probe["weights"].append(weights[offset])
 					probe["binds"].append(mesh.skin.get_bind_pose(bones[offset]))
-					if name == &"arm right wrist_021" or String(name).begins_with("arm right finger "):
+					if name == wrist or String(name).begins_with(finger_prefix):
 						hand_weight += weights[offset]
 				probe["hand"] = hand_weight >= 0.5
 				probes.append(probe)
@@ -500,6 +502,10 @@ func test_aim_pose_quality() -> void:
 	actor.animation_tree.callback_mode_process = AnimationMixer.ANIMATION_CALLBACK_MODE_PROCESS_MANUAL
 	var model: Node3D = actor.get_node("PlayerModel/ReginaModel")
 	var skeleton: Skeleton3D = model.get_node(actor.REGINA_SKIN_PATH)
+	var gun: Node3D = actor.shoot_from.get_parent()
+	var right_triangles: Array[Array] = hand_triangles(skeleton, model.get_node("Regina"))
+	var left_triangles: Array[Array] = hand_triangles(skeleton, model.get_node("Regina"), "left")
+	check(right_triangles.size() > 100 and left_triangles.size() > 100, "Aim clearance samples skinned triangles from both hands")
 	var library: AnimationLibrary = load("res://arca/assets/characters/regina/gameplay.tres")
 	for clip: StringName in [&"AIM-Up", &"AIM-Down"]:
 		var animation: Animation = library.get_animation(clip)
@@ -511,14 +517,24 @@ func test_aim_pose_quality() -> void:
 	var directions: Array[Vector3] = []
 	actor.animation_tree["parameters/state/transition_request"] = "strafe"
 	actor.animation_tree["parameters/strafe/blend_position"] = Vector2.ZERO
-	for pitch: float in [0.0, -1.0, 1.0]:
+	for camera_pitch: float in [0.0, PlayerInputSynchronizer.CAMERA_X_ROT_MAX, PlayerInputSynchronizer.CAMERA_X_ROT_MIN]:
+		actor.player_input.camera_rot.rotation.x = camera_pitch
+		var pitch: float = actor.player_input.get_aim_rotation()
 		actor.animation_tree["parameters/aim/add_amount"] = pitch
 		actor.animation_tree.advance(0.1)
 		actor.animation_tree.advance(0.25)
 		actor.animation_tree.advance(0.0)
 		skeleton.force_update_all_bone_transforms()
 		await process_frame
-		directions.append(-actor.shoot_from.get_parent().global_basis.z)
+		var barrel: Vector3 = actor.global_basis.inverse() * -gun.global_basis.z
+		directions.append(barrel)
+		if camera_pitch != 0.0:
+			var label: String = "Full up aim" if pitch > 0.0 else "Full down aim"
+			check(barrel.z > 0.0, "%s stays in the forward hemisphere (%s)" % [label, barrel])
+			var right_intersections: int = metal_intersections(skeleton, right_triangles, gun)
+			var left_intersections: int = metal_intersections(skeleton, left_triangles, gun)
+			check(right_intersections == 0 and left_intersections == 0,
+				"%s has no hand triangles penetrating slide/barrel by over 1 mm (right %d, left %d)" % [label, right_intersections, left_intersections])
 	check(directions[1].y < directions[0].y - 0.1,
 		"Down aim pitches the visible barrel below neutral (neutral %s, down %s)" % [directions[0], directions[1]])
 	check(directions[2].y > directions[0].y + 0.1,

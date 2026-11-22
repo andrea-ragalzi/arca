@@ -1,9 +1,11 @@
 extends SceneTree
-## Offline retarget and bake of the licensed TPS poses to Regina's unchanged skin.
-## Run after importing both source GLBs. Derived TPS data remains CC BY 3.0.
+## Offline retarget and bake of TPS and Quaternius poses to Regina's unchanged skin.
+## Import the source GLBs before running. See ATTRIBUTIONS.md for derivative licenses.
 
 const TARGET := "res://arca/assets/characters/regina/regina.glb"
 const DONOR := "res://player/model/player.glb"
+const PISTOL_DONOR := "res://arca/assets/characters/regina/source/ual_pistol_grip.glb"
+const UAL_MAP: Array[Array] = preload("res://arca/assets/characters/regina/bake_locomotion.gd").MAP
 const OUTPUT := "res://arca/assets/characters/regina/gameplay.tres"
 const SKIN_PATH := "Regina/Sketchfab_model/Mesh_fbx/RootNode/Armature/Object_4/Skeleton3D"
 const FPS: float = 60.0
@@ -42,7 +44,16 @@ const CLIPS: Array[Array] = [
 	["jump_2_upwards", "jump_2_upwards"], ["jump_4_falling", "jump_4_falling"],
 	["jump_5_hardlanding", "jump_5_hardlanding"],
 ]
-const AIM_CLIPS: Array[StringName] = [&"AIM-Center", &"AIM-Up", &"AIM-Down"]
+const PISTOL_AIM: Dictionary[StringName, StringName] = {
+	&"AIM-Up": &"Pistol_Aim_Up",
+	&"AIM-Down": &"Pistol_Aim_Down",
+}
+# Neutral-relative sagittal barrel spans measured in the full human retarget
+# trial. Normalize both additive poses to the inherited 70-degree camera limit.
+const PISTOL_PITCH_SPAN: Dictionary[StringName, float] = {
+	&"AIM-Up": deg_to_rad(85.3515),
+	&"AIM-Down": deg_to_rad(88.7064),
+}
 
 
 func _initialize() -> void:
@@ -246,7 +257,6 @@ func run() -> void:
 	var target_pelvis: Vector3 = 0.5 * (bone_transform(dest, "leg left thigh_063", true).origin \
 		+ bone_transform(dest, "leg right thigh_059", true).origin)
 	var library := AnimationLibrary.new()
-	var aim_center := Animation.new()
 	var soles: Array[Dictionary] = sole_vertices(target, dest)
 	for pair: Array in CLIPS:
 		var source_clip: Animation = player.get_animation(pair[0]).duplicate(true)
@@ -263,39 +273,20 @@ func run() -> void:
 		animation.loop_mode = Animation.LOOP_NONE if pair[0] == "jump_2_upwards" else loop_mode
 		align_sole_height(animation, dest, soles)
 		library.add_animation(pair[1], animation)
-		if pair[0] == "Idlecombat":
-			aim_center = animation
-	for clip_name: StringName in AIM_CLIPS:
-		if not player.has_animation(clip_name):
-			fail("Missing TPS aiming pose: " + String(clip_name))
-			return
-		var source_clip: Animation = player.get_animation(clip_name).duplicate(true)
-		source_clip.loop_mode = Animation.LOOP_NONE
-		var local_library := AnimationLibrary.new()
-		local_library.add_animation("source", source_clip)
-		if player.has_animation_library("bake"):
-			player.remove_animation_library("bake")
-		player.add_animation_library("bake", local_library)
-		player.play("bake/source")
-		var baked := _bake_clip(player, source, dest, clip_name, clip_name,
-			ratio, corrections, hints, source_pelvis, target_pelvis)
-		if clip_name != &"AIM-Center":
-			for track in [1, 0]:
-				baked.remove_track(track)
-			for i in MAP.size():
-				var center_rotation: Quaternion = aim_center.track_get_key_value(i + 2, 0)
-				var aim_rotation: Quaternion = baked.track_get_key_value(i, 0)
-				var bone: int = dest.find_bone(MAP[i][0])
-				var rest_rotation: Quaternion = dest.get_bone_rest(bone).basis.get_rotation_quaternion()
-				# Keep a constant additive pose. The sampled endpoint must not remain
-				# an absolute rotation after only the first key has been rebased.
-				for key in range(baked.track_get_key_count(i) - 1, 0, -1):
-					baked.track_remove_key(i, key)
-				# AnimationTree subtracts the bone rest before adding a pose delta.
-				baked.track_set_key_value(i, 0, (rest_rotation * center_rotation.inverse() * aim_rotation).normalized())
-			library.add_animation(clip_name, baked)
-		else:
-			library.add_animation(clip_name, baked)
+	if not player.has_animation(&"AIM-Center"):
+		fail("Missing TPS aiming pose: AIM-Center")
+		return
+	var center := player.get_animation(&"AIM-Center").duplicate(true) as Animation
+	center.loop_mode = Animation.LOOP_NONE
+	var center_library := AnimationLibrary.new()
+	center_library.add_animation(&"source", center)
+	player.remove_animation_library(&"bake")
+	player.add_animation_library(&"bake", center_library)
+	player.play(&"bake/source")
+	library.add_animation(&"AIM-Center", _bake_clip(player, source, dest, &"AIM-Center", &"AIM-Center",
+		ratio, corrections, hints, source_pelvis, target_pelvis))
+	if not _bake_pistol_aim(dest, library):
+		return
 	var locomotion: AnimationLibrary = load("res://arca/assets/characters/regina/locomotion.tres")
 	for pair: Array in [["idle", "Idle"], ["run", "running_nogun"]]:
 		var animation: Animation = locomotion.get_animation(pair[0]).duplicate(true)
@@ -317,8 +308,76 @@ func run() -> void:
 	if result != OK:
 		fail("Could not save Regina gameplay library: " + error_string(result))
 		return
-	print("BAKED TPS gameplay library with ", library.get_animation_list().size(), " clips")
+	print("BAKED Regina gameplay library with ", library.get_animation_list().size(), " clips")
 	quit(0)
+
+
+func _bake_pistol_aim(dest: Skeleton3D, library: AnimationLibrary) -> bool:
+	var donor: Node3D = load(PISTOL_DONOR).instantiate()
+	root.add_child(donor)
+	var source := donor.find_children("*", "Skeleton3D", true, false)[0] as Skeleton3D
+	var player := donor.get_node("AnimationPlayer") as AnimationPlayer
+	player.callback_mode_process = AnimationMixer.ANIMATION_CALLBACK_MODE_PROCESS_MANUAL
+	var poses: Dictionary[StringName, Dictionary] = {}
+	for clip: StringName in [&"Pistol_Aim_Neutral", PISTOL_AIM[&"AIM-Up"], PISTOL_AIM[&"AIM-Down"]]:
+		if not player.has_animation(clip):
+			fail("Missing Quaternius pistol pose: " + String(clip))
+			return false
+		source.reset_bone_poses()
+		player.play(clip)
+		player.seek(0.0, true)
+		source.force_update_all_bone_transforms()
+		dest.reset_bone_poses()
+		var rotations: Dictionary[String, Quaternion] = {}
+		for entry: Array in UAL_MAP:
+			var target_bone: String = entry[0]
+			# Evaluate the parents before extracting the local arm and neck rotations.
+			if target_bone.begins_with("arm left ") or target_bone.begins_with("leg "):
+				continue
+			var index: int = dest.find_bone(target_bone)
+			if index < 0 or source.find_bone(entry[1]) < 0 \
+					or (entry[2] != "" and (dest.find_bone(entry[2]) < 0 or source.find_bone(entry[3]) < 0)):
+				fail("Incomplete Quaternius pistol mapping: " + str(entry))
+				return false
+			var target_rest: Basis = bone_transform(dest, target_bone, true).basis.orthonormalized()
+			var source_rest: Basis = bone_transform(source, entry[1], true).basis.orthonormalized()
+			var source_pose: Basis = bone_transform(source, entry[1]).basis.orthonormalized()
+			var desired: Basis = source_pose * source_rest.inverse() * target_rest
+			if entry[2] != "":
+				var rest_direction: Vector3 = bone_transform(dest, entry[2], true).origin \
+					- bone_transform(dest, target_bone, true).origin
+				var pose_direction: Vector3 = bone_transform(source, entry[3]).origin \
+					- bone_transform(source, entry[1]).origin
+				desired = limb_frame(pose_direction, source_pose * source_rest.inverse() * Vector3.BACK) \
+					* limb_frame(rest_direction, Vector3.BACK).inverse() * target_rest
+			dest.force_update_all_bone_transforms()
+			var parent: int = dest.get_bone_parent(index)
+			var parent_basis: Basis = (dest.global_transform * dest.get_bone_global_pose(parent)).basis.orthonormalized()
+			var rotation: Quaternion = (parent_basis.inverse() * desired).get_rotation_quaternion().normalized()
+			dest.set_bone_pose_rotation(index, rotation)
+			if target_bone.begins_with("head ") or target_bone.begins_with("arm right "):
+				rotations[target_bone] = rotation
+		poses[clip] = rotations
+	var neutral: Dictionary = poses[&"Pistol_Aim_Neutral"]
+	for name: StringName in PISTOL_AIM:
+		var clip: StringName = PISTOL_AIM[name]
+		var animation := Animation.new()
+		animation.length = 0.001
+		var weight: float = PlayerInputSynchronizer.CAMERA_X_ROT_MAX / PISTOL_PITCH_SPAN[name]
+		for bone: String in neutral:
+			var neutral_rotation: Quaternion = neutral[bone]
+			var pose_rotation: Quaternion = poses[clip][bone]
+			var rest: Quaternion = dest.get_bone_rest(dest.find_bone(bone)).basis.get_rotation_quaternion()
+			var delta: Quaternion = (neutral_rotation.inverse() * pose_rotation).normalized()
+			var track: int = add_track(animation, Animation.TYPE_ROTATION_3D, SKIN_PATH + ":" + bone)
+			# Godot strips the target rest before applying the additive rotation.
+			animation.rotation_track_insert_key(track, 0.0, (rest * Quaternion.IDENTITY.slerp(delta, weight)).normalized())
+		animation.set_meta("source_clip", String(clip))
+		animation.set_meta("neutral_clip", "Pistol_Aim_Neutral")
+		animation.set_meta("additive_scale", weight)
+		library.add_animation(name, animation)
+	donor.queue_free()
+	return true
 
 
 func _bake_clip(player: AnimationPlayer, source: Skeleton3D, dest: Skeleton3D,

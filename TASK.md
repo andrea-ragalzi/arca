@@ -3,12 +3,19 @@
 | Phase | Scope | Status |
 | --- | --- | --- |
 | 0 | Ferocious raptor F5 acceptance and three checkpoint commits (AI tooling, Regina player, Ferocious raptor) | Complete. User F5 accepted on 2026-11-22. Baseline reproduced and all three checkpoints recorded. |
-| 1 | Source-based Regina upper aim | Next. Source bake, regression checks and user F5 acceptance pending. |
+| 1 | Source-based Regina upper aim | Complete. User accepted the F5 result on 2026-11-22. |
 | 2 | Source-based Regina lateral soles | Pending Phase 1. Check the KayKit Free 1.1 inventory first and stop for user direction if lateral clips are absent. The full gate must pass from this phase onward. |
 | 3 | Limited ammo, reload, ammo box and medkit | Pending Phase 2 |
 | 4 | Win/death mission summary | Pending Phase 3 |
 
 Phase 0 reference baseline (2026-11-22, `.artifacts/ai-check-4gapfeve`): launcher 13/0, first-playable 42/0, raptor 59/0, mission 52/0 and ambush 44/0 (checks/failures). Regina-player ran 373 checks with 3 known failures: upper aim and both lateral soles.
+
+## Phase 1 handoff
+
+- Extract the three pinned Quaternius pistol poses with the existing source extractor. The gameplay baker maps the first-frame up/down rotations relative to the human neutral pose and applies a per-direction scale derived from the 70° camera reference. The runtime blend filters the neck/head and right arm through the wrist.
+- Before the new bake, the upper barrel Y was −0.197449 against neutral +0.055167. After the bake, barrel Y is +0.260033 at full up and −0.147854 at full down. Both directions have positive forward Z and zero sampled slide/barrel intersections for either hand. The visible barrel arc differs from the camera arc because the deltas layer over the existing combat pose.
+- Repeated baking produced byte-identical `gameplay.tres`. With Godot closed, `bash scripts/check.sh` passed launcher 13, first-playable 42, raptor 59, mission 52 and ambush 44. Regina-player ran 378 checks with only the two known lateral sole failures (0.066335 m and 0.059787 m against 0.02 m). No thresholds or existing assertions changed. Logs are in `.artifacts/phase1-verified.log`.
+- The user accepted the vertical aim F5 result on 2026-11-22. The checklist remains in `README.md`.
 
 ---
 

@@ -74,7 +74,13 @@ Press **F5** to play the mission as Regina. Her gameplay model, animation bake a
 
 **Current F5 locomotion status:** facing and low-hop physics have been corrected. Regina now keeps a camera-forward heading outside aim too, using W forward, S backward and A/D side steps. Her hop measures about **0.324 m / 0.50 s**. However, the TPS-derived lateral poses fail the sole-contact checks (one foot remains at least 6.0–6.6 cm above ground); the full gate is **not passing**, and natural locomotion is not accepted. See `TASK.md` before treating this as complete. The original robot keeps its old turn-to-travel policy and 5 m/s jump.
 
-**Current weapon status:** the handgun now uses a calibrated right-wrist socket, an explicit grip reference and a filtered gameplay-only finger pose. Sampled skin-triangle checks pass for slide/barrel clearance. The full gate remains failing: the TPS-derived upper aim pose still pitches the barrel below neutral, in addition to the existing lateral-foot failures. No 8-way animation replacement or rig/source-clip edit was made; close-up F5 acceptance remains pending.
+**Current weapon status:** Regina's vertical aim uses Quaternius pistol poses rebased against the human neutral pose. Sampled tests confirm the barrel pitches in the expected direction and remains forward at both camera limits. Both hands clear the slide and barrel in the sampled endpoint poses. The user accepted the vertical aim F5 result on 2026-11-22. The two lateral sole-contact failures remain.
+
+### Vertical aim F5 checklist
+
+1. Press **F5**, stand away from cover, and hold right mouse. Sweep slowly from the upper camera limit to the lower limit and back. Check that Regina's pistol rises and falls with the view and stays forward at the ends.
+2. Repeat while stepping left and right. Watch the right wrist and both hands for snaps or visible intersections with the slide or barrel.
+3. Fire at high and low targets, then repeat near cover. Check that shots still follow the crosshair and that cover still blocks obstructed shots.
 
 **F6 controls:** `1` idle, `2` walk, `3` run; `M` switches centered/root-travel playback and resets the lane; `Space` pauses/resumes; `R` restores centered idle; `V` cycles overview/front/side/back. The camera follows travel; the 12 m lane pauses at its end rather than teleporting.
 
@@ -84,7 +90,7 @@ Short **F6 checklist**:
 2. Cycle views with `V`: inspect planted feet, knee bends, shoulders/hands and attached costume/holster. Some shoulder/costume clipping remains visible during the run; this is not a final character-art acceptance.
 3. Press `M` and watch travel against the floor references; check no doubled motion or loop snap. Pause/resume, then reset with `R` while paused.
 
-The source model remains 69 bones, nine materials, 17 textures, approximately 1.799 m tall in reference pose, and **zero authored clips**. The supplied original FBX also has no animation objects/takes. The F6 proof continues to use separately retargeted **Quaternius CC0** idle/walk/run clips and its own derived root-motion proxy. The F5 player uses a separate gameplay library combining those locomotion poses with licensed TPS combat, strafe, aim and jump poses. See [the Regina report](docs/REGINA.md) for sources, mapping, validation and the remaining prototype/visual limits.
+The source model remains 69 bones, nine materials, 17 textures, approximately 1.799 m tall in reference pose, and **zero authored clips**. The supplied original FBX also has no animation objects/takes. The F6 proof continues to use separately retargeted **Quaternius CC0** idle/walk/run clips and its own derived root-motion proxy. The F5 player uses a separate gameplay library combining those locomotion poses with Quaternius vertical pistol aim and licensed TPS combat, strafe and jump poses. See [the Regina report](docs/REGINA.md) for sources, mapping, validation and the remaining prototype/visual limits.
 
 ## Develop with Zed and Godot
 

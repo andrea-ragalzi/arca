@@ -16,7 +16,7 @@ The hatch uses primitive geometry, existing lighting/materials and the raptor's 
 
 Regina's current locomotion correction opts into camera-facing directional ground movement and a small free hop (2.6 m/s initial impulse; measured approximately 0.324 m rise / 0.50 s flight), while retaining the TPS physics pipeline and robot defaults. The mission does not require jumping; contextual traversal was evaluated but not added. Natural gait acceptance is blocked by the TPS-derived lateral poses failing sole-contact clearance. Do not expand into IK/rig repair or a new traversal mechanic without a separate decision.
 
-Regina's handgun uses a calibrated wrist socket and a separate gameplay-only hand pose, without source rig/clip or gun-geometry edits. This addresses the hand/metal intersection in sampled poses, not full character-art acceptance. The robot-derived upper aim and lateral footwork remain explicit quality blockers; keep normal/aim locomotion branches separate and do not replace sources or expand into procedural pose repair without a scoped source decision.
+Regina's handgun uses a calibrated wrist socket and a separate gameplay-only hand pose, without source rig/clip or gun-geometry edits. The vertical aim overlay uses Quaternius up/down poses relative to the neutral pistol pose, scaled against the 70-degree camera limit and filtered to the neck/head and right arm. The support arm stays on the base animation. The user accepted vertical aim in F5 on 2026-11-22. Lateral footwork remains a quality blocker.
 
 ## Keep future work small
 

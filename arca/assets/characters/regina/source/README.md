@@ -21,7 +21,7 @@ The mirror README identifies the author, original itch.io distribution and its 2
 | `glTF/AnimationLibrary_Godot_Standard.bin` | `6e65377d81558333c4093dbb144a48fd19019343d82b1a3a7992a98ec0e0543c` |
 | Mirror `LICENSE` | `a2010f343487d3f7618affe54f789f5487602331c0a8d03f49e9a7c547cf0499` |
 | ARCA `ual_locomotion.glb` | `ac818ca593dd74f653caf275c7d8487ca72c9f2d5abd16bb2c4284e0546468c5` |
-| ARCA `ual_pistol_grip.glb` | `386794156500e6ae148f3b041b918522c35dae9346de1cac24dd3d552bb8ae45` |
+| ARCA `ual_pistol_grip.glb` | `abbbe83522a7ec1e18d5e0c1175140af619b6402b724bb8cb3be429403f36eb1` |
 
 `extract_locomotion.py` retains only **`Idle_Loop`, `Walk_Loop`, `Jog_Fwd_Loop`**, their original 53-joint skin and the small untextured mannequin necessary for a conventional skinned Godot import. It removes unused animation accessors/buffer data, repacks into one self-contained 767,524-byte GLB and adds source/license metadata. It does not change poses or author movement. No other clips are included. The donor mannequin is loaded **only by the offline baker**, never by F6 or F5.
 
@@ -45,9 +45,9 @@ Stop play and finish editor imports before generation; do not run a competing ed
 
 The **source animation/mannequin data is CC0**; the target rig/reference transforms derive from the **Otherspectre Regina asset credited under CC BY 4.0** in `ATTRIBUTIONS.md`. Retargeting does not remove that character attribution or resolve the underlying character/IP provenance limitation. The animation library is not relicensed as MIT code.
 
-## Separate gameplay hand-grip derivative
+## Gameplay hand grip and vertical aim
 
-`ual_pistol_grip.glb` retains the immutable **`Pistol_Aim_Neutral`** clip and the same 53-joint donor mannequin from the pinned Standard inputs (653,764 bytes). It is an offline source only. The optional extractor mode does not change the existing locomotion subset; default extraction was verified byte-identical.
+`ual_pistol_grip.glb` retains the immutable **`Pistol_Aim_Neutral`**, **`Pistol_Aim_Up`** and **`Pistol_Aim_Down`** clips and the same 53-joint donor mannequin from the pinned Standard inputs (731,108 bytes). It is an offline source only. The optional extractor mode does not change the existing locomotion subset; default extraction was verified byte-identical.
 
 ```bash
 python3 arca/assets/characters/regina/source/extract_locomotion.py /absolute/path/to/AnimationLibrary_Godot_Standard.gltf --pistol-grip
@@ -55,6 +55,8 @@ python3 arca/assets/characters/regina/source/extract_locomotion.py /absolute/pat
 ```
 
 Import the new subset first, following the same saved-editor/isolated-import precautions above. `bake_grip.gd` saves only `../grip.tres`: 15 right-finger rotations from the first neutral-pistol frame, converted through anatomical palm frames without copying translations/scales, plus a separate rest-relative additive wrist half-turn. The latter corrects the backward-facing palm while the socket's opposite gun rotation preserves the evaluated barrel basis; it does not freeze the animated wrist. Runtime uses the existing AnimationTree with explicit hand-only filters. Target rests/weights, original clips, the three-clip library and weapon geometry remain unchanged. These derivatives retain the CC0 animation / Regina CC BY 4.0 provenance split described above.
+
+After import, run `bake_gameplay.gd` with the same command and replace the script path. That baker saves `../gameplay.tres` and derives the two vertical aim deltas from up/down relative to neutral, using the existing UAL anatomical map and the 70-degree camera reference. The neutral clip still feeds `bake_grip.gd`.
 
 The locally archived Standard inventory has 46 clips, including pistol poses, but **no backward/side/diagonal locomotion set**. The author's broader library page advertises eight-direction locomotion and separate Standard/Pro/Source tiers; that is not proof that the already obtained free Standard subset contains it. No paid acquisition, directional replacement, invented diagonal clip or new runtime donor was added.
 

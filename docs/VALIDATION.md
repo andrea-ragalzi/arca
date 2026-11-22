@@ -2,7 +2,7 @@
 
 Validated on 2026-10-17 with **Godot 4.5.1 Standard** on Linux using the Compatibility renderer. Run `bash scripts/check.sh` to reproduce the import and headless suites.
 
-**Current gate status: failing.** The grip follow-up passes the focused socket/hand-clearance checks and existing gameplay suites. The full Regina-player suite has **373 checks, 3 failures**: two pre-existing lateral sole-contact failures and a newly exposed upper-aim direction failure. Earlier passing counts are historical; the current correction is not complete or accepted.
+**Current gate status: failing.** On 2026-11-22 the Regina-player suite ran **378 checks with 2 failures**, both from the existing lateral sole-contact assertions. The vertical aim checks pass, and the user accepted the F5 result on 2026-11-22.
 
 | Suite | Checks passed | Coverage |
 | --- | ---: | --- |
@@ -19,6 +19,12 @@ Additional checks: shell syntax for all launch/check scripts; parsing of Zed JSO
 Rendered captures of the actual mission before and after power restoration were inspected using a software OpenGL GPU on a virtual X11 display. These checks confirm the English HUD, room, opened door, alarm and visible predator; they are not NVIDIA performance measurements. The capture script stages mission state for inspection and is not a manual completion of the mission.
 
 An optional visual helper is `arca/tests/capture_mission.gd`. It requires a display; run Godot with `-s res://arca/tests/capture_mission.gd -- /absolute/output/directory` after importing. `capture.gd`, `capture_raptor.gd` and `shadows_test.gd` remain optional diagnostic tools outside the standard headless command.
+
+## Source-based Regina vertical aim (2026-11-22)
+
+- The initial regression run reproduced upper barrel Y −0.197449 against neutral +0.055167. After the bake the barrel direction in player space is **(−0.536926, +0.260033, +0.802554)** at full up and **(−0.324596, −0.147854, +0.934225)** at full down. Both extremes have zero right or left hand skin-triangle intersections against the slide/barrel boxes inset by 1 mm. The visible barrel arc differs from the camera arc.
+- Both pinned donor hashes match the provenance record. The repeated gameplay bake produced byte-identical output. The generated diff changes only the two vertical aim clips.
+- `bash scripts/check.sh` exited 1 with the two known lateral sole failures (0.066335 m and 0.059787 m against 0.02 m). Launcher 13, first-playable 42, raptor 59, mission 52 and ambush 44 all pass. The user F5 checklist in [README.md](../README.md#vertical-aim-f5-checklist) covers the continuous sweep, lateral aiming and fire around cover.
 
 ## Ferocious Industries gameplay replacement (2026-10-17)
 

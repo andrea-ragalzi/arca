@@ -3,7 +3,7 @@
 
 Usage: python3 extract_locomotion.py /path/to/AnimationLibrary_Godot_Standard.gltf [--pistol-grip]
 Reads the adjacent .bin; writes ual_locomotion.glb (three clips) or
-ual_pistol_grip.glb (neutral pistol pose) beside this script.
+ual_pistol_grip.glb (neutral, up and down pistol poses) beside this script.
 Upstream/mirror pins, hashes and license are documented in README.md.
 """
 
@@ -84,7 +84,7 @@ def extract(
 if __name__ == "__main__":
     if len(sys.argv) == 3 and sys.argv[2] == "--pistol-grip":
         extract(Path(sys.argv[1]), Path(__file__).with_name("ual_pistol_grip.glb"),
-                ("Pistol_Aim_Neutral",))
+                ("Pistol_Aim_Neutral", "Pistol_Aim_Up", "Pistol_Aim_Down"))
     elif len(sys.argv) == 2:
         extract(Path(sys.argv[1]), Path(__file__).with_name("ual_locomotion.glb"))
     else:

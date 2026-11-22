@@ -94,13 +94,12 @@ func _install_regina() -> void:
 	var aim := graph.get_node("aim") as AnimationNodeAdd3
 	aim.filter_enabled = true
 	aim.filters = PackedStringArray([
+		REGINA_SKIN_PATH + ":head neck lower_06",
 		REGINA_SKIN_PATH + ":head neck upper_07",
+		REGINA_SKIN_PATH + ":arm right shoulder 1_018",
 		REGINA_SKIN_PATH + ":arm right shoulder 2_019",
 		REGINA_SKIN_PATH + ":arm right elbow_020",
 		REGINA_SKIN_PATH + ":arm right wrist_021",
-		REGINA_SKIN_PATH + ":arm left shoulder 2_038",
-		REGINA_SKIN_PATH + ":arm left elbow_039",
-		REGINA_SKIN_PATH + ":arm left wrist_040",
 	])
 	var walk := AnimationNodeBlendSpace2D.new()
 	var clips: Array[StringName] = [&"Idle", &"running_nogun", &"strafe_back", &"strafe_right", &"strafe_left"]

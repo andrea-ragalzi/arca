@@ -56,7 +56,7 @@ ARCA's derived `locomotion.tres` maps those clips onto the Regina reference rig,
 
 ## Regina gameplay animation bake
 
-`arca/assets/characters/regina/gameplay.tres` is generated offline by `arca/assets/characters/regina/bake_gameplay.gd`. Its retargeted TPS poses derive from the already credited Godot Third Person Shooter Demo's CC BY 3.0 `player/model/player.glb`, including combat idle, armed run, directional strafe, jump/fall/landing and aim-center/up/down source clips. The baker documents the source mapping and emits derived animation data; the robot donor model is not instantiated at runtime. Gameplay-only modifications include root/pelvis travel separation, preserved gait loops, constant sole-height alignment and short-hop phase retiming. Original donor clips, Regina rig/skin and the separate locomotion proof remain unchanged. The library also includes Regina locomotion poses derived from the credited Quaternius CC0 Universal Animation Library source above. The Regina reference rig retains its separate CC BY 4.0 attribution. This combined derived animation library carries those underlying source attributions and is not made MIT-only by the baker's code license.
+`arca/assets/characters/regina/gameplay.tres` is generated offline by `arca/assets/characters/regina/bake_gameplay.gd`. Its retargeted TPS poses derive from the already credited Godot Third Person Shooter Demo's CC BY 3.0 `player/model/player.glb`, including combat idle, armed run, directional strafe, jump/fall/landing and aim-center source clips. The baker documents the source mapping and emits derived animation data; the robot donor model is not instantiated at runtime. Gameplay-only modifications include root/pelvis travel separation, preserved gait loops, constant sole-height alignment and short-hop phase retiming. Original donor clips, Regina rig/skin and the separate locomotion proof remain unchanged. The library also includes Regina locomotion poses derived from the credited Quaternius CC0 Universal Animation Library source above. The Regina reference rig retains its separate CC BY 4.0 attribution. This combined derived animation library carries those underlying source attributions and is not made MIT-only by the baker's code license.
 
 ## AI development tooling
 
@@ -70,11 +70,11 @@ The focused `.agents/skills/godot-3d-patterns`, `godot-animation-audit` and `god
 
 ## Regina gameplay hand grip
 
-`source/ual_pistol_grip.glb` is a separate, unchanged-pose subset of the same pinned **Quaternius Universal Animation Library — Standard (CC0)** source: `Pistol_Aim_Neutral` plus its offline donor rig/mannequin. The existing CC0 notice remains in `source/LICENSE_CC0.txt`; hashes/extraction commands are in `source/README.md`. No additional asset service, paid pack or new license was introduced.
+`source/ual_pistol_grip.glb` is a separate, unchanged-pose subset of the same pinned **Quaternius Universal Animation Library — Standard (CC0)** source: `Pistol_Aim_Neutral`, `Pistol_Aim_Up`, `Pistol_Aim_Down` and their offline donor rig/mannequin. The existing CC0 notice remains in `source/LICENSE_CC0.txt`; hashes/extraction commands are in `source/README.md`. No additional asset service, paid pack or new license was introduced.
 
 `arca/assets/characters/regina/bake_grip.gd` produces `grip.tres`: anatomical/rest-aware right-finger rotations from the neutral pistol pose and a separate additive wrist correction in Regina's reference frame. These are gameplay derivatives, not edits to original clips, rig rests or skin weights. Source animation is CC0; Regina reference transforms retain the Otherspectre **CC BY 4.0** attribution and provenance limits. The calibrated socket/weapon reference scene is original ARCA work and reuses the unchanged primitive handgun geometry.
 
-The gameplay bake also corrects additive aim encoding: one constant rest-relative delta per bone, without an absolute-rotation endpoint. TPS-derived aim poses still retain the upstream **CC BY 3.0** attribution; this encoding repair does not establish human pose-quality acceptance.
+The gameplay bake maps Quaternius up/down relative to neutral into constant additive right-arm and neck/head rotations. The CC0 source animation and the CC BY 4.0 target-rig attribution apply to these two derivative clips.
 
 ## ARCA additions
 
