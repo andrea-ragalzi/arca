@@ -1,0 +1,13 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="PackedScene" path="res://arca/player/regina_handgun.tscn" id="1_gun"]
+
+[node name="WeaponSocket" type="Marker3D"]
+position = Vector3(0, 0.07, -0.032)
+rotation = Vector3(1.8107963, 0, 0)
+
+[node name="ReginaHandgun" parent="." instance=ExtResource("1_gun")]
+
+[node name="GripPose" type="Marker3D" parent="ReginaHandgun"]
+position = Vector3(0, -0.065, 0.025)
+rotation = Vector3(0.24, 0, 0)

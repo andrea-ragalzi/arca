@@ -27,6 +27,8 @@ var motion := Vector2()
 @onready var animation_tree: AnimationTree = $AnimationTree
 @onready var player_model: Node3D = $PlayerModel
 @onready var shoot_from: Marker3D = player_model.get_node(^"Robot_Skeleton/Skeleton3D/GunBone/ShootFrom")
+@onready var shoot_particle: CPUParticles3D = player_model.get_node(^"Robot_Skeleton/Skeleton3D/GunBone/ShootFrom/ShootParticle")
+@onready var muzzle_particle: CPUParticles3D = player_model.get_node(^"Robot_Skeleton/Skeleton3D/GunBone/ShootFrom/MuzzleFlash")
 @onready var crosshair: TextureRect = $Crosshair
 @onready var fire_cooldown: Timer = $FireCooldown
 
@@ -41,6 +43,8 @@ var motion := Vector2()
 		$InputSynchronizer.set_multiplayer_authority(value)
 
 @export var current_animation := Animations.WALK
+@export var directional_locomotion: bool = false
+@export var jump_speed: float = JUMP_SPEED
 
 
 func _ready() -> void:
@@ -80,11 +84,15 @@ func animate(anim: int, _delta: float) -> void:
 		# Change state to walk.
 		animation_tree["parameters/state/transition_request"] = "walk"
 		# Blend position for walk speed based checked motion.
-		animation_tree["parameters/walk/blend_position"] = Vector2(motion.length(), 0)
+		animation_tree["parameters/walk/blend_position"] = Vector2(motion.x, -motion.y) \
+			if directional_locomotion else Vector2(motion.length(), 0)
 
 
 func apply_input(delta: float) -> void:
-	motion = motion.lerp(player_input.motion, MOTION_INTERPOLATE_SPEED * delta)
+	var requested_motion: Vector2 = player_input.motion
+	if directional_locomotion:
+		requested_motion = requested_motion.limit_length()
+	motion = motion.lerp(requested_motion, MOTION_INTERPOLATE_SPEED * delta)
 
 	var camera_basis: Basis = player_input.get_camera_rotation_basis()
 	var camera_z: Vector3 = camera_basis.z
@@ -105,7 +113,7 @@ func apply_input(delta: float) -> void:
 	var on_air: bool = airborne_time > MIN_AIRBORNE_TIME
 
 	if not on_air and player_input.jumping:
-		velocity.y = JUMP_SPEED
+		velocity.y = jump_speed
 		on_air = true
 		# Increase airborne time so next frame on_air is still true
 		airborne_time = MIN_AIRBORNE_TIME
@@ -114,6 +122,10 @@ func apply_input(delta: float) -> void:
 	player_input.jumping = false
 
 	if on_air:
+		if directional_locomotion:
+			# Carry actual takeoff momentum, not a stale per-animation-frame delta.
+			var travel := Vector3(velocity.x, 0.0, velocity.z) * delta
+			root_motion = Transform3D(Basis.IDENTITY, orientation.basis.inverse() * travel)
 		if velocity.y > 0:
 			animate(Animations.JUMP_UP, delta)
 		else:
@@ -145,9 +157,10 @@ func apply_input(delta: float) -> void:
 	else: # Not in air or aiming, idle.
 		# Convert orientation to quaternions for interpolating rotation.
 		var target: Vector3 = camera_x * motion.x + camera_z * motion.y
-		if target.length() > 0.001:
+		if directional_locomotion or target.length() > 0.001:
 			var q_from: Quaternion = orientation.basis.get_rotation_quaternion()
-			var q_to: Quaternion = Basis.looking_at(target).get_rotation_quaternion()
+			var q_to: Quaternion = player_input.get_camera_base_quaternion() \
+				if directional_locomotion else Basis.looking_at(target).get_rotation_quaternion()
 			# Interpolate current rotation with desired one.
 			orientation.basis = Basis(q_from.slerp(q_to, delta * ROTATION_INTERPOLATE_SPEED))
 
@@ -182,6 +195,12 @@ func jump() -> void:
 	sound_effect_jump.play()
 
 
+func bind_weapon_nodes(muzzle: Marker3D, shot_effect: CPUParticles3D, flash_effect: CPUParticles3D) -> void:
+	shoot_from = muzzle
+	shoot_particle = shot_effect
+	muzzle_particle = flash_effect
+
+
 func get_shoot_origin() -> Vector3:
 	return shoot_from.global_transform.origin
 
@@ -194,10 +213,8 @@ func land() -> void:
 
 @rpc("call_local")
 func shoot() -> void:
-	var shoot_particle = $PlayerModel/Robot_Skeleton/Skeleton3D/GunBone/ShootFrom/ShootParticle
 	shoot_particle.restart()
 	shoot_particle.emitting = true
-	var muzzle_particle = $PlayerModel/Robot_Skeleton/Skeleton3D/GunBone/ShootFrom/MuzzleFlash
 	muzzle_particle.restart()
 	muzzle_particle.emitting = true
 	fire_cooldown.start()

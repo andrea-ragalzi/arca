@@ -39,6 +39,9 @@ func reset_room() -> void:
 		root.add_child(room)
 		current_scene = room
 	await frames(30)
+	room.player.player_input.aiming = false
+	room.player.player_input.toggled_aim = false
+	room.player.player_input.aiming_timer = 0.0
 
 
 func shoot_once_at(target: Vector3) -> void:

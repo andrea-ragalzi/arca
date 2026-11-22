@@ -1,0 +1,40 @@
+[gd_scene load_steps=6 format=3]
+
+[sub_resource type="StandardMaterial3D" id="GunMetal"]
+albedo_color = Color(0.075, 0.095, 0.11, 1)
+metallic = 0.7
+roughness = 0.32
+
+[sub_resource type="StandardMaterial3D" id="GripMaterial"]
+albedo_color = Color(0.025, 0.03, 0.035, 1)
+roughness = 0.75
+
+[sub_resource type="BoxMesh" id="SlideMesh"]
+material = SubResource("GunMetal")
+size = Vector3(0.055, 0.065, 0.22)
+
+[sub_resource type="BoxMesh" id="GripMesh"]
+material = SubResource("GripMaterial")
+size = Vector3(0.043, 0.13, 0.055)
+
+[sub_resource type="BoxMesh" id="BarrelMesh"]
+material = SubResource("GunMetal")
+size = Vector3(0.025, 0.025, 0.075)
+
+[node name="ReginaHandgun" type="Node3D"]
+
+[node name="Slide" type="MeshInstance3D" parent="."]
+position = Vector3(0, 0.025, -0.055)
+mesh = SubResource("SlideMesh")
+
+[node name="Grip" type="MeshInstance3D" parent="."]
+position = Vector3(0, -0.065, 0.025)
+rotation = Vector3(0.24, 0, 0)
+mesh = SubResource("GripMesh")
+
+[node name="Barrel" type="MeshInstance3D" parent="."]
+position = Vector3(0, 0.01, -0.185)
+mesh = SubResource("BarrelMesh")
+
+[node name="ShootFrom" type="Marker3D" parent="."]
+position = Vector3(0, 0.01, -0.23)

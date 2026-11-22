@@ -1,6 +1,6 @@
 # ARCA
 
-A small third-person survival-action game built with **Godot 4.5.1 Standard** and GDScript. The current playable mission is a maintenance-sector blockout: recover a fuse, restore power, survive a predator ambush, and reach the exit. Characters, dinosaur art and environment are temporary. Ammunition is unlimited; saves and persistent inventory are not implemented.
+A small third-person survival-action game built with **Godot 4.5.1 Standard** and GDScript. The current playable mission is a maintenance-sector blockout: recover a fuse, restore power, survive a predator ambush, and reach the exit. Regina is the playable prototype; character, dinosaur and environment art remain temporary. Ammunition is unlimited; saves and persistent inventory are not implemented.
 
 ## Start here
 
@@ -64,9 +64,13 @@ The sequence gives a 1.4-second warning, a one-second hatch opening and about 2.
 
 ## Inspect the Regina character
 
-Open **`arca/character_locomotion_test.tscn`** and press **F6** for the isolated idle/walk/run experiment. It inherits the unchanged static `arca/character_test.tscn`, preserving its neutral lighting, ruler, axes and visual corrections. **F5 still runs the mission with the original robot**; no TPS replacement has been made.
+Press **F5** to play the mission as Regina. Her gameplay model, animation bake and primitive prototype handgun are integrated into the shared ARCA player; the original TPS controller, camera, collision and projectile behavior remain in use. The base `player/player.tscn` remains the unchanged visible-robot reference. For the separate idle/walk/run experiment, open **`arca/character_locomotion_test.tscn`** and press **F6**; it still inherits the static `arca/character_test.tscn` and its inspection lighting, ruler and visual corrections.
 
-**Controls:** `1` idle, `2` walk, `3` run; `M` switches centered/root-travel playback and resets the lane; `Space` pauses/resumes; `R` restores centered idle; `V` cycles overview/front/side/back. The camera follows travel; the 12 m lane pauses at its end rather than teleporting.
+**Current F5 locomotion status:** facing and low-hop physics have been corrected. Regina now keeps a camera-forward heading outside aim too, using W forward, S backward and A/D side steps. Her hop measures about **0.324 m / 0.50 s**. However, the TPS-derived lateral poses fail the sole-contact checks (one foot remains at least 6.0–6.6 cm above ground); the full gate is **not passing**, and natural locomotion is not accepted. See `TASK.md` before treating this as complete. The original robot keeps its old turn-to-travel policy and 5 m/s jump.
+
+**Current weapon status:** the handgun now uses a calibrated right-wrist socket, an explicit grip reference and a filtered gameplay-only finger pose. Sampled skin-triangle checks pass for slide/barrel clearance. The full gate remains failing: the TPS-derived upper aim pose still pitches the barrel below neutral, in addition to the existing lateral-foot failures. No 8-way animation replacement or rig/source-clip edit was made; close-up F5 acceptance remains pending.
+
+**F6 controls:** `1` idle, `2` walk, `3` run; `M` switches centered/root-travel playback and resets the lane; `Space` pauses/resumes; `R` restores centered idle; `V` cycles overview/front/side/back. The camera follows travel; the 12 m lane pauses at its end rather than teleporting.
 
 Short **F6 checklist**:
 
@@ -74,7 +78,7 @@ Short **F6 checklist**:
 2. Cycle views with `V`: inspect planted feet, knee bends, shoulders/hands and attached costume/holster. Some shoulder/costume clipping remains visible during the run; this is not a final character-art acceptance.
 3. Press `M` and watch travel against the floor references; check no doubled motion or loop snap. Pause/resume, then reset with `R` while paused.
 
-The source model remains 69 bones, nine materials, 17 textures, approximately 1.799 m tall in reference pose, and **zero authored clips**. The supplied original FBX also has no animation objects/takes. This experiment uses separately retargeted **Quaternius CC0** animations after a less suitable trial of the existing CC BY 3.0 TPS set. Root-motion support is **conditional**, not a drop-in player swap: the source clips are in-place; the derived library adds measured -Z travel. See [the Regina report](docs/REGINA.md) for sources, mapping, measured contacts/speeds, checks and remaining TPS/visual limits.
+The source model remains 69 bones, nine materials, 17 textures, approximately 1.799 m tall in reference pose, and **zero authored clips**. The supplied original FBX also has no animation objects/takes. The F6 proof continues to use separately retargeted **Quaternius CC0** idle/walk/run clips and its own derived root-motion proxy. The F5 player uses a separate gameplay library combining those locomotion poses with licensed TPS combat, strafe, aim and jump poses. See [the Regina report](docs/REGINA.md) for sources, mapping, validation and the remaining prototype/visual limits.
 
 ## Develop with Zed and Godot
 
@@ -107,6 +111,6 @@ Requires Godot 4.5.1, Bash, `timeout` (coreutils) and `rg` (ripgrep). It imports
 | `player/`, `enemies/red_robot/` | Adapted official TPS controller and robot test opponent |
 | `arca/tests/` | Gameplay integration suites; capture/shadow scripts are optional visual tools |
 
-The mission inherits `raptor_room.tscn`, which inherits `test_room.tscn`; the corresponding scripts mirror that structure. The robot is replaced at runtime. In the mission, the replacement raptor starts dormant; the separate raptor test room still starts with an active predator.
+The mission inherits `raptor_room.tscn`, which inherits `test_room.tscn`; the corresponding scripts mirror that structure. All three rooms share the ARCA player scene, which installs Regina at runtime while keeping the inherited robot hidden and inert. The original `player/player.tscn` remains a usable robot reference. In the mission, the raptor starts dormant; the separate raptor test room starts with an active predator.
 
 Read [docs/DESIGN.md](docs/DESIGN.md) for scope and [docs/VALIDATION.md](docs/VALIDATION.md) for verified behavior and limits. Credits and licenses are in [ATTRIBUTIONS.md](ATTRIBUTIONS.md), [LICENSE.md](LICENSE.md), and [LICENSE_ARCA.md](LICENSE_ARCA.md).

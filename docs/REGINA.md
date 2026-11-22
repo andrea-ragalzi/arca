@@ -222,7 +222,7 @@ Short **F6 checklist** (`arca/character_locomotion_test.tscn`):
 2. Use `V` for front/side/back. Inspect planted feet, knee bends, shoulders/hands and attached costume/holster, including the documented run shoulder clipping. Reject any severe deformation or unacceptable sliding.
 3. Press `M`: check forward travel without double motion or a wrap snap. `Space` must freeze/resume pose and travel; `R` must reset while paused. The lane pauses visibly at 12 m, never auto-teleports.
 
-## Connecting to the existing TPS later
+## Pre-integration TPS compatibility assessment
 
 The current input/physics/weapon flow is:
 
@@ -247,7 +247,55 @@ A direct `PlayerModel` replacement still breaks robot-specific paths and animati
 
 Current blend resources require `Idle`, `Idlecombat`, `running_nogun`, `running_gun`, `strafe_left`, `strafe_right`, `strafe_back`, `strafe_front`, `jump_2_upwards`, `jump_4_falling`, `jump_5_hardlanding`, `AIM-Up`, `AIM-Down` and `eyes`. Regina supplies none. Eye/hair/finger extra bones do not substitute for those animations. Bone names alone are not a retarget: local axes, rest orientation and root displacement must agree.
 
-**Next acceptance action:** run the three-step F6 checklist below. This task does not authorize a playable-character replacement, weight/cloth repair or an IK system.
+This section records the compatibility assessment made before the current playable integration. The separate F6 locomotion-proof acceptance remains pending; the integrated F5 prototype and its current validation/remaining visual limits are documented below. No weight/cloth repair or IK system is included.
+
+## Playable-character integration (2026-10-17)
+
+The shared inherited ARCA player now installs Regina at runtime in the base test room, raptor room and mission. The tested TPS `Player` remains the movement/camera/projectile driver; its controller pivot, capsule, root-motion-to-horizontal-velocity flow, aim input, projectile cooldown/effects, health, cover sweep and room lifecycle remain in place. The inherited robot skeleton is hidden and its animation stopped; `player/player.tscn` itself retains its original visible robot/default muzzle bindings for reference.
+
+`arca/assets/characters/regina/bake_gameplay.gd` generates the separate 15-clip `gameplay.tres` for the ARCA model. It combines UAL-derived idle/run poses with TPS-derived combat idle, armed run, four directional strafes, jump up/fall/landing and center/up/down aim poses. The existing three-clip `locomotion.tres`, static inspection scene and F6 preview remain unchanged. The Regina visual correction remains below `PlayerModel`; the independent `RootMotion` proxy supplies controller-coordinate travel. Model-specific muzzle/effect references are rebound after the inherited robot paths initialize. The temporary handgun is original primitive box geometry attached to `arm right wrist_021`; it is not final weapon art or a claim that the model's hip accessory is a gun.
+
+Reproduction after import:
+
+```bash
+/home/andrea/Applications/Godot_v4.5.1-stable_linux.x86_64 --headless --audio-driver Dummy --path . -s res://arca/assets/characters/regina/bake_gameplay.gd
+/home/andrea/Applications/Godot_v4.5.1-stable_linux.x86_64 --headless --audio-driver Dummy --fixed-fps 60 --path . -s res://arca/tests/regina_player_test.gd
+```
+
+The isolated 2026-10-17 validation snapshot was used because Godot remained open on the working project. Regeneration produced a `gameplay.tres` byte-identical to the tracked resource. The focused integration test passed **38 checks** across all three inherited rooms and the original robot scene. The full gate passed launcher **13**, first-playable **42**, raptor **24**, mission **52**, ambush **44**, and Regina-player **38** checks; existing automated corridor return time was **13.47 simulated seconds**. The unchanged Regina static and locomotion tests passed **93** and **68** checks respectively. These headless checks prove scene/resource/physics behavior, not visual quality or user acceptance.
+
+An X11/Compatibility capture of the mission start rendered on Mesa Intel Iris Xe and visibly shows one Regina at human scale, with no robot body. Shoulder/costume intersections and the open-hand pose remain visible prototype defects; the primitive handgun is too small to assess confidently in that distant idle frame. The capture is only a staged still, not motion/aim/fire inspection or a user F5 playtest. F5 playtest acceptance remains pending. Use the checklist below for movement, aim/strafe/fire, cover, pause, death, restart and mission completion; do not infer acceptance from screenshots or headless results.
+
+## Locomotion/jump correction: partial, animation quality blocked
+
+Following user-reported reversed-looking movement, an isolated reproduction in `.artifacts/regina-motion/source/` confirmed that Regina's physical motion followed the final camera axes while her visible forward was opposed to travel. The imported inspection wrapper's Y half-turn conflicted with the legacy TPS +Z convention. `arca_player.gd` now replaces that rotation on the runtime instance; the existing scene files were not externally rewritten while the editor was open. Camera/input axes and the source/F6 assets are untouched.
+
+The ARCA player opts into camera-facing directional WALK blending with UAL forward/idle and distinct TPS backward/side clips, normalized diagonal input, and unchanged aim/fire gating. Robot defaults remain turn-to-travel and 5 m/s jumping. The gameplay baker seeks each clip's start before recording root offsets, removes donor root travel from pelvis sampling, preserves gait looping, aligns a constant sole-height offset, and retimes non-looping takeoff/landing to 0.25/0.20 s. The existing root-motion/velocity/collision controller remains in use; airborne ARCA travel explicitly carries actual horizontal momentum. A genuine jump/airborne interval arms the existing landing OneShot; startup settling does not.
+
+Measured body-root hop with unchanged gravity 9.8 m/s²: **0.324067 m standing / 0.323358 m moving**, **0.500 s** flight, compared with **1.234900 m / 1.000 s** before. Continuous forward travel remains approximately **4.100 m/s**, ARCA non-aim side/back steps **1.692 m/s**, and aim steps **2.160 m/s**. The corridor return remains **13.47 simulated seconds**.
+
+**Not complete:** the expanded Regina-player suite passes **299/301** checks, including all 48 direction/diagonal/mode/yaw combinations over multiple loops and the low-hop/input/collision/pause/death tests. Two necessary contact assertions fail. Over an entire sampled cycle, the lowest positions of the two soles are:
+
+| Source clip | Sole 0 minimum | Sole 1 minimum | Required support clearance |
+| --- | ---: | ---: | ---: |
+| `strafe_left` | 0.066335 m | 0.000500 m | at most 0.020 m |
+| `strafe_right` | 0.059787 m | 0.000500 m | at most 0.020 m |
+
+This is not a swing-foot-as-contact assertion: one sole never reaches support height anywhere in the cycle. Lowering the whole model enough to fix it would push the other foot through the floor. Existing source/target leg-proportion and robot-pose limitations remain after the bounded root/loop/height corrections. The failing assertions remain in the standard gate; no threshold was widened and no IK/mesh repair was added. Work stops at the approved animation-quality boundary rather than claiming natural footwork.
+
+Staged X11/Compatibility captures on Mesa Intel Iris Xe show the corrected startup facing and front/side pose samples; lateral stepping remains visibly elevated/robotic, and the landing donor pose is also not polished. Those are inspection aids, not continuous motion or user F5 acceptance. No final foot-sliding verdict, full visual jump/aim/fire acceptance or complete remaining lifecycle checklist is claimed. A separately approved suitable humanoid directional source or targeted pose/retarget repair is needed before this task can pass its quality gate.
+
+## Socket/grip correction and remaining source gate
+
+Following explicit implementation authorization, the runtime right-wrist attachment now instances `arca/player/regina_weapon_socket.tscn`, a small wrapper around the **unchanged** handgun scene. It adds `WeaponSocket` and a weapon-space `GripPose`. Installation sets the gun transform to `inverse(GripPose.transform)`, so the two grip frames coincide. The socket is at wrist-local **(0, 0.07, -0.032) m**, X rotation **1.8107963 rad**; the handle reference is **(0, -0.065, 0.025) m**, X rotation **0.24 rad**. The resulting gun rotation is +90 degrees around X, with unit scale. A close-up skin-triangle scan selected the offset: the first trial had 35 slide intersections; an 8 mm adjustment cleared the sampled metal surfaces without editing geometry or loosening the 1 mm inset criterion.
+
+`bake_grip.gd` produces a separate `grip.tres` from the pinned CC0 `Pistol_Aim_Neutral` subset: 15 right-finger rotations converted through anatomical palm/rest frames, plus a separate additive wrist half-turn. The wrist correction is encoded relative to Regina's rest rotation, **not a frozen absolute wrist pose**. Combined with the opposite gun quarter-turn, it preserves the evaluated pre-correction barrel basis while correcting the backward-facing palm. Explicit right-hand-only filters run after the existing pose/aim branches inside the same AnimationTree. No IK, runtime donor, processing callback or second animation driver was introduced. The robot scene, camera, shooting/cover pipeline and original sources/F6 library remain unchanged.
+
+Aim inspection also exposed two derivative encoding defects in `bake_gameplay.gd`: aim keys omitted the target rest rotation required by Godot's additive mixer, and the second sampled endpoint remained an **absolute** pose after rebasing only the first key. Both are repaired in generated `gameplay.tres`, using a constant delta relative to the combat-idle base. This repairs encoding, not the robot-to-human pose source itself. A new rendered/evaluated check still fails: upper aim gives barrel Y **-0.197449**, versus neutral **+0.055167**, so it pitches below neutral. No bullet-direction adjustment conceals this remaining mismatch.
+
+Actual isolated validation on 2026-10-17: focused grip **107 checks, zero failures**; unchanged source/locomotion suites **93/68 checks, zero failures**. Full gate: launcher 13 and first-playable/raptor/mission/ambush **42/24/52/44** pass, but Regina-player is **373 checks, 3 failures**: the two existing lateral sole-contact assertions and the new upper-aim direction assertion. The assertions remain active in the standard gate. Detailed limits and staged X11/Compatibility inspection are recorded in `TASK.md` and `docs/VALIDATION.md`.
+
+No eight-direction replacement was integrated. The already archived CC0 Standard set has pistol poses but no backward/side/diagonal locomotion set. The author's broader library advertises 8-way coverage across distinct distribution tiers; that does not verify the missing clips in the obtained free edition. A suitable humanoid directional/pistol source remains a concrete acquisition/compatibility gate, rather than permission to duplicate clips, add procedural corrections or rewrite the controller. Current continuous five-point normal/aim blends and their known footwork limits remain in place. Human F5 grip/aim/movement acceptance is still pending.
 
 ## Reproduce checks
 

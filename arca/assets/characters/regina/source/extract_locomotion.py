@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-"""Keep three CC0 UAL clips and their donor rig; no third-party Python packages.
+"""Extract immutable CC0 UAL subsets; no third-party Python packages.
 
-Usage: python3 extract_locomotion.py /path/to/AnimationLibrary_Godot_Standard.gltf
-Reads the adjacent .bin; writes ual_locomotion.glb beside this script.
+Usage: python3 extract_locomotion.py /path/to/AnimationLibrary_Godot_Standard.gltf [--pistol-grip]
+Reads the adjacent .bin; writes ual_locomotion.glb (three clips) or
+ual_pistol_grip.glb (neutral pistol pose) beside this script.
 Upstream/mirror pins, hashes and license are documented in README.md.
 """
 
@@ -13,13 +14,17 @@ import struct
 import sys
 
 
-def extract(source: Path, destination: Path) -> None:
+def extract(
+    source: Path,
+    destination: Path,
+    clips: tuple[str, ...] = ("Idle_Loop", "Walk_Loop", "Jog_Fwd_Loop"),
+) -> None:
     document = json.loads(source.read_text())
     binary = (source.parent / document["buffers"][0]["uri"]).read_bytes()
-    names = {"Idle_Loop", "Walk_Loop", "Jog_Fwd_Loop"}
+    names = set(clips)
     document["animations"] = [a for a in document["animations"] if a["name"] in names]
     if {a["name"] for a in document["animations"]} != names:
-        raise ValueError("Expected idle, walk and jog clips are missing")
+        raise ValueError(f"Expected source clips are missing: {sorted(names)}")
 
     # Keep the small skinned mannequin so Godot can reconstruct the donor skin.
     # It is never instantiated by the F6 viewer or the mission.
@@ -62,7 +67,7 @@ def extract(source: Path, destination: Path) -> None:
         "author": "Quaternius",
         "license": "CC0-1.0",
         "source": "https://quaternius.com/packs/universalanimationlibrary.html",
-        "modification": "ARCA: retained only Idle_Loop, Walk_Loop, Jog_Fwd_Loop; repacked as GLB",
+        "modification": f"ARCA: retained only {', '.join(clips)}; repacked as GLB",
     }
     header = json.dumps(document, separators=(",", ":")).encode()
     header += b" " * (-len(header) % 4)
@@ -73,10 +78,14 @@ def extract(source: Path, destination: Path) -> None:
         + struct.pack("<II", len(header), 0x4E4F534A) + header
         + struct.pack("<II", len(payload), 0x004E4942) + payload
     )
-    print(f"Wrote {destination}: {length} bytes, three clips")
+    print(f"Wrote {destination}: {length} bytes, {len(clips)} clips")
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 2:
+    if len(sys.argv) == 3 and sys.argv[2] == "--pistol-grip":
+        extract(Path(sys.argv[1]), Path(__file__).with_name("ual_pistol_grip.glb"),
+                ("Pistol_Aim_Neutral",))
+    elif len(sys.argv) == 2:
+        extract(Path(sys.argv[1]), Path(__file__).with_name("ual_locomotion.glb"))
+    else:
         raise SystemExit(__doc__)
-    extract(Path(sys.argv[1]), Path(__file__).with_name("ual_locomotion.glb"))

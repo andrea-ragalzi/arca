@@ -1,0 +1,17 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="PackedScene" path="res://arca/assets/characters/regina/regina.glb" id="1_regina"]
+[ext_resource type="AnimationLibrary" path="res://arca/assets/characters/regina/gameplay.tres" id="2_animations"]
+
+[node name="ReginaModel" type="Node3D"]
+
+[node name="RootMotion" type="Node3D" parent="."]
+
+[node name="Regina" parent="." instance=ExtResource("1_regina")]
+transform = Transform3D(-1, 0, 8.742278e-08, 0, 1, 0, -8.742278e-08, 0, -1, 0, -0.0112332, 0)
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+root_node = NodePath("..")
+libraries = {
+&"": ExtResource("2_animations")
+}

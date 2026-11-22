@@ -42,7 +42,11 @@ License: <https://creativecommons.org/publicdomain/zero/1.0/>; full notice retai
 
 Obtained from the free Standard glTF mirror at <https://github.com/J-Ponzo/gltf-universal-animation-library/tree/e24c23cf2a1323488a3faa226ea7ea21f644b73e>. `source/ual_locomotion.glb` retains only `Idle_Loop`, `Walk_Loop`, `Jog_Fwd_Loop` and their donor rig/mannequin, with unused data removed and files repacked. The mannequin is used only for offline generation, not displayed by ARCA. Pinned input/subset hashes and reproducible extraction are in `source/README.md` alongside the asset.
 
-ARCA's derived `locomotion.tres` maps those clips onto the Regina reference rig, preserves its lengths/skin, closes small loop endpoint differences, calibrates constant foot-height offsets and -Z travel, and retimes the jog to 70% playback for the run. Source animation/mannequin data is CC0; the Regina rig/reference transforms retain the Otherspectre **CC BY 4.0** attribution and provenance limits above. The derived animation asset is not covered by the MIT code license merely because the baker is code. The previously credited TPS CC BY 3.0 set was inspected/trialed first but is not used in the final Regina library.
+ARCA's derived `locomotion.tres` maps those clips onto the Regina reference rig, preserves its lengths/skin, closes small loop endpoint differences, calibrates constant foot-height offsets and -Z travel, and retimes the jog to 70% playback for the run. Source animation/mannequin data is CC0; the Regina rig/reference transforms retain the Otherspectre **CC BY 4.0** attribution and provenance limits above. The derived `locomotion.tres` asset is not covered by the MIT code license merely because the baker is code. The earlier TPS trial was not used for that isolated three-clip library.
+
+## Regina gameplay animation bake
+
+`arca/assets/characters/regina/gameplay.tres` is generated offline by `arca/assets/characters/regina/bake_gameplay.gd`. Its retargeted TPS poses derive from the already credited Godot Third Person Shooter Demo's CC BY 3.0 `player/model/player.glb`, including combat idle, armed run, directional strafe, jump/fall/landing and aim-center/up/down source clips. The baker documents the source mapping and emits derived animation data; the robot donor model is not instantiated at runtime. Gameplay-only modifications include root/pelvis travel separation, preserved gait loops, constant sole-height alignment and short-hop phase retiming. Original donor clips, Regina rig/skin and the separate locomotion proof remain unchanged. The library also includes Regina locomotion poses derived from the credited Quaternius CC0 Universal Animation Library source above. The Regina reference rig retains its separate CC BY 4.0 attribution. This combined derived animation library carries those underlying source attributions and is not made MIT-only by the baker's code license.
 
 ## AI development tooling
 
@@ -54,9 +58,17 @@ Selected Godot architecture, animation and debugging skill topics adapted from *
 Source: <https://github.com/vl4dt/godot-skills/tree/1ae280d35f2cc3931d4d8eb63f4bac82d6acf4a0>.
 The focused `.agents/skills/godot-3d-patterns`, `godot-animation-audit` and `godot-debug-regression` adaptations exclude incompatible/incorrect examples and preserve the full upstream notice in `.agents/skills/LICENSE_GODOT_SKILLS.txt`. The upstream package and its overlapping MCP bridge are not installed.
 
+## Regina gameplay hand grip
+
+`source/ual_pistol_grip.glb` is a separate, unchanged-pose subset of the same pinned **Quaternius Universal Animation Library — Standard (CC0)** source: `Pistol_Aim_Neutral` plus its offline donor rig/mannequin. The existing CC0 notice remains in `source/LICENSE_CC0.txt`; hashes/extraction commands are in `source/README.md`. No additional asset service, paid pack or new license was introduced.
+
+`arca/assets/characters/regina/bake_grip.gd` produces `grip.tres`: anatomical/rest-aware right-finger rotations from the neutral pistol pose and a separate additive wrist correction in Regina's reference frame. These are gameplay derivatives, not edits to original clips, rig rests or skin weights. Source animation is CC0; Regina reference transforms retain the Otherspectre **CC BY 4.0** attribution and provenance limits. The calibrated socket/weapon reference scene is original ARCA work and reuses the unchanged primitive handgun geometry.
+
+The gameplay bake also corrects additive aim encoding: one constant rest-relative delta per bone, without an absolute-rotation endpoint. TPS-derived aim poses still retain the upstream **CC BY 3.0** attribution; this encoding repair does not establish human pose-quality acceptance.
+
 ## ARCA additions
 
-Fuse, panel, door, divider geometry, mission and ambush logic, documentation and project workflow files are ARCA additions under MIT, as stated in `LICENSE_ARCA.md`.
+Fuse, panel, door, divider geometry, the Regina prototype handgun's simple box meshes, mission and ambush logic, documentation and project workflow files are ARCA additions under MIT, as stated in `LICENSE_ARCA.md`. The handgun is original placeholder geometry, not extracted from the TPS robot or represented as final weapon art.
 The two short sounds `arca/audio/pickup.wav` and `arca/audio/power.wav` are original synthesized sounds distributed under the same MIT license; they are not extracted from games or third-party sound packs.
 
 The playable mission retains its credited TPS placeholder and Quaternius predator. The separate inspection scene includes the Regina fan model credited above; its underlying provenance has not been independently verified. Neither that model's stated CC license nor ARCA's broader fan-story concept grants rights to Capcom's names or characters.

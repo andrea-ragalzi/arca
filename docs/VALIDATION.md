@@ -2,6 +2,8 @@
 
 Validated on 2026-10-17 with **Godot 4.5.1 Standard** on Linux using the Compatibility renderer. Run `bash scripts/check.sh` to reproduce the import and headless suites.
 
+**Current gate status: failing.** The grip follow-up passes the focused socket/hand-clearance checks and existing gameplay suites. The full Regina-player suite has **373 checks, 3 failures**: two pre-existing lateral sole-contact failures and a newly exposed upper-aim direction failure. Earlier passing counts are historical; the current correction is not complete or accepted.
+
 | Suite | Checks passed | Coverage |
 | --- | ---: | --- |
 | `first_playable_test.gd` | 42 | Real TPS input, movement, aiming, projectiles, cover, laser damage, death, pause and restart |
@@ -17,6 +19,18 @@ Additional checks: shell syntax for all launch/check scripts; parsing of Zed JSO
 Rendered captures of the actual mission before and after power restoration were inspected using a software OpenGL GPU on a virtual X11 display. These checks confirm the English HUD, room, opened door, alarm and visible predator; they are not NVIDIA performance measurements. The capture script stages mission state for inspection and is not a manual completion of the mission.
 
 An optional visual helper is `arca/tests/capture_mission.gd`. It requires a display; run Godot with `-s res://arca/tests/capture_mission.gd -- /absolute/output/directory` after importing. `capture.gd`, `capture_raptor.gd` and `shadows_test.gd` remain optional diagnostic tools outside the standard headless command.
+
+## Regina socket/grip follow-up (2026-10-17)
+
+Used the source-only isolated project `.artifacts/regina-grip/source/` while the live Godot editor remained open. No competing import or existing scene-file overwrite was performed. The new socket scene wraps the existing handgun; the original GLB, source imports/clips, original gun geometry and isolated F6 library are preserved.
+
+- Focused command: `godot --headless --audio-driver Dummy --fixed-fps 60 --path . -s res://arca/tests/regina_player_test.gd -- --weapon-grip-only` (using the documented literal 4.5.1 executable): **107 checks, zero failures**. Covers inherited room bindings, original robot defaults, 15 finger tracks plus additive wrist, evaluated socket/grip equality, unit scale, preservation of the prior barrel basis, and skin-triangle/metal clearance in 16 state/phase combinations. The same geometry probe detects the original clipping configuration. This is not a proof of final trigger/finger art quality.
+- Full `bash scripts/check.sh`, with the existing Godot/ripgrep overrides: launcher **13**, first-playable **42**, raptor **24**, mission **52**, ambush **44** pass. Regina-player: **373 checks, 3 failures**. The command fails overall; do not report a passing gate.
+- Failures: prior lateral sole minima **0.066335 / 0.059787 m** against **0.02 m**, plus newly checked upper aim: barrel Y **-0.197449** versus neutral **+0.055167**. This exposes an existing robot-to-human pose incompatibility after correcting additive rest/endpoint encoding; it is not a failed projectile/cover test.
+- Separate unchanged source/locomotion suites: **93/68 checks**, zero failures. Default subset extraction reproduces the existing locomotion GLB byte-for-byte; new pistol subset source hashes match the pinned Standard inputs.
+- Staged X11 / Compatibility / Mesa Intel Iris Xe close-ups and body views cover idle, run, neutral/up/down aim and a lateral pose. Captures are ignored under `.artifacts/regina-grip/after/`; baseline open-hand clipping is under `before/`. The first fixed-wrist trial was rejected because it changed evaluated aim; the delivered additive wrist correction preserves the original animated wrist/barrel relation. Extreme aim still has the documented donor-pose defect. Existing X11 input-method warnings remain; no GPU performance or human F5 acceptance is claimed.
+
+Stop at the source gate: no suitable eight-way set is present in the obtained CC0 Standard inventory; no paid acquisition, fabricated clip coverage, IK or threshold relaxation was performed. Manual F5 must still inspect the grip from both sides, aim extremes, start/stop and continuous directional movement, real fire near cover, pause/restart/death/completion.
 
 ## Local baseline checkpoint
 
@@ -91,6 +105,29 @@ Implemented on 2026-10-17 in `arca/character_locomotion_test.tscn`, inherited fr
 - **Rendered observations:** staged front/side/back views at phases 0/25/50/75 percent for all clips, using X11 / Compatibility / **Mesa Intel Iris Xe**. No detached parts or exploding/severely stretched skin was observed in those sampled views. Small shoulder/costume intersections during run arm swings remain visible; hands stay open and secondary hair motion is not simulated. These are staged pose observations, not user F6 acceptance, continuous human playtesting or a GPU benchmark. Logs/captures remain ignored under `.artifacts/regina-locomotion/`. The successful render reports existing XOpenIM/XCreateIC warnings, no script/runtime errors.
 - **Development failures, resolved:** the new baker initially hit a typed-Array conditional assignment, and the new suite initially compared incompatible list types (followed by a corrected indentation edit). A scale assertion wrongly assumed the source jaw was exactly unit scale; it now checks preservation of the actual reference scale. A strict run-continuity failure exposed the authored jog's abrupt initial knee flexion; retiming the gait to 0.7 fixed it without relaxing the angular threshold. An extra zero-step initialization was tried and removed after evidence showed reset was correct. The input test needed the viewport's first process frame before its first injected key. The optional capture-grid helper had an image-format mismatch during early diagnostics and later an aspect-ratio correction; final captures preserve proportions. These preliminary runs are not reported as passing validation.
 - **Remaining acceptance:** use the short F6 checklist in `README.md` / `REGINA.md`, especially run shoulder/costume clipping. Human acceptance and a fresh human F5 check are pending. Root-motion verdict is **conditionally compatible for locomotion after explicit track/path/pivot integration**; no collision-driven Regina controller, strafe/jump/aim/grip or full TPS replacement is claimed.
+
+## Regina playable-character integration
+
+Validated on 2026-10-17 in ignored `.artifacts/regina-player-baseline/source/` while the working project remained open in Godot. The snapshot was imported and exercised independently; the generated gameplay animation resource matched the tracked `gameplay.tres` byte-for-byte.
+
+- `regina_player_test.gd`: **38 checks** across the shared base test, raptor and mission rooms, plus the unchanged original robot scene. It verifies Regina model/skeleton presence, hidden inherited robot, room enemy, active AnimationTree/root-motion proxy, all 15 gameplay clips, wrist handgun/muzzle/effect bindings, and inherited camera/capsule.
+- Full `scripts/check.sh`: **13 launcher + 42 first-playable + 24 raptor + 52 mission + 44 ambush + 38 Regina-player checks** passed. The existing mission route's automated return measured **13.47 simulated seconds**. No assertions were loosened. Test setup explicitly resets the simulated aim-toggle state after room setup; `Input.action_release("aim")` otherwise creates an unintended brief toggle in headless runs.
+- Unchanged Regina source and locomotion checks: **93 static + 68 locomotion** checks passed. Editor diagnostics for the changed player/test GDScript report no warnings or errors; `git diff --check` passed.
+- A staged X11/Compatibility capture of the mission start rendered on Mesa Intel Iris Xe and showed Regina with no visible robot body. Shoulder/costume clipping and an open-hand pose remain visible. The distant still does not establish animation, aim/fire quality or weapon visibility; it is not an F5 user acceptance.
+
+**Still required:** with the existing Godot editor, reload the saved external changes and press F5. Check movement/turning, aim pitch and four-direction strafing, weapon grip/muzzle/particles and shots near/away from cover, then the mission route, pause, restart, death and completion. Report the visual verdict separately from the passing headless suites.
+
+## Regina locomotion/jump follow-up: gate incomplete
+
+Validation used a new source-only import under `.artifacts/regina-motion/source/` to avoid a competing live importer while Godot remained open. The runtime probe first reproduced reversed visual facing, non-looping aim steps stopping after one clip, and a **1.234900 m / 1.000 s** body jump. The corrected measurements are **0.324067 m** standing, **0.323358 m** moving, and **0.500 s** flight at unchanged 9.8 m/s² gravity. Original robot movement/default jump were compared and retained. Repeated gameplay bakes produced byte-identical resources; the working resource matches the validated snapshot.
+
+- Full `scripts/check.sh`: launcher **13**, first-playable **42**, raptor **24**, mission **52**, ambush **44** checks pass. Mission return remains **13.47 simulated seconds**. Import/GDScript compilation succeeds.
+- Expanded `regina_player_test.gd`: **301 checks, 2 failures**. It exercises eight directions at three camera yaws in both aim modes, multiple motion loops, signed blend/facing/root extraction, speed bounds and idle recovery; stationary/moving hop apex/flight, held input and release/repress, ceiling collision, pause/death in flight and fresh-instance state. A test-only large floor isolates continuous physics travel from room obstacles, while the original structural tests still load all three inherited ARCA rooms.
+- The two failures independently skin actual reference sole vertices over full lateral cycles: `strafe_left` minima **(0.066335, 0.000500) m**, `strafe_right` **(0.059787, 0.000500) m**. A sole that never comes within the unchanged **2 cm** support criterion cannot supply a planted contact. Whole-model lowering would penetrate the other foot. The existing 2 mm penetration checks pass; no assertion was removed/relaxed. Detailed phase-aware sliding acceptance remains unfinished because this necessary contact condition fails first.
+- Separate unchanged static/locomotion suites still pass **93 / 68** checks. Changed GDScript diagnostics are clean. A parser indentation error in an early new branch was corrected after the first probe timed out; that attempt is not validation. The test harness now stops playback before freeing actors and lets the wall-clock Dummy audio mixer drain; the final focused run no longer reports the earlier `land.wav` resource leak.
+- X11/Compatibility startup and sampled front/side pose captures were inspected on Mesa Intel Iris Xe. They confirm corrected facing and show the remaining elevated/robotic lateral steps. No user F5 acceptance, complete gameplay stance-drift result, GPU measurement or final humanoid landing-pose quality is claimed.
+
+The required gate remains incomplete. Stop at the planned pose-feasibility limit; choose a separately scoped humanoid directional source or targeted retarget repair before treating locomotion as finished. Do not use the historical passing integration checks as evidence that footwork is natural.
 
 ## Known limits
 
