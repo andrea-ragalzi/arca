@@ -118,10 +118,10 @@ Current sprint: [SPRINT_01.md](SPRINT_01.md). Workflow: [docs/PARALLEL_DEVELOPME
 
 ## D-03: Audio preparation
 
-- Status: Ready: worktree prepared; user source approval needed before downloads
+- Status: Merged into `main` on 2026-11-24
 - Branch: `s1/d03-audio-prep`
-- Validation: -
-- Blockers: -
+- Validation: Full gate 836/0, manifest and imported audio checks 100/0.
+- Blockers: Live mix review belongs to S1-09.
 
 ## D-04: Optional Blender pipeline
 
