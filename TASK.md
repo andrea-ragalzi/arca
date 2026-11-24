@@ -62,10 +62,10 @@ Current sprint: [SPRINT_01.md](SPRINT_01.md). Workflow: [docs/PARALLEL_DEVELOPME
 
 ## S1-08: In-memory checkpoint (stretch)
 
-- Status: Waiting: start after S1-04 and S1-10
+- Status: Merged into `main` on 2026-11-24
 - Branch: `s1/08-checkpoint`
-- Validation: -
-- Blockers: -
+- Validation: Gameplay gate 1002/0, checkpoint lifecycle 12/0.
+- Blockers: Integrated F5 retry check belongs to S1-12.
 
 ## S1-09: Audio hookup
 

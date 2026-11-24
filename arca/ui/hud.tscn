@@ -249,6 +249,11 @@ autowrap_mode = 2
 layout_mode = 2
 text = "RESUME"
 
+[node name="Retry" type="Button" parent="Frame/Modal/Center/Panel/Margin/VBox"]
+visible = false
+layout_mode = 2
+text = "RETRY FROM CHECKPOINT"
+
 [node name="Restart" type="Button" parent="Frame/Modal/Center/Panel/Margin/VBox"]
 layout_mode = 2
 text = "RESTART  [BACKSPACE]"

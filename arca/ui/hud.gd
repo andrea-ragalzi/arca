@@ -4,6 +4,7 @@ signal restart_requested
 signal resume_requested
 signal quit_requested
 signal pause_requested
+signal retry_requested
 
 @onready var hp_label: Label = $Frame/HealthPanel/Margin/VBox/Health
 @onready var health_bar: ProgressBar = $Frame/HealthPanel/Margin/VBox/Bar
@@ -23,6 +24,7 @@ var telemetry_origin: Node3D
 
 
 func _ready() -> void:
+	$Frame/Modal/Center/Panel/Margin/VBox/Retry.pressed.connect(func(): retry_requested.emit())
 	$Frame/Modal/Center/Panel/Margin/VBox/Restart.pressed.connect(func(): restart_requested.emit())
 	$Frame/Modal/Center/Panel/Margin/VBox/Resume.pressed.connect(func(): resume_requested.emit())
 	$Frame/Modal/Center/Panel/Margin/VBox/Quit.pressed.connect(func(): quit_requested.emit())
@@ -128,6 +130,14 @@ func show_note(title: String, body: String) -> void:
 	$Frame/Modal/Center/Panel/Margin/VBox/Restart.hide()
 	$Frame/Modal/Center/Panel/Margin/VBox/Quit.hide()
 	resume_button.grab_focus()
+
+
+func offer_checkpoint_retry(available: bool) -> void:
+	var retry: Button = $Frame/Modal/Center/Panel/Margin/VBox/Retry
+	retry.visible = available
+	$Frame/Modal/Center/Panel/Margin/VBox/Restart.text = "RESTART MISSION"
+	if available:
+		retry.grab_focus()
 
 
 func show_pause(value: bool) -> void:

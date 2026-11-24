@@ -8,6 +8,8 @@ enum AmbushPhase { IDLE, WARNING, OPENING, EMERGING, ACTIVE, CANCELLED }
 const HATCH_OPEN_DURATION: float = 1.0
 const HATCH_LIFT: float = 3.3
 const MISSION_AUDIO := preload("res://arca/audio/mission_audio.tscn")
+const CHECKPOINT_SCENE := preload("res://arca/interactables/checkpoint.tscn")
+const Checkpoint := preload("res://arca/interactables/checkpoint.gd")
 
 @export var ambush_delay: float = 1.4
 @onready var fuse: ArcaInteractionPoint = $FusePickup
@@ -20,6 +22,8 @@ const MISSION_AUDIO := preload("res://arca/audio/mission_audio.tscn")
 @onready var hatch: AnimatableBody3D = $ServiceHatch/Leaf
 var mission_audio: Node
 var key_items: Array[StringName] = []
+var collected_paths: Array[NodePath] = []
+var removed_predators: int = 0
 var has_fuse: bool:
 	get:
 		return has_key_item(&"fuse")
@@ -57,8 +61,18 @@ func _ready() -> void:
 	hud.get_node("Frame/Subtitle").text = "CONTINUITY STATION   /   POWER RESTORATION"
 	hud.get_node("Frame/Tag").text = "MAINTENANCE SECTOR / POWER RESTORATION\nTEMPORARY ART AND ENVIRONMENT"
 	hud.get_node("Frame/Controls").text = "WASD  move    /    MOUSE  camera\nRMB  aim    /    LMB  fire    /    SPACE  jump\nE  interact    /    R  reload\nBACKSPACE  restart    /    ESC  pause"
-	_update_objective()
-	_notify("Find the marked service corridor. Search inside for the fuse.")
+	var anchor: Marker3D = $ControlOffice/Markers/Checkpoint
+	var terminal: Node3D = CHECKPOINT_SCENE.instantiate()
+	terminal.transform = anchor.transform
+	$ControlOffice.add_child(terminal)
+	hud.retry_requested.connect(retry_from_checkpoint)
+	if Checkpoint.retry_pending:
+		Checkpoint.retry_pending = false
+		_restore_checkpoint(Checkpoint.snapshot)
+	else:
+		Checkpoint.snapshot.clear()
+		_update_objective()
+		_notify("Find the marked service corridor. Search inside for the fuse.")
 
 func _physics_process(delta: float) -> void:
 	if mission_complete or player.health_component.current <= 0:
@@ -139,6 +153,7 @@ func try_interact() -> bool:
 	return true
 
 func _collect_supply(pickup: ArcaInteractionPoint, message: String) -> void:
+	collected_paths.append(get_path_to(pickup))
 	pickup.enabled = false
 	pickup.queue_free()
 	$PickupSound.play()
@@ -160,6 +175,7 @@ func consume_key_item(item_id: StringName) -> void:
 	_update_objective()
 
 func _on_fuse_pickup_collected() -> void:
+	collected_paths.append(get_path_to(fuse))
 	add_key_item(&"fuse")
 	$PickupSound.play()
 	hud.set_interaction("")
@@ -235,13 +251,13 @@ func _on_predator_destroyed() -> void:
 
 func get_mission_summary() -> Dictionary:
 	var predator: String = "STILL ALIVE"
-	if enemy.dead:
+	if not is_instance_valid(enemy) or enemy.dead:
 		predator = "KILLED"
 	elif mission_complete:
 		predator = "EVADED"
 	return {
 		"seconds": mission_seconds, "shots": shots_fired, "damage": damage_taken, "predator": predator,
-		"kills": predators_killed, "predators_total": get_predators().size(),
+		"kills": predators_killed, "predators_total": get_predators().size() + removed_predators,
 	}
 
 func play_note_feedback() -> void:
@@ -256,6 +272,7 @@ func _on_player_died() -> void:
 		sound.stop()
 	for sound: Node in find_children("*", "AudioStreamPlayer3D", true, false):
 		sound.stop()
+	hud.offer_checkpoint_retry(not Checkpoint.snapshot.is_empty())
 	$EndSound.pitch_scale = 0.72
 	$EndSound.play()
 	hud.set_interaction("")
@@ -280,6 +297,8 @@ func _on_exit_entered(body: Node3D) -> void:
 	get_tree().paused = true
 
 func restart_room() -> void:
+	if not Checkpoint.retry_pending:
+		Checkpoint.snapshot.clear()
 	_cancel_ambush()
 	stop_all_predators()
 	super.restart_room()
@@ -287,3 +306,99 @@ func restart_room() -> void:
 func set_paused(value: bool) -> void:
 	if not mission_complete:
 		super.set_paused(value)
+
+
+func save_checkpoint(spawn: Transform3D) -> bool:
+	if not power_restored or not door.is_open or lift_gate.slider.is_opening:
+		_notify("Checkpoint unavailable while access is changing.")
+		return false
+	var saved_predators: Dictionary[NodePath, Dictionary] = {}
+	for predator: ArcaRaptor in get_predators():
+		saved_predators[get_path_to(predator)] = {
+			"dead": predator.dead, "sleeping": predator.state == ArcaRaptor.State.SLEEP,
+			"transform": predator.transform,
+		}
+	Checkpoint.snapshot = {
+		"spawn": spawn,
+		"health": player.health_component.current,
+		"magazine": player.ammo_component.magazine,
+		"reserve": player.ammo_component.reserve,
+		"keys": key_items.duplicate(),
+		"pickups": collected_paths.duplicate(),
+		"predators": saved_predators,
+		"primary_removed": not is_instance_valid(enemy),
+		"removed_predators": removed_predators,
+		"lift_open": lift_gate.slider.is_open,
+		"seconds": mission_seconds,
+		"shots": shots_fired,
+		"damage": damage_taken,
+		"kills": predators_killed,
+	}
+	_notify("CHECKPOINT SAVED")
+	return true
+
+
+func retry_from_checkpoint() -> void:
+	if restart_pending or player.health_component.current > 0 or Checkpoint.snapshot.is_empty():
+		return
+	Checkpoint.retry_pending = true
+	restart_room()
+
+
+func _restore_checkpoint(saved: Dictionary) -> void:
+	key_items.assign(saved["keys"])
+	collected_paths.assign(saved["pickups"])
+	for path: NodePath in collected_paths:
+		var pickup := get_node_or_null(path) as ArcaInteractionPoint
+		if pickup != null:
+			pickup.enabled = false
+			pickup.queue_free()
+
+	power_restored = true
+	reached_security = true
+	panel.restore_powered()
+	door.restore_open()
+	if saved["lift_open"]:
+		lift_gate.enabled = false
+		lift_gate.slider.restore_open()
+	ambush_triggered = true
+	_cancel_ambush()
+	hatch.position.y = hatch_closed_y + HATCH_LIFT
+	hatch.reset_physics_interpolation()
+
+	removed_predators = int(saved["removed_predators"])
+	if saved["primary_removed"]:
+		enemy.queue_free()
+	for path: NodePath in saved["predators"]:
+		var state: Dictionary = saved["predators"][path]
+		var predator := get_node_or_null(path) as ArcaRaptor
+		if predator == null:
+			continue
+		if state["dead"]:
+			removed_predators += 1
+			predator.queue_free()
+			continue
+		predator.transform = state["transform"]
+		predator.reset_physics_interpolation()
+		if predator == enemy:
+			predator.activate_ambush()
+		if not state["sleeping"]:
+			predator._change_state(ArcaRaptor.State.WAIT)
+
+	var spawn: Transform3D = saved["spawn"]
+	player.global_transform = spawn
+	player.global_position += Vector3.UP * 0.05
+	player.player_input.camera_base.rotation.y = spawn.basis.get_euler().y
+	player.reset_physics_interpolation()
+	player.health_component.current = saved["health"]
+	player.health_component.changed.emit(player.health_component.current, player.health_component.max_health)
+	player.ammo_component.magazine = saved["magazine"]
+	player.ammo_component.reserve = saved["reserve"]
+	player.ammo_component.changed.emit(player.ammo_component.magazine, player.ammo_component.reserve)
+
+	mission_seconds = saved["seconds"]
+	shots_fired = saved["shots"]
+	damage_taken = saved["damage"]
+	predators_killed = saved["kills"]
+	_update_objective()
+	_notify("CHECKPOINT RESTORED")

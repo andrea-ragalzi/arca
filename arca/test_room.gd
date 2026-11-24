@@ -72,6 +72,9 @@ func restart_room() -> void:
 func _on_player_died() -> void:
 	# Stop pending animation callbacks and all further enemy attacks.
 	stop_all_predators()
+	if not is_instance_valid(enemy):
+		hud.show_death(get_mission_summary())
+		return
 	if enemy.has_method("stop_combat"):
 		enemy.stop_combat()
 		hud.show_death(get_mission_summary())
