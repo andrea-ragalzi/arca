@@ -86,3 +86,7 @@ The playable mission retains its credited TPS foundation and uses the Ferocious 
 ## Regina gameplay lateral steps
 
 `arca/assets/characters/regina/source/ual2_strafe.glb` contains `Walk_L_Loop` and `Walk_R_Loop` from Quaternius **Universal Animation Library 2** under **CC0 1.0**, with the original notice in `LICENSE_UAL2.txt`. The gameplay library retargets pelvis, spine and leg tracks onto the credited Regina target. The source subset retains the mannequin and original key values. Source pin and extraction steps are in the accompanying source README.
+
+## Regina death and chest hit reactions
+
+`arca/assets/characters/regina/source/ual_reactions.glb` retains `Death01` and `Hit_Chest` from the pinned Quaternius **Universal Animation Library — Standard (CC0 1.0)** glTF credited above. The subset retains the offline donor rig and mannequin and the original key values. Its SHA-256 is `9bf16e262643112b9b7cdd4f722ce3ba032eaec561b5d84ad2c63d4a0463eedb`. The original notice is preserved in `source/LICENSE_CC0.txt`. The separate `reactions.tres` derives from those clips and the credited Otherspectre **CC BY 4.0** Regina reference rig. Extraction and bake commands are in the source README.

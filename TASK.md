@@ -48,9 +48,9 @@ Current sprint: [SPRINT_01.md](SPRINT_01.md). Workflow: [docs/PARALLEL_DEVELOPME
 
 ## S1-06: Regina death and hit reactions
 
-- Status: Ready: worktree prepared, not started
+- Status: Implemented, pending F5 acceptance
 - Branch: `s1/06-regina-reactions`
-- Validation: -
+- Validation: Full gate 635 checks / 0 failures, plus 93 static and 68 locomotion checks. See docs/tasks/S1-06.md Record.
 - Blockers: -
 
 ## S1-07: Sleeping raptor encounter

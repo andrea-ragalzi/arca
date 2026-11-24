@@ -90,7 +90,20 @@ func _install_regina() -> void:
 	graph.add_node("hand_grip", hand_blend)
 	graph.connect_node("hand_grip", 0, "wrist_grip")
 	graph.connect_node("hand_grip", 1, "hand_pose")
-	graph.connect_node("output", 0, "hand_grip")
+	regina_animation.add_animation_library("reactions",
+		preload("res://arca/assets/characters/regina/reactions.tres"))
+	var hit_clip := AnimationNodeAnimation.new()
+	hit_clip.animation = &"reactions/Hit_Chest"
+	graph.add_node("hit_chest_clip", hit_clip)
+	var chest_hit := AnimationNodeOneShot.new()
+	chest_hit.mix_mode = AnimationNodeOneShot.MIX_MODE_ADD
+	chest_hit.fadein_time = 0.04
+	chest_hit.fadeout_time = 0.08
+	graph.add_node("chest_hit", chest_hit)
+	graph.connect_node("chest_hit", 0, "hand_grip")
+	graph.connect_node("chest_hit", 1, "hit_chest_clip")
+
+	graph.connect_node("output", 0, "chest_hit")
 	animation_tree["parameters/hand_grip/blend_amount"] = 1.0
 	var aim := graph.get_node("aim") as AnimationNodeAdd3
 	aim.filter_enabled = true
@@ -151,6 +164,8 @@ func hit() -> void:
 func take_damage(amount: int) -> void:
 	if health_component.take_damage(amount):
 		add_camera_shake_trauma(0.75)
+		if health_component.current > 0:
+			animation_tree["parameters/chest_hit/request"] = AnimationNodeOneShot.ONE_SHOT_REQUEST_FIRE
 
 
 func get_shoot_origin() -> Vector3:
@@ -195,6 +210,9 @@ func _on_died() -> void:
 	velocity = Vector3.ZERO
 	fire_cooldown.stop()
 	set_physics_process(false)
+	# Stop the locomotion driver before handing the skeleton to the death clip.
 	animation_tree.active = false
+	var regina_animation: AnimationPlayer = player_model.get_node("ReginaModel/AnimationPlayer")
+	regina_animation.play(&"reactions/Death01")
 	crosshair.hide()
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE

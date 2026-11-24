@@ -541,6 +541,82 @@ func test_aim_pose_quality() -> void:
 		"Up aim pitches the visible barrel above neutral (neutral %s, up %s)" % [directions[0], directions[2]])
 
 
+func test_hit_reaction() -> void:
+	var distances: Array[float] = []
+	for take_hit in [false, true]:
+		await spawn_actor()
+		press_direction(Vector2.UP)
+		await frames(30)
+		var start: Vector3 = actor.position
+		if take_hit:
+			actor.take_damage(10)
+			await frames(3)
+			check(actor.animation_tree.get("parameters/chest_hit/active") == true,
+				"An accepted hit activates the chest one-shot")
+			actor.take_damage(10)
+			check(actor.health_component.current == 90,
+				"Damage cooldown rejects a second hit during the reaction")
+			await frames(18)
+			check(actor.animation_tree.get("parameters/chest_hit/active") == false,
+				"Chest reaction ends within the short blend window")
+			await frames(39)
+		else:
+			await frames(60)
+		distances.append(start.distance_to(actor.position))
+	check(distances[0] > 1.0 and distances[1] >= distances[0] * 0.9,
+		"Chest hit preserves at least 90 percent of normal walking displacement")
+	release_actions()
+	stop_actor()
+	await process_frame
+
+
+func hip_pose(player: Node3D) -> Transform3D:
+	var model: Node3D = player.get_node("PlayerModel/ReginaModel")
+	var skeleton := model.find_children("*", "Skeleton3D", true, false)[0] as Skeleton3D
+	return skeleton.global_transform * skeleton.get_bone_global_pose(skeleton.find_bone("root hips_02"))
+
+
+func test_death_reaction() -> void:
+	change_scene_to_file("res://arca/mission_room.tscn")
+	await scene_changed
+	await frames(60)
+	var room: Node = current_scene
+	var player: Variant = room.get_node("Player")
+	var animations: AnimationPlayer = player.get_node("PlayerModel/ReginaModel/AnimationPlayer")
+	var death: Animation = animations.get_animation("reactions/Death01") \
+		if animations.has_animation("reactions/Death01") else null
+	check(death != null, "Death01 is installed as a separate reaction clip")
+	var standing: Transform3D = hip_pose(player)
+	var position: Vector3 = player.global_position
+	player.take_damage(100)
+	press_direction(Vector2.UP)
+	Input.action_press("jump")
+	Input.action_press("shoot")
+	await frames(12)
+	paused = true
+	var paused_pose: Transform3D = hip_pose(player)
+	await frames(30)
+	check(hip_pose(player).is_equal_approx(paused_pose), "Pause freezes the death pose")
+	paused = false
+	await frames(ceili(death.length * 60.0) - 12 if death else 60)
+	check(standing.origin.y - hip_pose(player).origin.y >= 0.5, "Death lowers the hips by at least 0.5 m")
+	# Allow the playback start frame and sample the exact endpoint.
+	await frames(2)
+	var fallen: Transform3D = hip_pose(player)
+	await frames(120)
+	check(hip_pose(player).is_equal_approx(fallen), "Death holds the final hip pose for two more seconds")
+	check(player.global_position.is_equal_approx(position), "Held input cannot displace the dead body")
+	release_actions()
+	room.restart_room()
+	await scene_changed
+	await frames(60)
+	check(absf(hip_pose(current_scene.get_node("Player")).origin.y - standing.origin.y) < 0.05,
+		"Mission restart restores Regina's standing idle pose")
+	current_scene.stop_audio()
+	current_scene.queue_free()
+	await process_frame
+
+
 func run() -> void:
 	await check_regina_room("res://arca/test_room.tscn", "RedRobot")
 	await check_regina_room("res://arca/raptor_room.tscn", "Raptor")
@@ -549,7 +625,10 @@ func run() -> void:
 	arena = Node3D.new()
 	root.add_child(arena)
 	make_box(Vector3(100, 0.4, 100), Vector3(0, -0.2, 0))
-	if "--weapon-grip-only" in OS.get_cmdline_user_args():
+	if "--reactions-only" in OS.get_cmdline_user_args():
+		await test_hit_reaction()
+		await test_death_reaction()
+	elif "--weapon-grip-only" in OS.get_cmdline_user_args():
 		await test_weapon_grip()
 	else:
 		await test_directions()
@@ -557,6 +636,8 @@ func run() -> void:
 		await test_weapon_grip()
 		await test_aim_pose_quality()
 		await test_necessary_sole_contact()
+		await test_hit_reaction()
+		await test_death_reaction()
 	release_actions()
 	stop_actor()
 	arena.queue_free()

@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """Extract immutable CC0 UAL subsets; no third-party Python packages.
 
-Usage: python3 extract_locomotion.py /path/to/AnimationLibrary_Godot_Standard.gltf [--pistol-grip]
+Usage: python3 extract_locomotion.py /path/to/AnimationLibrary_Godot_Standard.gltf [--pistol-grip | --reactions]
        python3 extract_locomotion.py /path/to/UAL2.glb --strafe
 Reads the adjacent .bin; writes ual_locomotion.glb (three clips) or
-ual_pistol_grip.glb (neutral, up and down pistol poses) beside this script.
+ual_pistol_grip.glb (neutral, up and down pistol poses) or
+ual_reactions.glb (death and chest hit) beside this script.
 The UAL2 option reads a GLB and writes its two lateral walks to ual2_strafe.glb.
 Upstream/mirror pins, hashes and license are documented in README.md.
 """
@@ -101,6 +102,9 @@ if __name__ == "__main__":
     elif len(sys.argv) == 3 and sys.argv[2] == "--pistol-grip":
         extract(Path(sys.argv[1]), Path(__file__).with_name("ual_pistol_grip.glb"),
                 ("Pistol_Aim_Neutral", "Pistol_Aim_Up", "Pistol_Aim_Down"))
+    elif len(sys.argv) == 3 and sys.argv[2] == "--reactions":
+        extract(Path(sys.argv[1]), Path(__file__).with_name("ual_reactions.glb"),
+                ("Death01", "Hit_Chest"))
     elif len(sys.argv) == 2:
         extract(Path(sys.argv[1]), Path(__file__).with_name("ual_locomotion.glb"))
     else:

@@ -77,3 +77,17 @@ python3 arca/assets/characters/regina/source/extract_locomotion.py /absolute/pat
 ```
 
 Import the subset before running `bake_gameplay.gd`.
+
+## Death and chest hit reactions
+
+`ual_reactions.glb` retains **`Death01`** and **`Hit_Chest`** and the same offline donor mannequin from the pinned Standard inputs above (744,612 bytes). Its SHA-256 is `9bf16e262643112b9b7cdd4f722ce3ba032eaec561b5d84ad2c63d4a0463eedb`.
+
+Verify the glTF and adjacent buffer against the table above, then extract, import and bake with Godot 4.5.1:
+
+```bash
+python3 arca/assets/characters/regina/source/extract_locomotion.py /absolute/path/to/AnimationLibrary_Godot_Standard.gltf --reactions
+"$HOME/Applications/Godot_v4.5.1-stable_linux.x86_64" --headless --editor --import --path .
+"$HOME/Applications/Godot_v4.5.1-stable_linux.x86_64" --headless --audio-driver Dummy --path . -s res://arca/assets/characters/regina/bake_reactions.gd
+```
+
+The baker reuses the Standard UAL bone map and scales the death clip's pelvis motion to Regina's leg lengths. The 2.375-second fall retains its authored direction and ends in a held pose. The 0.3-second hit uses local torso and neck rotations relative to the first source pose. The gameplay tree adds these rotations to the live pose while locomotion continues supplying root motion. Both reaction clips live in `../reactions.tres` and contain only skeleton tracks. The CC0 animation and CC BY 4.0 Regina reference-rig attributions apply to the bake.
