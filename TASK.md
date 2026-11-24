@@ -83,10 +83,10 @@ Current sprint: [SPRINT_01.md](SPRINT_01.md). Workflow: [docs/PARALLEL_DEVELOPME
 
 ## S1-11: Title and end screens (stretch)
 
-- Status: Waiting: merge after S1-10
+- Status: Merged into `main` on 2026-11-24
 - Branch: `s1/11-front-end`
-- Validation: -
-- Blockers: -
+- Validation: Gameplay gate 1002/0, title flow 7/0 headless and 8/0 X11/Compatibility.
+- Blockers: Full playthrough timing belongs to S1-12.
 
 ## S1-12: Full-route playtest
 

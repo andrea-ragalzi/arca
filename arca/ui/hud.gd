@@ -1,5 +1,7 @@
 extends CanvasLayer
 
+const TITLE_SCENE := "res://arca/ui/title_screen.tscn"
+
 signal restart_requested
 signal resume_requested
 signal quit_requested
@@ -25,6 +27,7 @@ var telemetry_origin: Node3D
 
 func _ready() -> void:
 	$Frame/Modal/Center/Panel/Margin/VBox/Retry.pressed.connect(func(): retry_requested.emit())
+	$Frame/Modal/Center/Panel/Margin/VBox/ReturnToTitle.pressed.connect(_return_to_title)
 	$Frame/Modal/Center/Panel/Margin/VBox/Restart.pressed.connect(func(): restart_requested.emit())
 	$Frame/Modal/Center/Panel/Margin/VBox/Resume.pressed.connect(func(): resume_requested.emit())
 	$Frame/Modal/Center/Panel/Margin/VBox/Quit.pressed.connect(func(): quit_requested.emit())
@@ -170,10 +173,21 @@ func set_notice(message: String) -> void:
 
 func show_success(summary: Dictionary = {}) -> void:
 	modal.show()
-	modal_title.text = "SECTOR RESTORED"
-	modal_text.text = _outcome_text("Fuse recovered. Power restored. Exit reached.", summary)
+	modal_title.text = "DEMO COMPLETE"
+	modal_text.text = _outcome_text("Fuse recovered. Power restored. Lift reached.", summary)
 	resume_button.hide()
-	$Frame/Modal/Center/Panel/Margin/VBox/Restart.grab_focus()
+	var title_button: Button = $Frame/Modal/Center/Panel/Margin/VBox/ReturnToTitle
+	title_button.show()
+	title_button.grab_focus()
+
+
+func _return_to_title() -> void:
+	var tree := get_tree()
+	var result := tree.change_scene_to_file(TITLE_SCENE)
+	if result == OK:
+		tree.paused = false
+	else:
+		push_error("Cannot return to ARCA title: " + error_string(result))
 
 
 func _outcome_text(message: String, summary: Dictionary) -> String:
