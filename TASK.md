@@ -90,10 +90,10 @@ Current sprint: [SPRINT_01.md](SPRINT_01.md). Workflow: [docs/PARALLEL_DEVELOPME
 
 ## S1-12: Full-route playtest
 
-- Status: Waiting: everything merged
+- Status: Playable on `main`; awaiting the two human F5 runs
 - Branch: `main`
-- Validation: -
-- Blockers: -
+- Validation: Full sprint gate 1180/0; title cycle 8/0 with the X11 window driver. See docs/tasks/S1-12.md.
+- Blockers: Human mission clock, soft-lock check, lighting/audio review and F3 samples. Scripted walking is below the 150 s target.
 
 ## S1-13: Readable notes
 
