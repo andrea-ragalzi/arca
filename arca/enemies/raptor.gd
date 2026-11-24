@@ -5,10 +5,16 @@ extends CharacterBody3D
 signal exploded
 signal state_changed(value: int)
 signal attack_landed
+signal staggered
 
-enum State { WAIT, ALERT, CHASE, WINDUP, ATTACK, RECOVER, DEAD, DORMANT, EMERGE }
+# New states are appended so existing integer values and HUD labels stay stable.
+enum State { WAIT, ALERT, CHASE, WINDUP, ATTACK, RECOVER, DEAD, DORMANT, EMERGE, HURT }
 
 const EMERGENCE_SPEED: float = 1.6
+const ALERT_DURATION: float = 0.7
+# States in which an accepted hit can interrupt the predator. WINDUP is included so
+# accurate fire cancels a pending bite; a committed ATTACK is never interrupted.
+const STAGGER_STATES: Array[State] = [State.ALERT, State.CHASE, State.WINDUP, State.RECOVER]
 
 @export var move_speed: float = 3.2
 @export var detection_range: float = 10.0
@@ -16,6 +22,10 @@ const EMERGENCE_SPEED: float = 1.6
 @export var attack_damage: int = 20
 @export var windup_duration: float = 0.45
 @export var recovery_duration: float = 0.95
+## Length of the hit reaction. The baked Ferocious_Hurt clip is timed to the default.
+@export var stagger_duration: float = 0.5
+## Minimum time between stagger starts, so sustained fire cannot stun-lock the predator.
+@export var stagger_cooldown: float = 1.5
 
 @onready var health_component: ArcaHealth = $HealthComponent
 @onready var agent: NavigationAgent3D = $NavigationAgent3D
@@ -33,6 +43,7 @@ var clips: Dictionary = {}
 var active_collision_layer: int
 var active_collision_mask: int
 var emergence_target: Vector3
+var stagger_cooldown_remaining: float = 0.0
 var dead: bool:
 	get: return state == State.DEAD
 var health: int:
@@ -44,7 +55,7 @@ func _ready() -> void:
 	active_collision_layer = collision_layer
 	active_collision_mask = collision_mask
 	for clip in animation.get_animation_list():
-		for action in ["Idle", "Walk", "Run", "Attack", "Death", "Jump"]:
+		for action in ["Idle", "Walk", "Run", "Attack", "Death", "Jump", "Hurt", "Roar"]:
 			if String(clip).ends_with("_" + action):
 				clips[action] = clip
 				if action in ["Idle", "Walk", "Run"]:
@@ -65,9 +76,10 @@ func _physics_process(delta: float) -> void:
 	var distance: float = difference.length()
 	elapsed += delta
 	retarget_remaining -= delta
+	stagger_cooldown_remaining = maxf(stagger_cooldown_remaining - delta, 0.0)
 	velocity.x = 0.0
 	velocity.z = 0.0
-	if state not in [State.WAIT, State.EMERGE] and difference.length_squared() > 0.01:
+	if state not in [State.WAIT, State.EMERGE, State.HURT] and difference.length_squared() > 0.01:
 		rotation.y = lerp_angle(rotation.y, atan2(-difference.x, -difference.z), minf(1.0, delta * 8.0))
 	match state:
 		State.EMERGE:
@@ -83,7 +95,7 @@ func _physics_process(delta: float) -> void:
 			if distance <= detection_range and _can_see_player():
 				_change_state(State.ALERT)
 		State.ALERT:
-			if elapsed >= 0.7:
+			if elapsed >= ALERT_DURATION:
 				_change_state(State.CHASE)
 		State.CHASE:
 			if distance <= attack_range and _can_see_player():
@@ -103,6 +115,9 @@ func _physics_process(delta: float) -> void:
 				_change_state(State.RECOVER)
 		State.RECOVER:
 			if elapsed >= recovery_duration:
+				_change_state(State.CHASE)
+		State.HURT:
+			if elapsed >= stagger_duration:
 				_change_state(State.CHASE)
 	velocity += get_gravity() * delta
 	move_and_slide()
@@ -140,8 +155,14 @@ func _can_see_player() -> bool:
 func hit() -> void:
 	if dead or state == State.DORMANT:
 		return
-	if health_component.take_damage(1) and state == State.WAIT:
+	if not health_component.take_damage(1) or dead:
+		return
+	if state == State.WAIT:
 		_change_state(State.ALERT)
+	elif state in STAGGER_STATES and stagger_cooldown_remaining <= 0.0:
+		stagger_cooldown_remaining = stagger_cooldown
+		_change_state(State.HURT)
+		staggered.emit()
 
 
 func _change_state(value: State) -> void:
@@ -151,6 +172,8 @@ func _change_state(value: State) -> void:
 	warning.visible = value in [State.ALERT, State.WINDUP]
 	match value:
 		State.EMERGE: _play("Walk")
+		State.ALERT: _play("Roar")
+		State.HURT: _play("Hurt")
 		State.CHASE: _play("Run")
 		State.ATTACK: _play("Attack")
 		State.DEAD: _play("Death")
@@ -216,5 +239,8 @@ func emerge_from_hatch(target: Vector3) -> bool:
 func get_status_text() -> String:
 	if state == State.DORMANT:
 		return "NO CONTACT"
-	var labels := ["WAITING", "ALERT", "CHASING", "WINDUP", "ATTACK", "RECOVERY", "DOWN", "DORMANT", "EMERGING"]
+	var labels := [
+		"WAITING", "ALERT", "CHASING", "WINDUP", "ATTACK",
+		"RECOVERY", "DOWN", "DORMANT", "EMERGING", "STAGGERED",
+	]
 	return "PREDATOR %d/%d  /  %s" % [health, health_component.max_health, labels[state]]

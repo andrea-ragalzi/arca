@@ -77,6 +77,17 @@ The mission and predator test room now use **Ferocious Industries' PBR Velocirap
 
 Press **F5**, restore power and inspect the new raptor emerging from the service hatch. Check its facing, walking/chasing, bite, death, pause and restart. Source contact/material limitations remain visible; this replacement does not resolve Regina's existing quality-gate failures.
 
+### Hit reaction and alert roar
+
+The raptor now **roars when it becomes alert** (`Roar_03`, fitted to the unchanged 0.7 s alert) and **flinches when shot** (`Hurt_01`, a 0.5 s stagger). A hit during the bite windup cancels that bite. Sustained fire can't stun-lock it: a new stagger needs 1.5 s since the previous one. A committed bite, an emerging raptor and a dormant raptor are never staggered. Damage, health, speeds and all other timings are unchanged.
+
+F5 checklist:
+
+1. Restore power and watch the raptor clear the hatch: it should roar with its jaw wide open, then start chasing.
+2. Aim and shoot it while it closes in: it should visibly flinch and pause, then resume. Keep firing; it shouldn't flinch again until about 1.5 s later.
+3. Let it start a bite (the orange `!` marker), then shoot it: the bite should be cancelled and you shouldn't lose health.
+4. Pause during a flinch and resume: the flinch continues from where it froze. Kill it during a flinch: the death plays once.
+
 ## Inspect the Regina character
 
 Press **F5** to play the mission as Regina. Her gameplay model, animation bake and primitive prototype handgun are integrated into the shared ARCA player; the original TPS controller, camera, collision and projectile behavior remain in use. The base `player/player.tscn` remains the unchanged visible-robot reference. For the separate idle/walk/run experiment, open **`arca/character_locomotion_test.tscn`** and press **F6**; it still inherits the static `arca/character_test.tscn` and its inspection lighting, ruler and visual corrections.

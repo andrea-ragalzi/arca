@@ -174,6 +174,25 @@ Validation used a new source-only import under `.artifacts/regina-motion/source/
 
 The required gate remains incomplete. Stop at the planned pose-feasibility limit; choose a separately scoped humanoid directional source or targeted retarget repair before treating locomotion as finished. Do not use the historical passing integration checks as evidence that footwork is natural.
 
+## S1-02 raptor hit reaction and alert roar (2026-11-24)
+
+- Ran in worktree `../ARCA-wt/s1-02`: `bash scripts/check.sh` passed launcher 13, first_playable 42, **raptor 83**, mission 61, ambush 47, regina_player 378 and economy 25, for **649 checks and 0 failures**.
+- The 24 new raptor checks cover:
+  - two extra real source bindings, with finite poses and a held root;
+  - hurt and roar lengths matching the stagger and alert windows;
+  - the roar jaw opening above 45° at 0.23 s and closing below 10°;
+  - a wait-state hit still alerting;
+  - the alert playing the roar;
+  - a windup hit staggering and cancelling the bite;
+  - recovery into the hunt;
+  - five hits causing one stagger, plus re-stagger after the cooldown;
+  - pause freezing the stagger and its cooldown;
+  - a lethal hit during the stagger;
+  - committed bite, dormant and emerging exclusions.
+- Mutation checks: disabling the stagger made 8 checks fail, and a zero cooldown made both cooldown checks fail. Both mutations were reverted.
+- Rebaking with the original baker was byte-identical. After the change, the six earlier bindings are unchanged in `gameplay.tres`.
+- Not verified headless: how the flinch and roar read visually, blend quality, and ground contact during `Hurt_01`. These need the README F5 checklist.
+
 ## Known limits
 
 - The hatch is a primitive sliding panel and shallow bay, not bespoke dinosaur breach animation, final environment art or new sound design.

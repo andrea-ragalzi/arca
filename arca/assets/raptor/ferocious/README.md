@@ -22,8 +22,12 @@ The source has 15,098 triangles, 9,495 accessor vertices, two materials, 137 ske
 | Ferocious_Attack | Bite_02 | Trim the initial 14/24 s preparation prefix, then retime to the existing 0.833333 s attack cycle |
 | Ferocious_Death | Death_01 | Retimed to the previous 1.291667 s death presentation; holds the terminal pose |
 | Ferocious_Jump | Leap_01 | Retimed to previous 1.125 s clip; retained unused binding, not a new jump mechanic |
+| Ferocious_Hurt | Hurt_01 | Source window 0.0–1.0 s (recoil and recovery) retimed to the 0.5 s stagger; one-shot. Added by S1-02 |
+| Ferocious_Roar | Roar_03 | Source window 0.25–1.375 s (jaw opens to ~88°, then closes near rest) retimed to the unchanged 0.7 s ALERT phase; one-shot. Added by S1-02 |
 
 Every alias is an explicit binding to a real source clip, not an invented animation. Hit/roar and other source clips remain in the source asset but do not introduce new AI states. Sprint is not selected because its endpoints do not match as well as Jog.
+
+**S1-02 reactions (2026-11-24):** `Hurt_01` and `Roar_03` are now bound, following the archived evaluation's recommendation (`docs/archive/velociraptor-review/VELOCIRAPTOR_REVIEW.md`). Both are in-place source clips; `Roar_02` (0.252 m travel) and `Knocked Down` (0.933 m travel) remain unused. The baker gained a per-action source window (`WINDOWS`) with an explicit end time. The six earlier bindings are byte-identical after the rebake. `Ferocious_Hurt` drives the new HURT stagger state and `Ferocious_Roar` replaces the idle pose during ALERT; neither changes timing, damage or physics.
 
 Derived tracks retain source body/morph motion, but the Root_02 position is held at its initial value. This prevents imported world travel from moving the model away from its collision body during death or unused jump playback. CharacterBody3D still owns all navigation and hatch emergence. Source animation tracks and skeleton rests are untouched.
 
@@ -41,7 +45,7 @@ From the ARCA root, after imports finish, use the pinned executable (prefer an i
 
 The baker references the retained Quaternius library only to preserve the existing attack/death/jump durations; it does not retarget that rig or use its poses in the new model. `gameplay.tres` is a CC BY 4.0 derivative of the credited Ferocious Industries animation data.
 
-`arca/tests/raptor_test.gd` verifies the six source mappings, rig/track validity, inactive source driver, scale/facing, root anchoring, gait/bite presentation timing, pause/resume and all prior combat/navigation/projectile/lifecycle behavior. `bash scripts/ai_check.sh` runs the documented full gate in an isolated snapshot. The replacement does not fix the three existing Regina-player quality failures.
+`arca/tests/raptor_test.gd` verifies the eight source mappings, the hurt/roar window lengths and roar jaw opening, rig/track validity, inactive source driver, scale/facing, root anchoring, gait/bite presentation timing, pause/resume and all prior combat/navigation/projectile/lifecycle behavior. `bash scripts/ai_check.sh` runs the documented full gate in an isolated snapshot. The replacement does not fix the three existing Regina-player quality failures.
 
 ## Remaining visual limits
 

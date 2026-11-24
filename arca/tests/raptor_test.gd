@@ -41,7 +41,8 @@ func presentation_checks(predator: ArcaRaptor) -> void:
 	check(skeleton.get_bone_count() == 137 and root_bone >= 0 and jaw >= 0,
 		"The original complete rig, root and jaw are bound")
 	var sources: Dictionary = {"Idle": "Idle_02", "Walk": "Walk", "Run": "Jog",
-		"Attack": "Bite_02", "Death": "Death_01", "Jump": "Leap_01"}
+		"Attack": "Bite_02", "Death": "Death_01", "Jump": "Leap_01",
+		"Hurt": "Hurt_01", "Roar": "Roar_03"}
 	for action: String in sources:
 		var name: StringName = predator.clips[action]
 		var clip: Animation = animation.get_animation(name)
@@ -83,6 +84,20 @@ func presentation_checks(predator: ArcaRaptor) -> void:
 	animation.seek(0.24, true)
 	check(closed.angle_to(skeleton.get_bone_pose_rotation(jaw)) < deg_to_rad(5.0),
 		"The bite jaw closes near the existing 0.24 s damage check")
+	var hurt: Animation = animation.get_animation(predator.clips["Hurt"])
+	var roar: Animation = animation.get_animation(predator.clips["Roar"])
+	check(is_equal_approx(hurt.length, predator.stagger_duration)
+		and is_equal_approx(roar.length, ArcaRaptor.ALERT_DURATION),
+		"Hurt and roar presentations fit the stagger and unchanged alert windows")
+	animation.play(predator.clips["Roar"])
+	animation.seek(0.0, true)
+	var roar_closed: Quaternion = skeleton.get_bone_pose_rotation(jaw)
+	animation.seek(0.23, true)
+	var roar_open: float = roar_closed.angle_to(skeleton.get_bone_pose_rotation(jaw))
+	animation.seek(roar.length, true)
+	var roar_end: float = roar_closed.angle_to(skeleton.get_bone_pose_rotation(jaw))
+	check(roar_open > deg_to_rad(45.0) and roar_end < deg_to_rad(10.0),
+		"The roar opens the jaw wide early in the alert and closes before the chase")
 	model.queue_free()
 	var before: float = predator.animation.current_animation_position
 	room.set_paused(true)
@@ -95,10 +110,106 @@ func presentation_checks(predator: ArcaRaptor) -> void:
 		"Resume advances the same replacement clip")
 
 
+func reaction_checks() -> void:
+	await reset_room()
+	var predator: ArcaRaptor = room.enemy
+	var staggers: Array[int] = [0]
+	predator.staggered.connect(func(): staggers[0] += 1)
+	predator.hit()
+	check(predator.state == ArcaRaptor.State.ALERT and staggers[0] == 0,
+		"A hit on a waiting predator still alerts it instead of staggering it")
+	check(predator.animation.current_animation == predator.clips["Roar"] and predator.warning.visible,
+		"The alert phase plays the roar with the existing warning marker")
+
+	await reset_room()
+	predator = room.enemy
+	staggers = [0]
+	predator.staggered.connect(func(): staggers[0] += 1)
+	predator.position = Vector3(0, 0.05, -7.4)
+	predator._change_state(ArcaRaptor.State.WINDUP)
+	await frames(5)
+	predator.hit()
+	check(predator.state == ArcaRaptor.State.HURT and staggers[0] == 1
+		and predator.animation.current_animation == predator.clips["Hurt"] and not predator.warning.visible,
+		"A hit during the windup staggers the predator and plays the hurt reaction")
+	check(predator.get_status_text().ends_with("STAGGERED"), "Telemetry reports the stagger")
+	await frames(20)
+	check(predator.state == ArcaRaptor.State.HURT, "The stagger holds the predator in place briefly")
+	await frames(25)
+	check(room.player.health_component.current == 100,
+		"The staggered windup never delivers its bite")
+	check(predator.state in [ArcaRaptor.State.CHASE, ArcaRaptor.State.WINDUP],
+		"The predator resumes the hunt after the stagger")
+
+	await reset_room()
+	predator = room.enemy
+	staggers = [0]
+	predator.staggered.connect(func(): staggers[0] += 1)
+	predator.health_component.max_health = 20
+	predator.health_component.current = 20
+	predator.position = Vector3(0, 0.05, 2)
+	predator._change_state(ArcaRaptor.State.CHASE)
+	for shot in 5:
+		predator.hit()
+		await frames(12)
+	check(staggers[0] == 1 and predator.health == 15,
+		"Five hits within the cooldown deal full damage but cause only one stagger")
+	await frames(45)
+	predator.hit()
+	check(staggers[0] == 2 and predator.state == ArcaRaptor.State.HURT,
+		"The predator can be staggered again once the cooldown has elapsed")
+
+	await reset_room()
+	predator = room.enemy
+	predator.position = Vector3(0, 0.05, 2)
+	predator._change_state(ArcaRaptor.State.CHASE)
+	predator.hit()
+	await frames(6)
+	var hurt_elapsed: float = predator.elapsed
+	var cooldown_left: float = predator.stagger_cooldown_remaining
+	room.set_paused(true)
+	await frames(40)
+	check(predator.state == ArcaRaptor.State.HURT and is_equal_approx(predator.elapsed, hurt_elapsed)
+		and is_equal_approx(predator.stagger_cooldown_remaining, cooldown_left),
+		"Pause freezes the stagger and its cooldown")
+	room.set_paused(false)
+	var deaths: Array[int] = [0]
+	predator.exploded.connect(func(): deaths[0] += 1)
+	predator.health_component.current = 1
+	await frames(10)
+	predator.hit()
+	await frames(5)
+	check(predator.dead and deaths[0] == 1, "A lethal hit during the stagger kills the predator once")
+
+	await reset_room()
+	predator = room.enemy
+	staggers = [0]
+	predator.staggered.connect(func(): staggers[0] += 1)
+	predator.position = Vector3(0, 0.05, -7.4)
+	predator._change_state(ArcaRaptor.State.ATTACK)
+	predator.hit()
+	check(predator.state == ArcaRaptor.State.ATTACK and staggers[0] == 0,
+		"A committed bite is not interrupted by a hit")
+
+	await reset_room()
+	predator = room.enemy
+	staggers = [0]
+	predator.staggered.connect(func(): staggers[0] += 1)
+	var health_before: int = predator.health
+	predator.prepare_ambush()
+	predator.hit()
+	check(predator.health == health_before and predator.state == ArcaRaptor.State.DORMANT,
+		"A dormant predator stays immune")
+	predator.emerge_from_hatch(predator.global_position + Vector3(3, 0, 0))
+	predator.hit()
+	check(predator.state == ArcaRaptor.State.EMERGE and predator.health == health_before - 1 and staggers[0] == 0,
+		"An emerging predator takes damage without staggering")
+
+
 func run() -> void:
 	await reset_room()
 	var predator: ArcaRaptor = room.enemy
-	check(predator.clips.size() == 6, "Six real source-backed gameplay animation bindings are loaded")
+	check(predator.clips.size() == 8, "Eight real source-backed gameplay animation bindings are loaded")
 	await presentation_checks(predator)
 	check(room.get_node("NavigationRegion3D").navigation_mesh.get_polygon_count() > 10,
 		"Baked navigation geometry is present")
@@ -178,6 +289,8 @@ func run() -> void:
 		"Death during windup cancels the queued bite")
 	check(predator.animation.current_animation == predator.clips["Death"] or not predator.animation.is_playing(),
 		"The death clip is played without restarting the attack")
+
+	await reaction_checks()
 
 	await reset_room()
 	predator = room.enemy

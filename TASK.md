@@ -20,10 +20,10 @@ Current sprint: [SPRINT_01.md](SPRINT_01.md). Workflow: [docs/PARALLEL_DEVELOPME
 
 ## S1-02: Raptor hit reaction and alert roar
 
-- Status: In progress
+- Status: Implemented and committed on its branch; NOT merged until user F5 acceptance
 - Branch: `s1/02-raptor-reactions`
-- Validation: See docs/tasks/S1-02.md Record.
-- Blockers: -
+- Validation: Worktree gate 649 checks / 0 failures (raptor 83 = 59 existing + 24 new); mutation-checked. Details in docs/tasks/S1-02.md.
+- Blockers: User F5 (README "Hit reaction and alert roar")
 
 ## S1-03: Multiple predators lifecycle
 

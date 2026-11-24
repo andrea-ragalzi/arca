@@ -23,7 +23,7 @@ Author: <https://sketchfab.com/ferociousindustries.matthias>.
 Licensed under **Creative Commons Attribution 4.0 International (CC BY 4.0)**: <http://creativecommons.org/licenses/by/4.0/>.
 The original download notice is preserved in `arca/assets/raptor/ferocious/source/license.txt`.
 
-The official user-supplied Sketchfab glTF, binary, textures, rig and source clips are unchanged. Godot converts its specular/glossiness materials for Compatibility rendering. ARCA's separate derived gameplay library selects six real source clips, retimes presentation, trims the bite's initial preparation and anchors root translation to preserve the existing physics/combat contract; see `arca/assets/raptor/ferocious/README.md`. The derived animation resource retains CC BY 4.0; it is not MIT-only because its baker is code.
+The official user-supplied Sketchfab glTF, binary, textures, rig and source clips are unchanged. Godot converts its specular/glossiness materials for Compatibility rendering. ARCA's separate derived gameplay library selects eight real source clips (adding `Hurt_01` and `Roar_03` for the hit reaction and alert roar), retimes presentation, trims the bite's initial preparation and the two reaction windows and anchors root translation to preserve the existing physics/combat contract; see `arca/assets/raptor/ferocious/README.md`. The derived animation resource retains CC BY 4.0; it is not MIT-only because its baker is code.
 
 ## Retained Quaternius predator reference
 

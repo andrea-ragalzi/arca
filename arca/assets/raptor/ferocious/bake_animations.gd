@@ -6,11 +6,18 @@ const OUTPUT: String = "res://arca/assets/raptor/ferocious/gameplay.tres"
 const MAPPING: Dictionary = {
 	"Idle": "Idle_02", "Walk": "Walk", "Run": "Jog",
 	"Attack": "Bite_02", "Death": "Death_01", "Jump": "Leap_01",
+	"Hurt": "Hurt_01", "Roar": "Roar_03",
 }
 # Distances measured from the original FBX root-motion equivalents, in metres.
 const WALK_DISTANCE: float = 2.9
 const JOG_DISTANCE: float = 3.2453
 const ATTACK_START: float = 14.0 / 24.0
+# Reaction windows [start, end] in source seconds, retimed to gameplay durations.
+# Hurt_01 recoils at 0.25-0.62 s and is back near rest by 1.0 s.
+# Roar_03 opens its jaw at 0.5-1.25 s (peak ~0.62 s) and is back near rest by 1.375 s.
+const WINDOWS: Dictionary = {"Hurt": [0.0, 1.0], "Roar": [0.25, 1.375]}
+# Must match ArcaRaptor.stagger_duration and the unchanged 0.7 s ALERT phase.
+const REACTION_DURATIONS: Dictionary = {"Hurt": 0.5, "Roar": 0.7}
 
 func _initialize() -> void:
 	call_deferred("run")
@@ -36,6 +43,10 @@ func run() -> void:
 		var original: Animation = player.get_animation(MAPPING[action])
 		assert(original != null, "Required source clip missing: " + str(MAPPING[action]))
 		var start: float = ATTACK_START if action == "Attack" else 0.0
+		var end: float = original.length
+		if WINDOWS.has(action):
+			start = WINDOWS[action][0]
+			end = WINDOWS[action][1]
 		var duration: float = original.length
 		match action:
 			"Walk": duration = WALK_DISTANCE / 1.6
@@ -44,12 +55,15 @@ func run() -> void:
 				for name: StringName in reference.get_animation_list():
 					if str(name).ends_with("_" + action):
 						duration = reference.get_animation(name).length
+			"Hurt", "Roar": duration = REACTION_DURATIONS[action]
 		var animation: Animation = original.duplicate(true) as Animation
 		animation.resource_name = "Ferocious_" + action
 		animation.resource_local_to_scene = true
 		animation.set_meta("source_clip", MAPPING[action])
 		animation.set_meta("source_start", start)
 		animation.set_meta("source_duration", original.length)
+		if WINDOWS.has(action):
+			animation.set_meta("source_end", end)
 		animation.length = duration
 		animation.loop_mode = Animation.LOOP_LINEAR if action in ["Idle", "Walk", "Run"] else Animation.LOOP_NONE
 		for track: int in animation.get_track_count():
@@ -65,14 +79,14 @@ func run() -> void:
 			animation.track_insert_key(track, 0.0, sample(original, track, start))
 			for key: int in original.track_get_key_count(track):
 				var time: float = original.track_get_key_time(track, key)
-				if time > start and time < original.length:
-					var mapped: float = (time - start) * duration / (original.length - start)
+				if time > start and time < end:
+					var mapped: float = (time - start) * duration / (end - start)
 					animation.track_insert_key(track, mapped, original.track_get_key_value(track, key), original.track_get_key_transition(track, key))
-			animation.track_insert_key(track, duration, sample(original, track, original.length))
+			animation.track_insert_key(track, duration, sample(original, track, end))
 		assert(library.add_animation(animation.resource_name, animation) == OK)
-		print(action, " <- ", MAPPING[action], " | start ", start, " | duration ", duration)
+		print(action, " <- ", MAPPING[action], " | start ", start, " | end ", end, " | duration ", duration)
 	assert(ResourceSaver.save(library, OUTPUT) == OK, "Cannot save predator animation library")
 	source.free()
 	legacy.free()
-	print("RAPTOR BAKE: six presentation bindings saved; source files unchanged")
+	print("RAPTOR BAKE: %d presentation bindings saved; source files unchanged" % MAPPING.size())
 	quit()
