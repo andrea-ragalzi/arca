@@ -138,6 +138,36 @@ theme_override_styles/fill = SubResource("BarFill")
 value = 100.0
 show_percentage = false
 
+[node name="AmmoPanel" type="PanelContainer" parent="Frame"]
+visible = false
+layout_mode = 1
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 329.0
+offset_top = -120.0
+offset_right = 517.0
+offset_bottom = -32.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("Panel")
+
+[node name="Margin" type="MarginContainer" parent="Frame/AmmoPanel"]
+layout_mode = 2
+
+[node name="VBox" type="VBoxContainer" parent="Frame/AmmoPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Ammo" type="Label" parent="Frame/AmmoPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "AMMO  12 / 12"
+
+[node name="Reload" type="Label" parent="Frame/AmmoPanel/Margin/VBox"]
+visible = false
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = "RELOADING"
+
 [node name="Controls" type="Label" parent="Frame"]
 layout_mode = 1
 anchor_left = 1.0
@@ -149,7 +179,7 @@ offset_top = -122.0
 offset_right = -32.0
 offset_bottom = -32.0
 theme_override_font_sizes/font_size = 15
-text = "WASD  move    /    MOUSE  camera\nRMB  aim    /    LMB  fire    /    SPACE  jump\nR  restart    /    ESC  pause\nUnlimited ammunition in this test"
+text = "WASD  move    /    MOUSE  camera\nRMB  aim    /    LMB  fire    /    SPACE  jump\nR  reload    /    BACKSPACE  restart    /    ESC  pause"
 horizontal_alignment = 2
 
 [node name="Telemetry" type="VBoxContainer" parent="Frame"]
@@ -157,10 +187,10 @@ visible = false
 layout_mode = 1
 anchor_top = 1.0
 anchor_bottom = 1.0
-offset_left = 340.0
-offset_top = -84.0
+offset_left = 32.0
+offset_top = -180.0
 offset_right = 800.0
-offset_bottom = -30.0
+offset_bottom = -126.0
 mouse_filter = 2
 
 [node name="Enemy" type="Label" parent="Frame/Telemetry"]
@@ -221,7 +251,7 @@ text = "RESUME"
 
 [node name="Restart" type="Button" parent="Frame/Modal/Center/Panel/Margin/VBox"]
 layout_mode = 2
-text = "RESTART  [R]"
+text = "RESTART  [BACKSPACE]"
 
 [node name="Quit" type="Button" parent="Frame/Modal/Center/Panel/Margin/VBox"]
 layout_mode = 2

@@ -5,6 +5,25 @@ extends SceneTree
 const TARGET := "res://arca/assets/characters/regina/regina.glb"
 const DONOR := "res://player/model/player.glb"
 const PISTOL_DONOR := "res://arca/assets/characters/regina/source/ual_pistol_grip.glb"
+const STRAFE_DONOR := "res://arca/assets/characters/regina/source/ual2_strafe.glb"
+const STRAFE_CLIPS: Dictionary[StringName, StringName] = {
+	&"strafe_left": &"Walk_L",
+	&"strafe_right": &"Walk_R",
+}
+const STRAFE_MAP: Array[Array] = [
+	["root hips_02", "pelvis", "", ""],
+	["spine lower_03", "spine_01", "", ""],
+	["spine middle_04", "spine_02", "", ""],
+	["spine upper_05", "spine_03", "", ""],
+	["leg left thigh_063", "thigh_l", "leg left knee_064", "calf_l"],
+	["leg left knee_064", "calf_l", "leg left ankle_065", "foot_l"],
+	["leg left ankle_065", "foot_l", "", ""],
+	["leg left toes_066", "ball_l", "", ""],
+	["leg right thigh_059", "thigh_r", "leg right knee_060", "calf_r"],
+	["leg right knee_060", "calf_r", "leg right ankle_061", "foot_r"],
+	["leg right ankle_061", "foot_r", "", ""],
+	["leg right toes_062", "ball_r", "", ""],
+]
 const UAL_MAP: Array[Array] = preload("res://arca/assets/characters/regina/bake_locomotion.gd").MAP
 const OUTPUT := "res://arca/assets/characters/regina/gameplay.tres"
 const SKIN_PATH := "Regina/Sketchfab_model/Mesh_fbx/RootNode/Armature/Object_4/Skeleton3D"
@@ -285,7 +304,7 @@ func run() -> void:
 	player.play(&"bake/source")
 	library.add_animation(&"AIM-Center", _bake_clip(player, source, dest, &"AIM-Center", &"AIM-Center",
 		ratio, corrections, hints, source_pelvis, target_pelvis))
-	if not _bake_pistol_aim(dest, library):
+	if not _bake_source_strafes(dest, library, soles) or not _bake_pistol_aim(dest, library):
 		return
 	var locomotion: AnimationLibrary = load("res://arca/assets/characters/regina/locomotion.tres")
 	for pair: Array in [["idle", "Idle"], ["run", "running_nogun"]]:
@@ -310,6 +329,89 @@ func run() -> void:
 		return
 	print("BAKED Regina gameplay library with ", library.get_animation_list().size(), " clips")
 	quit(0)
+
+
+func _bake_source_strafes(dest: Skeleton3D, library: AnimationLibrary, soles: Array[Dictionary]) -> bool:
+	var donor: Node3D = load(STRAFE_DONOR).instantiate()
+	root.add_child(donor)
+	var source := donor.find_children("*", "Skeleton3D", true, false)[0] as Skeleton3D
+	var player := donor.get_node("AnimationPlayer") as AnimationPlayer
+	player.callback_mode_process = AnimationMixer.ANIMATION_CALLBACK_MODE_PROCESS_MANUAL
+	var corrections: Array[Basis] = []
+	var hints: Array[Vector3] = []
+	for entry: Array in STRAFE_MAP:
+		if dest.find_bone(entry[0]) < 0 or source.find_bone(entry[1]) < 0 \
+				or (entry[2] != "" and (dest.find_bone(entry[2]) < 0 or source.find_bone(entry[3]) < 0)):
+			fail("Incomplete Quaternius UAL2 strafe mapping: " + str(entry))
+			return false
+		var target_rest: Basis = bone_transform(dest, entry[0], true).basis.orthonormalized()
+		var source_rest: Basis = bone_transform(source, entry[1], true).basis.orthonormalized()
+		hints.append(source_rest.inverse() * Vector3.BACK)
+		if entry[2] == "":
+			corrections.append(source_rest.inverse() * target_rest)
+		else:
+			var direction: Vector3 = bone_transform(dest, entry[2], true).origin \
+				- bone_transform(dest, entry[0], true).origin
+			corrections.append(limb_frame(direction, Vector3.BACK).inverse() * target_rest)
+	var source_pelvis: Vector3 = (bone_transform(source, "thigh_l", true).origin \
+		+ bone_transform(source, "thigh_r", true).origin) * 0.5
+	var target_pelvis: Vector3 = (bone_transform(dest, "leg left thigh_063", true).origin \
+		+ bone_transform(dest, "leg right thigh_059", true).origin) * 0.5
+	var source_leg_length: float = bone_transform(source, "thigh_l", true).origin.distance_to(
+		bone_transform(source, "calf_l", true).origin) + bone_transform(source, "calf_l", true).origin.distance_to(
+		bone_transform(source, "foot_l", true).origin)
+	var target_leg_length: float = bone_transform(dest, "leg left thigh_063", true).origin.distance_to(
+		bone_transform(dest, "leg left knee_064", true).origin) + bone_transform(dest, "leg left knee_064", true).origin.distance_to(
+		bone_transform(dest, "leg left ankle_065", true).origin)
+	var ratio: float = target_leg_length / source_leg_length
+	var hip: int = dest.find_bone("root hips_02")
+	var hip_rest: Vector3 = dest.get_bone_rest(hip).origin
+	var parent_basis: Basis = (dest.global_transform * dest.get_bone_global_rest(dest.get_bone_parent(hip))).basis
+	for name: StringName in STRAFE_CLIPS:
+		var clip: StringName = STRAFE_CLIPS[name]
+		if not player.has_animation(clip):
+			fail("Missing Quaternius UAL2 strafe pose: " + String(clip))
+			return false
+		var source_clip: Animation = player.get_animation(clip)
+		player.play(clip)
+		var animation: Animation = library.get_animation(name)
+		var tracks: Array[int] = []
+		for entry: Array in STRAFE_MAP:
+			tracks.append(animation.find_track(NodePath(SKIN_PATH + ":" + entry[0]), Animation.TYPE_ROTATION_3D))
+		# Keep the existing phase, root-motion curve and upper-body rotation tracks.
+		for key in animation.track_get_key_count(1):
+			var time: float = animation.track_get_key_time(1, key)
+			player.seek(source_clip.length * time / animation.length, true)
+			source.force_update_all_bone_transforms()
+			dest.reset_bone_poses()
+			for i in STRAFE_MAP.size():
+				var entry: Array = STRAFE_MAP[i]
+				var source_pose: Basis = bone_transform(source, entry[1]).basis.orthonormalized()
+				var desired: Basis = source_pose * corrections[i]
+				if entry[2] != "":
+					var direction: Vector3 = bone_transform(source, entry[3]).origin \
+						- bone_transform(source, entry[1]).origin
+					desired = limb_frame(direction, source_pose * hints[i]) * corrections[i]
+				var bone: int = dest.find_bone(entry[0])
+				dest.force_update_all_bone_transforms()
+				var parent: int = dest.get_bone_parent(bone)
+				var parent_pose: Basis = (dest.global_transform * dest.get_bone_global_pose(parent)).basis.orthonormalized()
+				var rotation: Quaternion = (parent_pose.inverse() * desired).get_rotation_quaternion().normalized()
+				dest.set_bone_pose_rotation(bone, rotation)
+				animation.track_set_key_value(tracks[i], key, rotation)
+			dest.force_update_all_bone_transforms()
+			var source_center: Vector3 = (bone_transform(source, "thigh_l").origin \
+				+ bone_transform(source, "thigh_r").origin) * 0.5
+			var target_center: Vector3 = (bone_transform(dest, "leg left thigh_063").origin \
+				+ bone_transform(dest, "leg right thigh_059").origin) * 0.5
+			var position: Vector3 = hip_rest + parent_basis.inverse() \
+				* (target_pelvis + (source_center - source_pelvis) * ratio - target_center)
+			animation.track_set_key_value(1, key, position)
+		align_sole_height(animation, dest, soles)
+		animation.set_meta("lower_body_source_clip", String(clip))
+		animation.set_meta("lower_body_retarget_ratio", ratio)
+	donor.queue_free()
+	return true
 
 
 func _bake_pistol_aim(dest: Skeleton3D, library: AnimationLibrary) -> bool:

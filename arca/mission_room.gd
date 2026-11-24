@@ -11,6 +11,8 @@ const HATCH_LIFT: float = 3.3
 @export var ambush_delay: float = 1.4
 @onready var fuse: ArcaInteractionPoint = $FusePickup
 @onready var panel: ArcaInteractionPoint = $PowerPanel
+@onready var ammo_pickup: ArcaInteractionPoint = $AmmoPickup
+@onready var medkit_pickup: ArcaInteractionPoint = $MedkitPickup
 @onready var door: Node3D = $ExitDoor
 @onready var hatch: AnimatableBody3D = $ServiceHatch/Leaf
 var has_fuse: bool = false
@@ -23,6 +25,9 @@ var ambush_triggered: bool = false
 var ambush_phase: AmbushPhase = AmbushPhase.IDLE
 var hatch_elapsed: float = 0.0
 var hatch_closed_y: float
+var mission_seconds: float = 0.0
+var shots_fired: int = 0
+var damage_taken: int = 0
 
 func _ready() -> void:
 	super._ready()
@@ -34,15 +39,18 @@ func _ready() -> void:
 	panel.powered.connect(_on_panel_powered)
 	$ExitZone.body_entered.connect(_on_exit_entered)
 	door.opened.connect(_on_door_opened)
+	player.shot_fired.connect(func(): shots_fired += 1)
+	player.health_component.damaged.connect(func(amount: int): damage_taken += amount)
 	hud.get_node("Frame/Subtitle").text = "CONTINUITY STATION   /   POWER RESTORATION"
 	hud.get_node("Frame/Tag").text = "MAINTENANCE SECTOR / POWER RESTORATION\nTEMPORARY ART AND ENVIRONMENT"
-	hud.get_node("Frame/Controls").text = "WASD  move    /    MOUSE  camera\nRMB  aim    /    LMB  fire    /    SPACE  jump\nE  interact    /    R  restart    /    ESC  pause"
+	hud.get_node("Frame/Controls").text = "WASD  move    /    MOUSE  camera\nRMB  aim    /    LMB  fire    /    SPACE  jump\nE  interact    /    R  reload\nBACKSPACE  restart    /    ESC  pause"
 	_update_objective()
 	_notify("Find the marked service corridor. Search inside for the fuse.")
 
 func _physics_process(delta: float) -> void:
 	if mission_complete or player.health_component.current <= 0:
 		return
+	mission_seconds += delta
 	_advance_ambush(delta)
 	interaction_target = _find_interaction_target()
 	var text: String = ""
@@ -87,7 +95,7 @@ func _unhandled_input(event: InputEvent) -> void:
 func _find_interaction_target() -> ArcaInteractionPoint:
 	var nearest: ArcaInteractionPoint = null
 	var nearest_distance: float = INF
-	for point in [fuse, panel]:
+	for point in [fuse, panel, ammo_pickup, medkit_pickup]:
 		if not is_instance_valid(point) or not point.is_available_to(player):
 			continue
 		var distance: float = point.global_position.distance_squared_to(player.global_position)
@@ -107,7 +115,23 @@ func try_interact() -> bool:
 	elif interaction_target == panel:
 		if not panel.activate(has_fuse):
 			_notify("Fuse missing. Search the marked service corridor.")
+	elif interaction_target == ammo_pickup:
+		player.ammo_component.add_reserve(12)
+		_collect_supply(ammo_pickup, "AMMO COLLECTED / +12 reserve")
+	elif interaction_target == medkit_pickup:
+		var previous_health: int = player.health_component.current
+		if player.health_component.heal(40):
+			_collect_supply(medkit_pickup, "MEDKIT USED / +%d HP" % (player.health_component.current - previous_health))
+		else:
+			_notify("HEALTH FULL / Medkit left for later")
 	return true
+
+func _collect_supply(pickup: ArcaInteractionPoint, message: String) -> void:
+	pickup.enabled = false
+	pickup.queue_free()
+	$PickupSound.play()
+	hud.set_interaction("")
+	_notify(message)
 
 func _on_fuse_pickup_collected() -> void:
 	has_fuse = true
@@ -169,9 +193,19 @@ func _on_enemy_destroyed() -> void:
 	$BreachWarning.hide()
 	_notify("PREDATOR DOWN - continue to the exit.")
 
+func get_mission_summary() -> Dictionary:
+	var predator: String = "STILL ALIVE"
+	if enemy.dead:
+		predator = "KILLED"
+	elif mission_complete:
+		predator = "EVADED"
+	return {"seconds": mission_seconds, "shots": shots_fired, "damage": damage_taken, "predator": predator}
+
 func _on_player_died() -> void:
 	_cancel_ambush()
 	super._on_player_died()
+	$EndSound.pitch_scale = 0.72
+	$EndSound.play()
 	hud.set_interaction("")
 	hud.set_notice("")
 
@@ -181,13 +215,15 @@ func _on_exit_entered(body: Node3D) -> void:
 	if player.health_component.current <= 0:
 		return
 	mission_complete = true
+	player.ammo_component.cancel_reload()
 	_cancel_ambush()
 	enemy.stop_combat()
 	stop_audio()
 	hud.set_interaction("")
 	hud.set_notice("")
 	hud.set_status("SECTOR RESTORED / Exit reached.")
-	hud.show_success()
+	hud.show_success(get_mission_summary())
+	$EndSound.play()
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	get_tree().paused = true
 

@@ -17,4 +17,4 @@ func _ready() -> void:
 
 
 func _on_enemy_destroyed() -> void:
-	hud.set_status("PREDATOR DOWN  /  Encounter complete. Press R to restart.")
+	hud.set_status("PREDATOR DOWN  /  Encounter complete. Press Backspace to restart.")

@@ -2,8 +2,10 @@
 """Extract immutable CC0 UAL subsets; no third-party Python packages.
 
 Usage: python3 extract_locomotion.py /path/to/AnimationLibrary_Godot_Standard.gltf [--pistol-grip]
+       python3 extract_locomotion.py /path/to/UAL2.glb --strafe
 Reads the adjacent .bin; writes ual_locomotion.glb (three clips) or
 ual_pistol_grip.glb (neutral, up and down pistol poses) beside this script.
+The UAL2 option reads a GLB and writes its two lateral walks to ual2_strafe.glb.
 Upstream/mirror pins, hashes and license are documented in README.md.
 """
 
@@ -18,9 +20,20 @@ def extract(
     source: Path,
     destination: Path,
     clips: tuple[str, ...] = ("Idle_Loop", "Walk_Loop", "Jog_Fwd_Loop"),
+    pack: str = "universalanimationlibrary",
 ) -> None:
-    document = json.loads(source.read_text())
-    binary = (source.parent / document["buffers"][0]["uri"]).read_bytes()
+    if source.suffix.lower() == ".glb":
+        glb = source.read_bytes()
+        magic, version, total, json_size, json_type = struct.unpack_from("<5I", glb)
+        data_offset = 20 + json_size
+        data_size, data_type = struct.unpack_from("<2I", glb, data_offset)
+        if (magic, version, total, json_type, data_type) != (0x46546C67, 2, len(glb), 0x4E4F534A, 0x004E4942):
+            raise ValueError("Expected a GLB 2.0 with JSON and binary chunks")
+        document = json.loads(glb[20:data_offset])
+        binary = glb[data_offset + 8:data_offset + 8 + data_size]
+    else:
+        document = json.loads(source.read_text())
+        binary = (source.parent / document["buffers"][0]["uri"]).read_bytes()
     names = set(clips)
     document["animations"] = [a for a in document["animations"] if a["name"] in names]
     if {a["name"] for a in document["animations"]} != names:
@@ -66,7 +79,7 @@ def extract(
     document["asset"]["extras"] = {
         "author": "Quaternius",
         "license": "CC0-1.0",
-        "source": "https://quaternius.com/packs/universalanimationlibrary.html",
+        "source": f"https://quaternius.com/packs/{pack}.html",
         "modification": f"ARCA: retained only {', '.join(clips)}; repacked as GLB",
     }
     header = json.dumps(document, separators=(",", ":")).encode()
@@ -82,7 +95,10 @@ def extract(
 
 
 if __name__ == "__main__":
-    if len(sys.argv) == 3 and sys.argv[2] == "--pistol-grip":
+    if len(sys.argv) == 3 and sys.argv[2] == "--strafe":
+        extract(Path(sys.argv[1]), Path(__file__).with_name("ual2_strafe.glb"),
+                ("Walk_L_Loop", "Walk_R_Loop"), "universalanimationlibrary2")
+    elif len(sys.argv) == 3 and sys.argv[2] == "--pistol-grip":
         extract(Path(sys.argv[1]), Path(__file__).with_name("ual_pistol_grip.glb"),
                 ("Pistol_Aim_Neutral", "Pistol_Aim_Up", "Pistol_Aim_Down"))
     elif len(sys.argv) == 2:

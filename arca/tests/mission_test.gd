@@ -175,8 +175,8 @@ func run() -> void:
 		"Entering the powered exit pauses gameplay and shows completion")
 	room.set_paused(false)
 	check(paused, "Escape cannot resume a finished mission")
-	var restart := InputEventAction.new()
-	restart.action = "arca_restart"
+	var restart := InputEventKey.new()
+	restart.physical_keycode = KEY_BACKSPACE
 	restart.pressed = true
 	Input.parse_input_event(restart)
 	await frames(4)
@@ -184,7 +184,7 @@ func run() -> void:
 	room.enemy.stop_combat()
 	await frames(10)
 	check(not paused and not room.mission_complete and not room.has_fuse and not room.power_restored,
-		"R from completion resets all mission flags")
+		"Backspace from completion resets all mission flags")
 	check(is_instance_valid(room.fuse) and room.fuse.enabled and not room.panel.is_powered and not room.door.is_open,
 		"Restart restores the fuse, unpowered panel and closed door")
 	check(room.panel.get_node("Indicator").material_override.albedo_color.r > 0.8,
@@ -220,6 +220,7 @@ func run() -> void:
 			break
 	check(room.enemy.position.distance_to(room.player.position) < 2.0,
 		"Raptor can return from the alcove through the corridor to the main room")
+	await test_mission_summary()
 	print("MISSION RESULT: %d checks, %d failures" % [checks, failures])
 	room.stop_audio()
 	current_scene = null
@@ -227,3 +228,61 @@ func run() -> void:
 	await process_frame
 	OS.delay_msec(200)
 	quit(0 if failures == 0 else 1)
+
+
+func test_mission_summary() -> void:
+	await reset_mission()
+	check(room.has_method("get_mission_summary"), "Mission exposes the live summary used by the outcome modals")
+	if not room.has_method("get_mission_summary"):
+		return
+	var before: float = room.get_mission_summary()["seconds"]
+	await frames(60)
+	var elapsed: float = room.get_mission_summary()["seconds"]
+	check(is_equal_approx(elapsed - before, 1.0), "Summary time advances with running physics")
+	room.set_paused(true)
+	await frames(60)
+	check(room.get_mission_summary()["seconds"] == elapsed, "Paused time does not count in the summary")
+	room.set_paused(false)
+
+	room.player.player_input.toggled_aim = true
+	await shoot_once_at(Vector3(0, 3, 0))
+	room.player.ammo_component.magazine = 0
+	room.player.ammo_component.reserve = 0
+	await shoot_once_at(Vector3(0, 3, 0))
+	check(room.get_mission_summary()["shots"] == 1, "Summary counts projectiles and excludes dry firing")
+	room.player.take_damage(25)
+	room.player.health_component.heal(20)
+	check(room.get_mission_summary()["damage"] == 25, "Healing does not erase accepted damage from the summary")
+
+	await approach_fuse()
+	await press_e()
+	await move_player(Vector3(-8.8, 0.05, 5.1))
+	await press_e()
+	await frames(90)
+	room.enemy.activate_ambush()
+	room.enemy.health_component.current = 1
+	room.enemy.hit()
+	room.player.ammo_component.reserve = 1
+	room.player.ammo_component.start_reload()
+	await move_player(Vector3(0, 0.05, 12.4))
+	var win_text: String = room.hud.modal_text.text
+	check(room.mission_complete and room.get_mission_summary()["predator"] == "KILLED"
+		and win_text.contains("TIME") and win_text.contains("SHOTS  1") and win_text.contains("DAMAGE TAKEN  25 HP")
+		and win_text.contains("PREDATOR  KILLED") and win_text.contains("Backspace"),
+		"Win modal displays the final shot, damage and predator-killed values")
+	check(not room.player.ammo_component.reloading and room.player.ammo_component.magazine == 0,
+		"Completing the mission cancels the active reload")
+
+	await reset_mission()
+	var summary: Dictionary = room.get_mission_summary()
+	check(summary["shots"] == 0 and summary["damage"] == 0 and summary["seconds"] < 1.0,
+		"Restart clears the summary counters")
+	room.player.take_damage(1000)
+	var death_time: float = room.get_mission_summary()["seconds"]
+	await frames(60)
+	var death_text: String = room.hud.modal_text.text
+	check(room.hud.modal_title.text == "SIGNAL LOST" and death_text.contains("TIME")
+		and death_text.contains("SHOTS  0") and death_text.contains("DAMAGE TAKEN  100 HP")
+		and death_text.contains("PREDATOR  STILL ALIVE") and death_text.contains("Backspace")
+		and room.get_mission_summary()["seconds"] == death_time,
+		"Death modal counts actual HP lost, shows a living predator and freezes the timer")

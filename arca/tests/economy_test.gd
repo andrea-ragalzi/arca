@@ -1,0 +1,159 @@
+extends "res://arca/tests/mission_test.gd"
+
+
+func key(code: Key, pressed: bool, echo: bool = false) -> void:
+	var event := InputEventKey.new()
+	event.physical_keycode = code
+	event.pressed = pressed
+	event.echo = echo
+	Input.parse_input_event(event)
+	Input.flush_buffered_events()
+
+
+func tap(code: Key) -> void:
+	key(code, true)
+	key(code, false)
+	await frames(2)
+
+
+func finish() -> void:
+	if is_instance_valid(room):
+		room.stop_audio()
+		room.queue_free()
+		await process_frame
+		await process_frame
+	OS.delay_msec(100)
+	print("ECONOMY RESULT: ", checks, " checks, ", failures, " failures")
+	quit(1 if failures > 0 else 0)
+
+
+func run() -> void:
+	await reset_mission()
+	var ammo: Node = room.player.get_node_or_null("AmmoComponent")
+	check(ammo != null and room.has_node("AmmoPickup") and room.has_node("MedkitPickup"),
+		"Mission loads a player magazine and both world pickups")
+	if ammo == null or not room.has_node("AmmoPickup") or not room.has_node("MedkitPickup"):
+		await finish()
+		return
+	var health: ArcaHealth = room.player.health_component
+	check(ammo.magazine == 12 and ammo.reserve == 12, "Mission starts with 12 rounds loaded and 12 in reserve")
+
+	room.player.player_input.toggled_aim = true
+	await frames(30)
+	Input.action_press("shoot")
+	await frames(3)
+	Input.action_release("shoot")
+	check(ammo.magazine == 11 and ammo.reserve == 12, "A real firing input consumes one loaded round")
+	await tap(KEY_R)
+	check(room == current_scene and ammo.reloading, "R starts a manual reload in the current mission")
+	check(room.hud.get_node("Frame/AmmoPanel/Margin/VBox/Reload").visible, "HUD shows reload feedback")
+	room.set_paused(true)
+	var remaining: float = ammo.reload_remaining
+	await frames(120)
+	check(ammo.reload_remaining == remaining and ammo.magazine == 11, "Pause freezes reload progress and ammo")
+	room.set_paused(false)
+	await frames(95)
+	check(ammo.magazine == 12 and ammo.reserve == 11 and not ammo.reloading,
+		"Manual reload transfers only the missing round")
+	check(not room.hud.get_node("Frame/AmmoPanel/Margin/VBox/Reload").visible, "HUD clears completed reload feedback")
+
+	ammo.magazine = 0
+	var spawned: Array[Node] = []
+	room.child_entered_tree.connect(func(node: Node):
+		if node.scene_file_path == "res://player/bullet/bullet.tscn":
+			spawned.append(node))
+	Input.action_press("shoot")
+	await frames(3)
+	Input.action_release("shoot")
+	check(spawned.is_empty() and ammo.magazine == 0, "An empty magazine spawns no projectile")
+	check(ammo.reloading, "Dry firing with reserve starts an automatic reload")
+	await frames(95)
+	check(ammo.magazine == 11 and ammo.reserve == 0 and not ammo.start_reload(),
+		"Automatic reload uses the remaining reserve and reload is refused once reserve is empty")
+
+	var box: ArcaInteractionPoint = room.get_node("AmmoPickup")
+	await tap(KEY_E)
+	check(is_instance_valid(box) and ammo.reserve == 0, "Ammo cannot be collected from spawn")
+	await move_player(Vector3(8.7, 0.05, box.position.z))
+	var wall := StaticBody3D.new()
+	var shape := CollisionShape3D.new()
+	var box_shape := BoxShape3D.new()
+	box_shape.size = Vector3(0.1, 2.5, 1.0)
+	shape.shape = box_shape
+	wall.add_child(shape)
+	room.add_child(wall)
+	wall.position = (room.player.position + box.position) * 0.5 + Vector3.UP
+	await frames(3)
+	await tap(KEY_E)
+	check(is_instance_valid(box) and ammo.reserve == 0, "A wall blocks pickup with the player inside the interaction area")
+	wall.queue_free()
+	await frames(3)
+	key(KEY_E, true)
+	key(KEY_E, true, true)
+	key(KEY_E, false)
+	await frames(3)
+	check(not is_instance_valid(box) and ammo.reserve == 12, "One E press collects exactly 12 rounds and removes the ammo box")
+
+	var medkit: ArcaInteractionPoint = room.get_node("MedkitPickup")
+	await move_player(medkit.position + Vector3(1.0, -medkit.position.y + 0.05, 0.0))
+	await tap(KEY_E)
+	check(is_instance_valid(medkit) and health.current == 100, "A full-health player keeps the medkit available")
+	health.take_damage(25)
+	await tap(KEY_E)
+	check(not is_instance_valid(medkit) and health.current == 100, "The medkit heals once and caps health at its maximum")
+
+	ammo.magazine = 1
+	await tap(KEY_R)
+	check(ammo.reloading, "Reload is active before the player dies")
+	health.cooldown_remaining = 0.0
+	health.take_damage(100)
+	await frames(95)
+	check(not ammo.reloading and ammo.magazine == 1 and ammo.reserve == 12 and not health.heal(40),
+		"Death cancels reload and healing cannot revive the player")
+	var previous_id: int = room.get_instance_id()
+	await tap(KEY_BACKSPACE)
+	room = current_scene
+	await frames(10)
+	check(room.get_instance_id() != previous_id and room.player.ammo_component.magazine == 12
+		and room.player.ammo_component.reserve == 12 and room.player.health_component.current == 100
+		and room.has_node("AmmoPickup") and room.has_node("MedkitPickup"),
+		"Backspace reloads the mission and restores health, ammunition and both pickups")
+
+	health = room.player.health_component
+	medkit = room.get_node("MedkitPickup")
+	health.take_damage(55)
+	await tap(KEY_E)
+	check(is_instance_valid(medkit) and health.current == 45, "Medkit cannot be used from spawn")
+	await move_player(medkit.position + Vector3(1.0, -medkit.position.y + 0.05, 0.0))
+	await tap(KEY_E)
+	check(not is_instance_valid(medkit) and health.current == 85, "Medkit restores 40 HP when at least 40 is missing")
+	await test_ammo_budget()
+	await finish()
+
+
+func test_ammo_budget() -> void:
+	await reset_mission()
+	var ammo: ArcaAmmo = room.player.ammo_component
+	await move_player(Vector3(8.7, 0.05, room.get_node("AmmoPickup").position.z))
+	await tap(KEY_E)
+	check(ammo.magazine == 12 and ammo.reserve == 24, "Collecting the box before firing makes 36 rounds available")
+	room.player.player_input.toggled_aim = true
+	Input.action_press("shoot")
+	for frame in 1200:
+		await frames(1)
+		if room.get_mission_summary()["shots"] >= 35:
+			break
+	Input.action_release("shoot")
+	await frames(30)
+	check(room.get_mission_summary()["shots"] == 35 and ammo.magazine == 1 and ammo.reserve == 0,
+		"After 35 shots exactly one round remains in the magazine")
+	Input.action_press("shoot")
+	await frames(90)
+	Input.action_release("shoot")
+	check(room.get_mission_summary()["shots"] == 36 and ammo.magazine == 0 and ammo.reserve == 0
+		and not ammo.reloading, "Last round counts once and dry firing adds no shots or ammo")
+	ammo.add_reserve(1)
+	await tap(KEY_R)
+	await frames(95)
+	check(ammo.magazine == 1 and ammo.reserve == 0 and room.get_mission_summary()["shots"] == 36,
+		"Reload transfers the final reserve round without incrementing shots")

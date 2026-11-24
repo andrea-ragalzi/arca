@@ -82,3 +82,7 @@ Fuse, panel, door, divider geometry, the Regina prototype handgun's simple box m
 The two short sounds `arca/audio/pickup.wav` and `arca/audio/power.wav` are original synthesized sounds distributed under the same MIT license; they are not extracted from games or third-party sound packs.
 
 The playable mission retains its credited TPS foundation and uses the Ferocious Industries predator above. The Quaternius dinosaur source remains available as a retained reference, not a second gameplay enemy. The separate inspection scene includes the Regina fan model credited above; its underlying provenance has not been independently verified. Neither that model's stated CC license nor ARCA's broader fan-story concept grants rights to Capcom's names or characters.
+
+## Regina gameplay lateral steps
+
+`arca/assets/characters/regina/source/ual2_strafe.glb` contains `Walk_L_Loop` and `Walk_R_Loop` from Quaternius **Universal Animation Library 2** under **CC0 1.0**, with the original notice in `LICENSE_UAL2.txt`. The gameplay library retargets pelvis, spine and leg tracks onto the credited Regina target. The source subset retains the mannequin and original key values. Source pin and extraction steps are in the accompanying source README.

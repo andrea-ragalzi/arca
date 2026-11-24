@@ -1,14 +1,51 @@
+# Current task: development readiness audit (2026-11-24)
+
+Status: **complete, uncommitted**. Read-only audit of code, scenes, assets and tests; no gameplay files changed.
+
+- Added `DEVELOPMENT_STATUS.md` (verified vs assumed systems, blockers, reusable assets) and `SPRINT_01.md` (parallel Codex/Claude Code worktree plan for a 5–10 minute demo route).
+- Validation: `bash scripts/check.sh` passed **625 checks, 0 failures** after prepending the existing local ripgrep fallback to `PATH`. Without it the gate exits immediately because no `rg` binary is on the bash PATH. Outside the gate, `regina_test` passed 93/0 and `regina_locomotion_test` 68/0; `shadows_test` timed out headless as expected (display-only).
+- Next: Sprint 01 task S1-00 (user-approved checkpoint of accepted Phases 2–4, portable gate, slimmer TASK.md) before any worktree is created.
+
+---
+
 # Prototype completion roadmap
 
 | Phase | Scope | Status |
 | --- | --- | --- |
 | 0 | Ferocious raptor F5 acceptance and three checkpoint commits (AI tooling, Regina player, Ferocious raptor) | Complete. User F5 accepted on 2026-11-22. Baseline reproduced and all three checkpoints recorded. |
 | 1 | Source-based Regina upper aim | Complete. User accepted the F5 result on 2026-11-22. |
-| 2 | Source-based Regina lateral soles | Pending Phase 1. Check the KayKit Free 1.1 inventory first and stop for user direction if lateral clips are absent. The full gate must pass from this phase onward. |
-| 3 | Limited ammo, reload, ammo box and medkit | Pending Phase 2 |
-| 4 | Win/death mission summary | Pending Phase 3 |
+| 2 | Source-based Regina lateral soles | Complete. UAL2 lateral walks pass the full gate and the user accepted the combined F5 playtest on 2026-11-24. |
+| 3 | Limited ammo, reload, ammo box and medkit | Complete. All 25 economy checks pass and the user accepted the combined F5 playtest on 2026-11-24. |
+| 4 | Win/death mission summary | Complete. The full gate passes and the user accepted the combined F5 playtest on 2026-11-24. |
 
 Phase 0 reference baseline (2026-11-22, `.artifacts/ai-check-4gapfeve`): launcher 13/0, first-playable 42/0, raptor 59/0, mission 52/0 and ambush 44/0 (checks/failures). Regina-player ran 373 checks with 3 known failures: upper aim and both lateral soles.
+
+## Phase 4 result
+
+- Added the mission clock, projectile count, cumulative damage and predator result to the victory and defeat panels. The clock excludes pauses and stops on either ending. Escape with a living predator reports `EVADED`. Defeat with a living predator reports `STILL ALIVE`.
+- The integrated full gate passed with **621 checks and zero failures** across launcher, first-playable, raptor, mission, ambush, Regina-player and economy. See `.artifacts/phase4-gate.log`. The win, death and reload HUD were rendered and inspected under X11/Compatibility in `.artifacts/final-playtest/`.
+- The user accepted the combined F5 playtest for phases 2–4 on 2026-11-24. The phase checkpoints remain uncommitted. The latest isolated full gate passed 625 checks with zero failures.
+
+## Phase 3 result
+
+- Follow-up ammunition budget check: 24 starting rounds plus the 12-round box yield up to 36 shots. The economy suite passed 25 checks, including the last loaded round, empty dry firing and reloading one remaining reserve round. The full gate recheck was blocked at editor import by the sandbox.
+
+- Added the magazine, reserve, 1.5-second manual and dry-fire reload, HUD feedback and Backspace restart. The corridor ammo pickup adds 12 reserve rounds. The room medkit restores up to 40 HP and stays available at full health.
+- Pausing freezes reload. Death and mission completion cancel it. Restart restores health, ammo and both pickups.
+- `bash scripts/check.sh` passed with 21 economy checks. Logged in `.artifacts/phase3-gate.log`. Economy F5 acceptance is part of the final combined playtest.
+
+## Phase 2 result
+
+- The resumed source search selected the CC0 Quaternius UAL2 `Walk_L_Loop` and `Walk_R_Loop` after the KayKit variants failed. Retargeted only the pelvis, legs and spine. The existing root motion, clip duration and arm/head tracks are preserved.
+- The unchanged sole checks pass with minima (0.003057, 0.000500) m and (0.000500, 0.001127) m. The full gate passed with 378 Regina checks and no failures. Logs are in `.artifacts/phase2-ual2/`.
+- The F6 capture helper ran under X11/Compatibility. Lateral F5 acceptance is part of the final combined playtest.
+
+## Earlier KayKit trial
+
+- Read the local KayKit Free 1.1 archive directly. Its CC0 `Rig_Medium_MovementAdvanced.glb` has 23 joints and includes `Running_Strafe_Left`, `Running_Strafe_Right` and `Walking_Backwards`. Both strafe clips are 0.8 s and in-place.
+- Tested a lower-body and spine retarget of the two lateral clips with the existing anatomical frames and a constant floor offset. The candidate kept the prior root-motion curve, duration and arm tracks.
+- `bash scripts/check.sh` passed launcher 13, first-playable 42, raptor 59, mission 52 and ambush 44. Regina-player ran 378 checks with two failures. Both measured sole minima were `strafe_left` (0.000500, 0.110915) m and `strafe_right` (0.108579, 0.000500) m against the 0.02 m criterion. The −0.002 m penetration checks and all direction, facing, blend, speed and aim checks passed.
+- Preserved the candidate and logs under `.artifacts/phase2-kaykit-candidate/` and returned the playable files to the accepted Phase 1 checkpoint. Visual capture and F5 acceptance of that candidate were gated on the full headless pass.
 
 ## Phase 1 handoff
 

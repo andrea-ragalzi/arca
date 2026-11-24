@@ -61,3 +61,19 @@ After import, run `bake_gameplay.gd` with the same command and replace the scrip
 The locally archived Standard inventory has 46 clips, including pistol poses, but **no backward/side/diagonal locomotion set**. The author's broader library page advertises eight-direction locomotion and separate Standard/Pro/Source tiers; that is not proof that the already obtained free Standard subset contains it. No paid acquisition, directional replacement, invented diagonal clip or new runtime donor was added.
 
 The existing official TPS CC BY 3.0 animation set was inspected and trial-retargeted first. Its mechanical limb chains/proportions and shoulder posture were a poorer fit; none of its motion is included in this final library. See `docs/REGINA.md` for the experiment and root-motion limits.
+
+## UAL2 lateral walks
+
+The offline-only `ual2_strafe.glb` retains `Walk_L_Loop` and `Walk_R_Loop` from the in-place Godot export of [Quaternius Universal Animation Library 2](https://quaternius.com/packs/universalanimationlibrary2.html). The source export and original CC0 notice are pinned to the [tilakverse-assets mirror](https://github.com/tilakpatell/tilakverse-assets/tree/85064399bbdacc0e8cc50807179490314bc4ff1c/quaternius/universal-animation-library-2).
+
+| File | SHA-256 |
+| --- | --- |
+| `Unreal-Godot/UAL2.glb` | `ad3ae049c7d3d4846133b59dba6218fdabebe05d3aec646caef6665f6c540684` |
+| `LICENSE_UAL2.txt` | `d77329b05c4c206e76c83285ecdd1e5f2b3df2350ec80657ebdb5a706a0fc0de` |
+| `ual2_strafe.glb` | `737b5c987517237194c9b44714b67f7c2e4dda4e8fbb3df1f49d25a55f6b0201` |
+
+```bash
+python3 arca/assets/characters/regina/source/extract_locomotion.py /absolute/path/to/UAL2.glb --strafe
+```
+
+Import the subset before running `bake_gameplay.gd`.

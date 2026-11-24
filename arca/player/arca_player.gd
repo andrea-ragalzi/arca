@@ -8,6 +8,7 @@ const REGINA_SKIN_PATH := "Regina/Sketchfab_model/Mesh_fbx/RootNode/Armature/Obj
 
 @export var contact_damage: int = 25
 @onready var health_component: ArcaHealth = $HealthComponent
+@onready var ammo_component: ArcaAmmo = $AmmoComponent
 var grounded_once: bool = false
 var landing_armed: bool = false
 
@@ -164,7 +165,24 @@ func get_shoot_origin() -> Vector3:
 	return muzzle
 
 
+func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed("reload") and not event.is_echo() and health_component.current > 0:
+		ammo_component.start_reload()
+		get_viewport().set_input_as_handled()
+
+
+func can_fire() -> bool:
+	if ammo_component.try_consume():
+		return true
+	if not ammo_component.reloading:
+		$DryFire.play()
+		fire_cooldown.start()
+		ammo_component.start_reload()
+	return false
+
+
 func _on_died() -> void:
+	ammo_component.cancel_reload()
 	player_input.set_process(false)
 	player_input.set_process_input(false)
 	player_input.motion = Vector2.ZERO

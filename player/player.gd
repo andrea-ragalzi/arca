@@ -1,6 +1,8 @@
 class_name Player
 extends CharacterBody3D
 
+signal shot_fired
+
 
 enum Animations {
 	JUMP_UP,
@@ -142,7 +144,7 @@ func apply_input(delta: float) -> void:
 
 		root_motion = Transform3D(animation_tree.get_root_motion_rotation(), animation_tree.get_root_motion_position())
 
-		if player_input.shooting and fire_cooldown.time_left == 0:
+		if player_input.shooting and fire_cooldown.time_left == 0 and can_fire():
 			var shoot_origin: Vector3 = get_shoot_origin()
 			var shoot_dir: Vector3 = (player_input.shoot_target - shoot_origin).normalized()
 
@@ -153,6 +155,7 @@ func apply_input(delta: float) -> void:
 			bullet.look_at(shoot_origin + shoot_dir)
 			bullet.add_collision_exception_with(self)
 			shoot.rpc()
+			shot_fired.emit()
 
 	else: # Not in air or aiming, idle.
 		# Convert orientation to quaternions for interpolating rotation.
@@ -199,6 +202,10 @@ func bind_weapon_nodes(muzzle: Marker3D, shot_effect: CPUParticles3D, flash_effe
 	shoot_from = muzzle
 	shoot_particle = shot_effect
 	muzzle_particle = flash_effect
+
+
+func can_fire() -> bool:
+	return true
 
 
 func get_shoot_origin() -> Vector3:

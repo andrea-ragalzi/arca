@@ -92,6 +92,8 @@ func lifecycle_checks() -> void:
 			and room.ambush_phase == room.AmbushPhase.CANCELLED and room.ambush_triggered == triggered
 			and room.hatch.position == hatch_position and room.enemy.position == enemy_position,
 			"Escape during %s needs no kill and cannot restart the entrance after completion" % label)
+		check(room.hud.modal_text.text.contains("PREDATOR  EVADED"),
+			"Winning during %s records the predator as evaded" % label)
 		if not triggered:
 			check(not room.enemy.visible, "Completion during %s leaves the predator hidden" % label)
 

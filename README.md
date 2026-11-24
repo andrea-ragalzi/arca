@@ -1,6 +1,6 @@
 # ARCA
 
-A small third-person survival-action game built with **Godot 4.5.1 Standard** and GDScript. The current playable mission is a maintenance-sector blockout: recover a fuse, restore power, survive a predator ambush, and reach the exit. Regina is the playable prototype; character, dinosaur and environment art remain temporary. Ammunition is unlimited; saves and persistent inventory are not implemented.
+A small third-person survival-action game built with **Godot 4.5.1 Standard** and GDScript. The current playable mission is a maintenance-sector blockout: recover a fuse, restore power, survive a predator ambush, and reach the exit. Regina is the playable prototype; character, dinosaur and environment art remain temporary. The mission uses limited ammunition and one healing pickup. Progress resets on restart.
 
 ## Start here
 
@@ -36,7 +36,7 @@ Keep this same `ARCA` folder for future work. Commits identify changes; folder a
 1. Find the yellow **SERVICE / FUSE ACCESS** entrance framed by the starting camera. Enter the corridor, follow the floor stripe and explore around the far screen to find the concealed fuse. Collect it with **E**.
 2. Retrace the corridor into the maintenance room and install the fuse at the power panel with **E**.
 3. Power returns and the exit opens, but containment fails. Watch the marked **SERVICE HATCH**: a red warning precedes it sliding open, then the existing raptor walks out before normal combat begins.
-4. Fight it or evade it and cross the green exit marker. Killing the predator is optional.
+4. Fight it or evade it and cross the green exit marker. Killing the predator is optional. Regina starts with 12 rounds loaded and 12 in reserve. Press **E** to collect 12 more rounds in the corridor or use the medkit in the maintenance room to restore up to 40 HP.
 
 | Input | Action |
 | --- | --- |
@@ -44,9 +44,18 @@ Keep this same `ARCA` folder for future work. Commits identify changes; folder a
 | Right mouse / left mouse | Aim / fire while aiming |
 | Space | Jump |
 | E | Interact with the nearest reachable object |
-| R | Restart the whole mission |
+| R | Reload the pistol |
+| Backspace | Restart the whole mission |
 | Escape | Pause / resume |
 | F3 | Toggle debug telemetry |
+
+### Final F5 playtest
+
+The user accepted the combined F5 playtest on 2026-11-24.
+
+1. Start a fresh mission with **F5**. Step left and right with and without aim, then sweep the camera up and down while sidestepping. Watch Regina's feet, wrist and pistol as you start and stop.
+2. Fire several rounds. Press **R** to reload and **Escape** during the reload. Check that reload completes after you resume. Find the ammo box in the marked service corridor. Take damage, then use the medkit in the maintenance room. An empty gun with reserve should reload on the next fire attempt.
+3. Restore power and escape without killing the raptor. Check the victory panel's time, shots, damage and **EVADED** result. Restart with **Backspace** and let the raptor kill Regina on another run. Check the defeat panel and verify that Backspace restores both pickups, 100 HP and 12 / 12 ammo. A run that kills the raptor should show **KILLED**.
 
 ### Route and camera playtest
 
@@ -72,9 +81,9 @@ Press **F5**, restore power and inspect the new raptor emerging from the service
 
 Press **F5** to play the mission as Regina. Her gameplay model, animation bake and primitive prototype handgun are integrated into the shared ARCA player; the original TPS controller, camera, collision and projectile behavior remain in use. The base `player/player.tscn` remains the unchanged visible-robot reference. For the separate idle/walk/run experiment, open **`arca/character_locomotion_test.tscn`** and press **F6**; it still inherits the static `arca/character_test.tscn` and its inspection lighting, ruler and visual corrections.
 
-**Current F5 locomotion status:** facing and low-hop physics have been corrected. Regina now keeps a camera-forward heading outside aim too, using W forward, S backward and A/D side steps. Her hop measures about **0.324 m / 0.50 s**. However, the TPS-derived lateral poses fail the sole-contact checks (one foot remains at least 6.0–6.6 cm above ground); the full gate is **not passing**, and natural locomotion is not accepted. See `TASK.md` before treating this as complete. The original robot keeps its old turn-to-travel policy and 5 m/s jump.
+**Current F5 locomotion status:** facing and low-hop physics have been corrected. Regina now keeps a camera-forward heading outside aim too, using W forward, S backward and A/D side steps. Her hop measures about **0.324 m / 0.50 s**. The two Quaternius UAL2 lateral walks pass the skinned sole-contact tests. The final F5 sweep covers gait and aim during side steps. The original robot keeps its old turn-to-travel policy and 5 m/s jump.
 
-**Current weapon status:** Regina's vertical aim uses Quaternius pistol poses rebased against the human neutral pose. Sampled tests confirm the barrel pitches in the expected direction and remains forward at both camera limits. Both hands clear the slide and barrel in the sampled endpoint poses. The user accepted the vertical aim F5 result on 2026-11-22. The two lateral sole-contact failures remain.
+**Current weapon status:** Regina's vertical aim uses Quaternius pistol poses rebased against the human neutral pose. Sampled tests confirm the barrel pitches in the expected direction and remains forward at both camera limits. Both hands clear the slide and barrel in the sampled endpoint poses. The user accepted the vertical aim F5 result on 2026-11-22.
 
 ### Vertical aim F5 checklist
 
@@ -90,7 +99,7 @@ Short **F6 checklist**:
 2. Cycle views with `V`: inspect planted feet, knee bends, shoulders/hands and attached costume/holster. Some shoulder/costume clipping remains visible during the run; this is not a final character-art acceptance.
 3. Press `M` and watch travel against the floor references; check no doubled motion or loop snap. Pause/resume, then reset with `R` while paused.
 
-The source model remains 69 bones, nine materials, 17 textures, approximately 1.799 m tall in reference pose, and **zero authored clips**. The supplied original FBX also has no animation objects/takes. The F6 proof continues to use separately retargeted **Quaternius CC0** idle/walk/run clips and its own derived root-motion proxy. The F5 player uses a separate gameplay library combining those locomotion poses with Quaternius vertical pistol aim and licensed TPS combat, strafe and jump poses. See [the Regina report](docs/REGINA.md) for sources, mapping, validation and the remaining prototype/visual limits.
+The source model remains 69 bones, nine materials, 17 textures, approximately 1.799 m tall in reference pose, and **zero authored clips**. The supplied original FBX also has no animation objects/takes. The F6 proof continues to use separately retargeted **Quaternius CC0** idle/walk/run clips and its own derived root-motion proxy. The F5 player uses a separate gameplay library combining those locomotion poses with Quaternius vertical pistol aim and lateral footwork, plus licensed TPS combat and jump poses. See [the Regina report](docs/REGINA.md) for sources, mapping, validation and the remaining prototype/visual limits.
 
 ## Develop with Zed and Godot
 

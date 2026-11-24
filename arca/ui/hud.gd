@@ -16,6 +16,7 @@ signal pause_requested
 @onready var resume_button: Button = $Frame/Modal/Center/Panel/Margin/VBox/Resume
 var enemy: CharacterBody3D
 var health: ArcaHealth
+var ammo: ArcaAmmo
 
 
 func _ready() -> void:
@@ -29,6 +30,19 @@ func bind(component: ArcaHealth, target: CharacterBody3D) -> void:
 	enemy = target
 	health.changed.connect(_update_health)
 	_update_health(health.current, health.max_health)
+
+
+func bind_ammo(component: ArcaAmmo) -> void:
+	ammo = component
+	ammo.changed.connect(_update_ammo)
+	ammo.reload_started.connect(func(): $Frame/AmmoPanel/Margin/VBox/Reload.show())
+	$Frame/AmmoPanel.show()
+	_update_ammo(ammo.magazine, ammo.reserve)
+
+
+func _update_ammo(magazine: int, reserve: int) -> void:
+	$Frame/AmmoPanel/Margin/VBox/Ammo.text = "AMMO  %02d / %02d" % [magazine, reserve]
+	$Frame/AmmoPanel/Margin/VBox/Reload.visible = ammo.reloading
 
 
 func _process(_delta: float) -> void:
@@ -57,21 +71,23 @@ func _input(event: InputEvent) -> void:
 
 
 func _update_health(value: int, maximum: int) -> void:
+	var damage: bool = value < health_bar.value
 	hp_label.text = "HEALTH  %03d / %03d" % [value, maximum]
 	health_bar.max_value = maximum
 	health_bar.value = value
-	$Frame/DamageFlash.color.a = 0.22 if value < maximum else 0.0
-	create_tween().tween_property($Frame/DamageFlash, "color:a", 0.0, 0.45)
+	if damage:
+		$Frame/DamageFlash.color.a = 0.22
+		create_tween().tween_property($Frame/DamageFlash, "color:a", 0.0, 0.45)
 
 
 func set_status(message: String) -> void:
 	status_label.text = message
 
 
-func show_death() -> void:
+func show_death(summary: Dictionary = {}) -> void:
 	modal.show()
 	modal_title.text = "SIGNAL LOST"
-	modal_text.text = "You were neutralized. Restart to restore the mission and all actors."
+	modal_text.text = _outcome_text("You were neutralized.", summary)
 	resume_button.hide()
 	$Frame/Modal/Center/Panel/Margin/VBox/Restart.grab_focus()
 
@@ -96,9 +112,18 @@ func set_notice(message: String) -> void:
 	$Frame/Notice.text = message
 	$Frame/Notice.visible = not message.is_empty()
 
-func show_success() -> void:
+func show_success(summary: Dictionary = {}) -> void:
 	modal.show()
 	modal_title.text = "SECTOR RESTORED"
-	modal_text.text = "Fuse recovered. Power restored. Exit reached.\nPress R to restart the mission."
+	modal_text.text = _outcome_text("Fuse recovered. Power restored. Exit reached.", summary)
 	resume_button.hide()
 	$Frame/Modal/Center/Panel/Margin/VBox/Restart.grab_focus()
+
+
+func _outcome_text(message: String, summary: Dictionary) -> String:
+	if not summary.is_empty():
+		var seconds: int = floori(summary["seconds"])
+		message += "\n\nTIME  %02d:%02d\nSHOTS  %d\nDAMAGE TAKEN  %d HP\nPREDATOR  %s" % [
+			floori(seconds / 60.0), seconds % 60, summary["shots"], summary["damage"], summary["predator"],
+		]
+	return message + "\n\nPress Backspace to restart."

@@ -12,6 +12,7 @@ var paused: bool = false
 func _ready() -> void:
 	add_to_group("arca_room")
 	hud.bind(player.health_component, enemy)
+	hud.bind_ammo(player.ammo_component)
 	player.health_component.died.connect(_on_player_died)
 	enemy.exploded.connect(_on_enemy_destroyed)
 	hud.restart_requested.connect(restart_room)
@@ -46,16 +47,20 @@ func _on_player_died() -> void:
 	# Stop pending animation callbacks and all further enemy attacks.
 	if enemy.has_method("stop_combat"):
 		enemy.stop_combat()
-		hud.show_death()
+		hud.show_death(get_mission_summary())
 		return
 	enemy.player = null
 	enemy.set_physics_process(false)
 	enemy.get_node("ShootAnimation").stop()
-	hud.show_death()
+	hud.show_death(get_mission_summary())
+
+
+func get_mission_summary() -> Dictionary:
+	return {}
 
 
 func _on_enemy_destroyed() -> void:
-	hud.set_status("TEST COMPLETE  /  Movement, aiming and damage connected. Press R to restart.")
+	hud.set_status("TEST COMPLETE  /  Movement, aiming and damage connected. Press Backspace to restart.")
 
 
 func stop_audio() -> void:

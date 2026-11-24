@@ -2,15 +2,17 @@
 
 Validated on 2026-10-17 with **Godot 4.5.1 Standard** on Linux using the Compatibility renderer. Run `bash scripts/check.sh` to reproduce the import and headless suites.
 
-**Current gate status: failing.** On 2026-11-22 the Regina-player suite ran **378 checks with 2 failures**, both from the existing lateral sole-contact assertions. The vertical aim checks pass, and the user accepted the F5 result on 2026-11-22.
+**Integrated gate: green.** The launcher passed 13 checks and the gameplay suites passed all 612 checks. The user accepted vertical aim in F5 on 2026-11-22. The user accepted the combined F5 playtest for lateral movement, economy and endings on 2026-11-24.
 
 | Suite | Checks passed | Coverage |
 | --- | ---: | --- |
 | `first_playable_test.gd` | 42 | Real TPS input, movement, aiming, projectiles, cover, laser damage, death, pause and restart |
 | `raptor_test.gd` | 59 | Ferocious model/source bindings, tracks, root anchoring, gait/bite timing and pause/resume; detection, navigation around cover, bite windup/dodge/occlusion, death and actual weapon hits |
-| `mission_test.gd` | 52 | Mission interactions/lifecycle, corridor visibility/occlusion, actual walking and return timing, camera clearance, predator traversal both ways |
-| `ambush_test.gd` | 44 | Dormancy, real hatch collision/motion, continuous physical emergence, phase-specific pause/death/restart/completion, threshold obstruction, emergence death, single activation and navigation |
-| **Total** | **197** | Logic and physics checks against actual scenes |
+| `mission_test.gd` | 61 | Mission lifecycle, real corridor traversal, restart and summary values including pause, shots, damage and both endings |
+| `ambush_test.gd` | 47 | Physical hatch, emergence, lifecycle cancellation, predator evasion summaries and navigation |
+| `regina_player_test.gd` | 378 | Gameplay rig, locomotion, jump, grip, aim and skinned lateral sole contact |
+| `economy_test.gd` | 25 | Ammo, reload, pickup interaction, health and Backspace restart |
+| **Gameplay total** | **612** | Logic and physics checks against actual scenes |
 
 The new ambush suite restores power through the actual interaction input path. It does not require killing the predator to complete the mission. The existing raptor suite separately verifies that actual player projectiles can kill it.
 
@@ -19,6 +21,24 @@ Additional checks: shell syntax for all launch/check scripts; parsing of Zed JSO
 Rendered captures of the actual mission before and after power restoration were inspected using a software OpenGL GPU on a virtual X11 display. These checks confirm the English HUD, room, opened door, alarm and visible predator; they are not NVIDIA performance measurements. The capture script stages mission state for inspection and is not a manual completion of the mission.
 
 An optional visual helper is `arca/tests/capture_mission.gd`. It requires a display; run Godot with `-s res://arca/tests/capture_mission.gd -- /absolute/output/directory` after importing. `capture.gd`, `capture_raptor.gd` and `shadows_test.gd` remain optional diagnostic tools outside the standard headless command.
+
+## Mission endings
+
+The full `bash scripts/check.sh` gate passed with the new win and death summaries. Manual inspection of staged X11/Compatibility captures on Mesa Intel Iris Xe confirmed the ammo panel, reload label and both outcome modals fit in the rendered view. See `.artifacts/final-playtest/`. The combined F5 run covers play feel, sound and continuous transitions.
+
+## Mission resource economy
+
+`economy_test.gd` adds 21 passing integration checks for real firing input, an empty magazine, manual and automatic reload, frozen reload during pause, death cancellation, HUD feedback, pickup range and occlusion, medkit limits and Backspace restart. The full gate passed before work on the mission summary. The final F5 checks cover pickup readability and resource pressure.
+
+## KayKit lateral retarget trial (2026-11-22)
+
+The local Free 1.1 archive includes left and right running strafes on the 23-joint Medium rig. The tested lower-body and spine retarget preserved the root-motion and upper-body tracks. With the existing constant floor alignment, the higher sole minimum in each clip was **0.110915 m** (left) and **0.108579 m** (right) against the **0.02 m** criterion. Penetration, direction, facing, blend, speed and aim checks passed.
+
+The full gate stopped with the two sole-contact failures. The trial files and logs are retained in `.artifacts/phase2-kaykit-candidate/`. The trial was set aside before testing the Quaternius UAL2 replacement.
+
+## Source-based lateral footwork
+
+KayKit ankle-axis and local-rest variants still left a sole above the threshold. The Quaternius UAL2 `Walk_L_Loop` and `Walk_R_Loop` replace the lateral leg, hip and spine tracks using the existing anatomical retarget and constant floor alignment. The runtime blend names, duration and root-motion curves are preserved. Both clips pass the unchanged 2 cm support and 2 mm penetration thresholds. Measured sole minima are **(0.003057, 0.000500) m** and **(0.000500, 0.001127) m**. The full headless gate passed with **378/0** Regina checks, including directional speed and aim/grip. The existing Compatibility capture helper completed for F6 idle/walk/run. The final F5 checklist covers actual lateral movement.
 
 ## Source-based Regina vertical aim (2026-11-22)
 
@@ -154,6 +174,6 @@ The required gate remains incomplete. Stop at the planned pose-feasibility limit
 
 - The hatch is a primitive sliding panel and shallow bay, not bespoke dinosaur breach animation, final environment art or new sound design.
 - Art, character, sound design and level geometry remain temporary; the enemy is not a scientific species reconstruction.
-- Ammunition is unlimited; inventory and progress reset on restart. No save/load system exists.
+- Inventory and progress reset on restart. No save/load system exists.
 - Zed settings/tasks were syntax checked, not exercised in the user's installed Zed/ACP version. Explicit file-reading prompts provide a fallback if agent or skill auto-discovery differs.
 - Hatch F5 acceptance does not establish broader aiming comfort, final polish or frame rate on the user's PC.
