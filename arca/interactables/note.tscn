@@ -1,0 +1,35 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://arca/interactables/note.gd" id="1"]
+
+[sub_resource type="StandardMaterial3D" id="Paper"]
+albedo_color = Color(0.83, 0.76, 0.53, 1)
+roughness = 0.92
+
+[sub_resource type="BoxMesh" id="NoteMesh"]
+material = SubResource("Paper")
+size = Vector3(0.21, 0.026, 0.29)
+
+[sub_resource type="SphereShape3D" id="Reach"]
+radius = 1.6
+
+[node name="StationLog" type="Area3D"]
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("1")
+action_text = "Read station log"
+body = "Shift log, 03:18\n\nThe hatch alarm started while I was resetting the breaker. I heard something breathing on the other side.\n\nI left the lift keycard on the back desk in the control office. If the lights come back, keep your footsteps slow past the alcove."
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("Reach")
+
+[node name="Paper" type="MeshInstance3D" parent="."]
+mesh = SubResource("NoteMesh")
+
+[node name="Sign" type="Label3D" parent="."]
+position = Vector3(0, 0.4, 0)
+billboard = 1
+font_size = 32
+pixel_size = 0.007
+modulate = Color(0.92, 0.82, 0.6, 1)
+text = "STATION LOG"

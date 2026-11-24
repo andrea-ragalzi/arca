@@ -14,6 +14,7 @@ signal pause_requested
 @onready var modal_title: Label = $Frame/Modal/Center/Panel/Margin/VBox/Title
 @onready var modal_text: Label = $Frame/Modal/Center/Panel/Margin/VBox/Text
 @onready var resume_button: Button = $Frame/Modal/Center/Panel/Margin/VBox/Resume
+var reading_note: bool = false
 var enemy: CharacterBody3D
 var health: ArcaHealth
 var ammo: ArcaAmmo
@@ -87,6 +88,9 @@ func _input(event: InputEvent) -> void:
 	if event.is_action_pressed("arca_restart"):
 		restart_requested.emit()
 		get_viewport().set_input_as_handled()
+	elif reading_note and (event.is_action_pressed("interact") or event.is_action_pressed("quit")):
+		resume_requested.emit()
+		get_viewport().set_input_as_handled()
 	elif event.is_action_pressed("quit"):
 		pause_requested.emit()
 		get_viewport().set_input_as_handled()
@@ -116,7 +120,21 @@ func show_death(summary: Dictionary = {}) -> void:
 	$Frame/Modal/Center/Panel/Margin/VBox/Restart.grab_focus()
 
 
+func show_note(title: String, body: String) -> void:
+	reading_note = true
+	modal_title.text = title
+	modal_text.text = body
+	resume_button.text = "CLOSE  /  E OR ESC"
+	$Frame/Modal/Center/Panel/Margin/VBox/Restart.hide()
+	$Frame/Modal/Center/Panel/Margin/VBox/Quit.hide()
+	resume_button.grab_focus()
+
+
 func show_pause(value: bool) -> void:
+	reading_note = false
+	resume_button.text = "RESUME"
+	$Frame/Modal/Center/Panel/Margin/VBox/Restart.show()
+	$Frame/Modal/Center/Panel/Margin/VBox/Quit.show()
 	modal.visible = value
 	modal_title.text = "PAUSED"
 	modal_text.text = "ARCA / maintenance sector"

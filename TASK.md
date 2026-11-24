@@ -97,10 +97,10 @@ Current sprint: [SPRINT_01.md](SPRINT_01.md). Workflow: [docs/PARALLEL_DEVELOPME
 
 ## S1-13: Readable notes
 
-- Status: Waiting: start after S1-01 merges
+- Status: Merged into `main` on 2026-11-24
 - Branch: `s1/13-notes`
-- Validation: -
-- Blockers: -
+- Validation: Full gate 836/0, including mission 82/0. See docs/tasks/S1-13.md.
+- Blockers: Integrated F5 reading check belongs to S1-10.
 
 ## D-01: Modular environment kit
 

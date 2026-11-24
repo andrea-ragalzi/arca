@@ -222,6 +222,7 @@ func run() -> void:
 		"Raptor can return from the alcove through the corridor to the main room")
 	await test_mission_summary()
 	await test_keycard_door()
+	await test_readable_note()
 	print("MISSION RESULT: %d checks, %d failures" % [checks, failures])
 	room.stop_audio()
 	current_scene = null
@@ -378,3 +379,47 @@ func test_keycard_door() -> void:
 	await frames(75)
 	check(is_equal_approx(body.position.y, death_height) and not slider.get("is_open"),
 		"Player death freezes a pending unlock")
+
+
+func test_readable_note() -> void:
+	await reset_mission()
+	var path := "res://arca/interactables/note.tscn"
+	check(ResourceLoader.exists(path), "The station log is available as a reusable scene")
+	if not ResourceLoader.exists(path):
+		return
+	var note: Node3D = load(path).instantiate()
+	note.position = Vector3(0, 0.7, -7.9)
+	room.add_child(note)
+	await move_player(Vector3(0, 0.05, -8.7))
+	await press_e()
+	check(paused and room.hud.modal.visible and room.hud.modal_title.text.contains("Station"),
+		"E opens the station log through mission pause")
+	var clock: float = room.mission_seconds
+	var hp: int = room.player.health_component.current
+	room.enemy.activate_ambush()
+	room.enemy.position = room.player.position + Vector3(1.2, 0, 0)
+	var enemy_elapsed: float = room.enemy.elapsed
+	await frames(90)
+	check(room.mission_seconds == clock and room.enemy.elapsed == enemy_elapsed
+		and room.player.health_component.current == hp, "Reading freezes clock, predator logic and damage")
+	await press_e()
+	check(not paused and not room.hud.modal.visible, "E closes the note without reopening it on the same press")
+	room.enemy.stop_combat()
+	await press_e()
+	check(paused and room.hud.modal.visible, "The same note can be read again")
+	var escape := InputEventAction.new()
+	escape.action = "quit"
+	escape.pressed = true
+	Input.parse_input_event(escape)
+	await frames(3)
+	check(not paused and not room.hud.modal.visible, "Escape closes the note directly back to gameplay")
+	await press_e()
+	var restart := InputEventAction.new()
+	restart.action = "arca_restart"
+	restart.pressed = true
+	Input.parse_input_event(restart)
+	await frames(8)
+	room = current_scene
+	room.stop_all_predators()
+	check(not paused and not room.hud.modal.visible and not is_instance_valid(note),
+		"Restart from the note clears the modal and resumes a fresh mission")
