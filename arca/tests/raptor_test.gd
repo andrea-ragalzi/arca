@@ -209,7 +209,7 @@ func reaction_checks() -> void:
 func run() -> void:
 	await reset_room()
 	var predator: ArcaRaptor = room.enemy
-	check(predator.clips.size() == 8, "Eight real source-backed gameplay animation bindings are loaded")
+	check(predator.clips.size() == 10, "Ten real source-backed gameplay animation bindings are loaded")
 	await presentation_checks(predator)
 	check(room.get_node("NavigationRegion3D").navigation_mesh.get_polygon_count() > 10,
 		"Baked navigation geometry is present")
@@ -291,6 +291,7 @@ func run() -> void:
 		"The death clip is played without restarting the attack")
 
 	await reaction_checks()
+	await sleep_checks()
 
 	await reset_room()
 	predator = room.enemy
@@ -326,3 +327,67 @@ func run() -> void:
 	for i in 15:
 		await process_frame
 	quit(0 if failures == 0 else 1)
+
+
+func spawn_sleeper() -> ArcaRaptor:
+	var sleeper: ArcaRaptor = load("res://arca/enemies/raptor.tscn").instantiate()
+	sleeper.set("start_mode", 1)
+	sleeper.position = Vector3(0, 0.05, -4)
+	room.add_child(sleeper)
+	return sleeper
+
+
+func sleep_checks() -> void:
+	await reset_room()
+	check(room.enemy.get("start_mode") != null, "Raptor exposes a configurable sleeping start")
+	if room.enemy.get("start_mode") == null:
+		return
+	room.enemy.prepare_ambush()
+	var sleeper := spawn_sleeper()
+	var hp: int = room.player.health_component.current
+	var facing := sleeper.rotation.y
+	room.player.position = Vector3(4, 0.05, -4)
+	await frames(75)
+	check(sleeper.get_status_text().contains("SLEEPING") and sleeper.collision_layer != 0
+		and is_equal_approx(sleeper.rotation.y, facing) and room.player.health_component.current == hp,
+		"A solid sleeper stays asleep, facing the same way with the player four metres away")
+	check(sleeper.animation.current_animation == &"Ferocious_Sleep"
+		and sleeper.animation.get_animation(&"Ferocious_Sleep").loop_mode == Animation.LOOP_LINEAR,
+		"The sleeping pose uses the authentic looping source clip")
+
+	room.player.position = Vector3(0, 0.05, 11)
+	room.player.shot_fired.emit()
+	check(sleeper.get_status_text().contains("SLEEPING"), "Shooting 15 m away does not wake a sleeper")
+	room.player.position = Vector3(0, 0.05, 6)
+	room.player.shot_fired.emit()
+	check(sleeper.animation.current_animation == &"Ferocious_Wake", "Shooting 10 m away starts the wake clip")
+	await frames(112)
+	check(sleeper.state == ArcaRaptor.State.ALERT and sleeper.animation.current_animation == &"Ferocious_Roar",
+		"Completing the wake animation enters the normal alert roar")
+
+	await reset_room()
+	room.enemy.prepare_ambush()
+	sleeper = spawn_sleeper()
+	room.player.position = Vector3(0, 0.05, -6)
+	await frames(32)
+	room.set_paused(true)
+	await frames(75)
+	check(sleeper.get_status_text().contains("SLEEPING"), "Pause freezes the sleeper proximity timer")
+	room.set_paused(false)
+	await frames(32)
+	check(sleeper.animation.current_animation == &"Ferocious_Wake", "One second within 2.5 m starts waking")
+
+	await reset_room()
+	check(not is_instance_valid(sleeper), "Restart destroys the previous sleeping encounter")
+	room.enemy.prepare_ambush()
+	sleeper = spawn_sleeper()
+	check(sleeper.get_status_text().contains("SLEEPING"), "A fresh sleeping encounter restarts in sleep")
+	sleeper.hit()
+	check(sleeper.animation.current_animation == &"Ferocious_Wake", "A nonlethal hit wakes a sleeper immediately")
+	var lethal_sleeper := spawn_sleeper()
+	lethal_sleeper.health_component.current = 1
+	var deaths: Array[int] = []
+	lethal_sleeper.exploded.connect(func(): deaths.append(1))
+	lethal_sleeper.hit()
+	lethal_sleeper.hit()
+	check(lethal_sleeper.dead and deaths.size() == 1, "A lethal hit during sleep kills and signals exactly once")

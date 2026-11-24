@@ -55,10 +55,10 @@ Current sprint: [SPRINT_01.md](SPRINT_01.md). Workflow: [docs/PARALLEL_DEVELOPME
 
 ## S1-07: Sleeping raptor encounter
 
-- Status: Waiting: start after S1-02 merges
+- Status: Merged into `main` on 2026-11-24
 - Branch: `s1/07-sleeping-raptor`
-- Validation: -
-- Blockers: -
+- Validation: Full gate 829/0, including raptor 95/0. See docs/tasks/S1-07.md.
+- Blockers: Integrated F5 encounter belongs to S1-10.
 
 ## S1-08: In-memory checkpoint (stretch)
 

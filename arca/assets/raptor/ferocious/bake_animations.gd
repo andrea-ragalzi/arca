@@ -7,6 +7,8 @@ const MAPPING: Dictionary = {
 	"Idle": "Idle_02", "Walk": "Walk", "Run": "Jog",
 	"Attack": "Bite_02", "Death": "Death_01", "Jump": "Leap_01",
 	"Hurt": "Hurt_01", "Roar": "Roar_03",
+	# Godot strips the source loop suffix when importing Sleep_Loop.
+	"Sleep": "Sleep", "Wake": "Wake From Sleep",
 }
 # Distances measured from the original FBX root-motion equivalents, in metres.
 const WALK_DISTANCE: float = 2.9
@@ -65,7 +67,7 @@ func run() -> void:
 		if WINDOWS.has(action):
 			animation.set_meta("source_end", end)
 		animation.length = duration
-		animation.loop_mode = Animation.LOOP_LINEAR if action in ["Idle", "Walk", "Run"] else Animation.LOOP_NONE
+		animation.loop_mode = Animation.LOOP_LINEAR if action in ["Idle", "Walk", "Run", "Sleep"] else Animation.LOOP_NONE
 		for track: int in animation.get_track_count():
 			var path: NodePath = original.track_get_path(track)
 			animation.track_set_path(track, NodePath("Model/" + str(path)))

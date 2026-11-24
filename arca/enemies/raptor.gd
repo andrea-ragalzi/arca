@@ -8,14 +8,19 @@ signal attack_landed
 signal staggered
 
 # New states are appended so existing integer values and HUD labels stay stable.
-enum State { WAIT, ALERT, CHASE, WINDUP, ATTACK, RECOVER, DEAD, DORMANT, EMERGE, HURT }
+enum State { WAIT, ALERT, CHASE, WINDUP, ATTACK, RECOVER, DEAD, DORMANT, EMERGE, HURT, SLEEP, WAKE }
+enum StartMode { ACTIVE, SLEEPING }
 
 const EMERGENCE_SPEED: float = 1.6
 const ALERT_DURATION: float = 0.7
+const WAKE_PROXIMITY_DURATION: float = 1.0
 # States in which an accepted hit can interrupt the predator. WINDUP is included so
 # accurate fire cancels a pending bite; a committed ATTACK is never interrupted.
 const STAGGER_STATES: Array[State] = [State.ALERT, State.CHASE, State.WINDUP, State.RECOVER]
 
+@export var start_mode: StartMode = StartMode.ACTIVE
+@export var wake_noise_radius: float = 12.0
+@export var wake_proximity: float = 2.5
 @export var move_speed: float = 3.2
 @export var detection_range: float = 10.0
 @export var attack_range: float = 1.8
@@ -44,6 +49,7 @@ var active_collision_layer: int
 var active_collision_mask: int
 var emergence_target: Vector3
 var stagger_cooldown_remaining: float = 0.0
+var wake_proximity_elapsed: float = 0.0
 var dead: bool:
 	get: return state == State.DEAD
 var health: int:
@@ -55,7 +61,7 @@ func _ready() -> void:
 	active_collision_layer = collision_layer
 	active_collision_mask = collision_mask
 	for clip in animation.get_animation_list():
-		for action in ["Idle", "Walk", "Run", "Attack", "Death", "Jump", "Hurt", "Roar"]:
+		for action in ["Idle", "Walk", "Run", "Attack", "Death", "Jump", "Hurt", "Roar", "Sleep", "Wake"]:
 			if String(clip).ends_with("_" + action):
 				clips[action] = clip
 				if action in ["Idle", "Walk", "Run"]:
@@ -63,7 +69,9 @@ func _ready() -> void:
 	animation.callback_mode_process = AnimationMixer.ANIMATION_CALLBACK_MODE_PROCESS_PHYSICS
 	health_component.died.connect(_die)
 	player = get_tree().get_first_node_in_group("arca_player") as Node3D
-	_change_state(State.WAIT)
+	if start_mode == StartMode.SLEEPING and is_instance_valid(player):
+		player.shot_fired.connect(_on_player_shot)
+	_change_state(State.SLEEP if start_mode == StartMode.SLEEPING else State.WAIT)
 
 
 func _physics_process(delta: float) -> void:
@@ -79,9 +87,19 @@ func _physics_process(delta: float) -> void:
 	stagger_cooldown_remaining = maxf(stagger_cooldown_remaining - delta, 0.0)
 	velocity.x = 0.0
 	velocity.z = 0.0
-	if state not in [State.WAIT, State.EMERGE, State.HURT] and difference.length_squared() > 0.01:
+	if state not in [State.WAIT, State.EMERGE, State.HURT, State.SLEEP, State.WAKE] and difference.length_squared() > 0.01:
 		rotation.y = lerp_angle(rotation.y, atan2(-difference.x, -difference.z), minf(1.0, delta * 8.0))
 	match state:
+		State.SLEEP:
+			if distance <= wake_proximity:
+				wake_proximity_elapsed += delta
+				if wake_proximity_elapsed >= WAKE_PROXIMITY_DURATION:
+					_change_state(State.WAKE)
+			else:
+				wake_proximity_elapsed = 0.0
+		State.WAKE:
+			if elapsed >= animation.get_animation(clips["Wake"]).length:
+				_change_state(State.ALERT)
 		State.EMERGE:
 			var direction: Vector3 = emergence_target - global_position
 			direction.y = 0.0
@@ -151,13 +169,21 @@ func _can_see_player() -> bool:
 	return not collision.is_empty() and collision.collider == player
 
 
+func _on_player_shot() -> void:
+	if state == State.SLEEP and combat_enabled and can_process() \
+			and global_position.distance_to(player.global_position) <= wake_noise_radius:
+		_change_state(State.WAKE)
+
+
 @rpc("call_local")
 func hit() -> void:
 	if dead or state == State.DORMANT:
 		return
 	if not health_component.take_damage(1) or dead:
 		return
-	if state == State.WAIT:
+	if state == State.SLEEP and combat_enabled:
+		_change_state(State.WAKE)
+	elif state == State.WAIT:
 		_change_state(State.ALERT)
 	elif state in STAGGER_STATES and stagger_cooldown_remaining <= 0.0:
 		stagger_cooldown_remaining = stagger_cooldown
@@ -171,6 +197,8 @@ func _change_state(value: State) -> void:
 	swing_checked = false
 	warning.visible = value in [State.ALERT, State.WINDUP]
 	match value:
+		State.SLEEP: _play("Sleep")
+		State.WAKE: _play("Wake")
 		State.EMERGE: _play("Walk")
 		State.ALERT: _play("Roar")
 		State.HURT: _play("Hurt")
@@ -199,7 +227,7 @@ func stop_combat() -> void:
 	velocity = Vector3.ZERO
 	warning.hide()
 	if not dead:
-		_play("Idle")
+		_play("Sleep" if state in [State.SLEEP, State.WAKE] else "Idle")
 
 
 func prepare_ambush() -> void:
@@ -241,6 +269,6 @@ func get_status_text() -> String:
 		return "NO CONTACT"
 	var labels := [
 		"WAITING", "ALERT", "CHASING", "WINDUP", "ATTACK",
-		"RECOVERY", "DOWN", "DORMANT", "EMERGING", "STAGGERED",
+		"RECOVERY", "DOWN", "DORMANT", "EMERGING", "STAGGERED", "SLEEPING", "WAKING",
 	]
 	return "PREDATOR %d/%d  /  %s" % [health, health_component.max_health, labels[state]]
