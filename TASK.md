@@ -132,7 +132,7 @@ Current sprint: [SPRINT_01.md](SPRINT_01.md). Workflow: [docs/PARALLEL_DEVELOPME
 
 ## D-05: Area dressing and atmosphere
 
-- Status: Waiting: needs S1-10, D-01, D-02
+- Status: Merged into `main` on 2026-11-24
 - Branch: `s1/d05-area-dressing`
-- Validation: -
-- Blockers: -
+- Validation: Gameplay gate 1002/0, identical collision and markers, deterministic bake, three X11 stills.
+- Blockers: F5 mood and F3 frame-rate review in S1-12.

@@ -16,6 +16,7 @@ const DOOR_WIDTH: float = 3.0
 const DOOR_HEIGHT: float = 3.4
 
 var materials: Dictionary[String, StandardMaterial3D] = {}
+var kit_meshes: Dictionary[String, ArrayMesh] = {}
 
 
 func _initialize() -> void:
@@ -28,6 +29,11 @@ func run() -> void:
 	materials["floor_plate"] = shell_material(Color(0.115, 0.15, 0.17), 0.25, 0.80)
 	for name: String in ["hazard_trim", "frame", "dark_glass"]:
 		materials[name] = load(KIT + name + ".tres")
+	for piece: String in ["wall_2m", "wall_4m", "floor_tile", "console"]:
+		var module: Node3D = load(KIT + piece + ".tscn").instantiate()
+		var mesh: MeshInstance3D = module.get_node("Visual")
+		kit_meshes[piece] = mesh.mesh
+		module.free()
 	var ok: bool = true
 	ok = save(build_security_corridor(), "security_corridor") and ok
 	ok = save(build_control_office(), "control_office") and ok
@@ -74,13 +80,14 @@ func solid(parent: Node3D, node_name: String, size: Vector3, center: Vector3, ma
 	body.position = center
 	body.collision_layer = 1
 	body.collision_mask = 0
-	var mesh := MeshInstance3D.new()
-	mesh.name = "Mesh"
-	var box := BoxMesh.new()
-	box.size = size
-	box.material = materials[material]
-	mesh.mesh = box
-	body.add_child(mesh)
+	if material == "floor_plate":
+		dress_floor(body, size)
+	elif material == "wall_panel" and is_equal_approx(size.y, WALL_HEIGHT):
+		dress_wall(body, size)
+	elif node_name.begins_with("Desk"):
+		dress_desk(body, size)
+	else:
+		visual(body, "Mesh", size, Vector3.ZERO, material)
 	var collision := CollisionShape3D.new()
 	collision.name = "Collision"
 	var shape := BoxShape3D.new()
@@ -89,6 +96,53 @@ func solid(parent: Node3D, node_name: String, size: Vector3, center: Vector3, ma
 	body.add_child(collision)
 	parent.add_child(body)
 	return body
+
+
+func dress_floor(body: StaticBody3D, size: Vector3) -> void:
+	var tile_count := Vector2i(ceili(size.x / 4.0), ceili(size.z / 4.0))
+	var tile_size := Vector3(size.x / tile_count.x, size.y, size.z / tile_count.y)
+	var basis := Basis.from_scale(tile_size / Vector3(4.0, 0.5, 4.0))
+	var transforms: Array[Transform3D] = []
+	for x: int in tile_count.x:
+		for z: int in tile_count.y:
+			var center := Vector3((x + 0.5) * tile_size.x - size.x * 0.5, size.y * 0.5,
+				(z + 0.5) * tile_size.z - size.z * 0.5)
+			transforms.append(Transform3D(basis, center))
+	attach_kit_mesh(body, kit_meshes["floor_tile"], transforms)
+
+
+func dress_wall(body: StaticBody3D, size: Vector3) -> void:
+	var along_z := is_equal_approx(size.x, WALL)
+	var length: float = size.z if along_z else size.x
+	var count := ceili(length / 4.0)
+	var width: float = length / count
+	var piece := "wall_2m" if width <= 2.5 else "wall_4m"
+	var module_width: float = 2.0 if piece == "wall_2m" else 4.0
+	var basis := Basis.from_scale(Vector3(width / module_width, size.y / 4.5, 1))
+	if along_z:
+		basis = basis.rotated(Vector3.UP, PI * 0.5)
+	var transforms: Array[Transform3D] = []
+	for index: int in count:
+		var offset: float = (index + 0.5) * width - length * 0.5
+		var center := Vector3(0, -size.y * 0.5, offset) if along_z else Vector3(offset, -size.y * 0.5, 0)
+		transforms.append(Transform3D(basis, center))
+	attach_kit_mesh(body, kit_meshes[piece], transforms)
+
+
+func dress_desk(body: StaticBody3D, size: Vector3) -> void:
+	var scale := Vector3(size.x / 1.5, size.y / 1.5, size.z / 0.5)
+	var transform := Transform3D(Basis.from_scale(scale), Vector3.DOWN * size.y * 0.5)
+	attach_kit_mesh(body, kit_meshes["console"], [transform])
+
+
+func attach_kit_mesh(body: StaticBody3D, source: ArrayMesh, transforms: Array[Transform3D]) -> void:
+	var visuals := group(body, "Mesh")
+	for index: int in transforms.size():
+		var part := MeshInstance3D.new()
+		part.name = "Module%d" % index
+		part.mesh = source
+		part.transform = transforms[index]
+		visuals.add_child(part)
 
 
 func visual(parent: Node3D, node_name: String, size: Vector3, center: Vector3, material: String) -> MeshInstance3D:
@@ -234,8 +288,8 @@ func build_security_corridor() -> Node3D:
 	kit(dressing, "light_strip", "StripOffice", Vector3(-4.95, 4.37, 11.0), 90.0)
 	kit(dressing, "light_strip", "StripEnd", Vector3(-1.95, 2.8, 27.0), 90.0)
 	var lights := group(root, "Lights")
-	lamp(lights, "LightEntry", Vector3(0, 3.6, 3.0), COOL, 1.4, 8.0)
-	lamp(lights, "LightRecess", Vector3(-3.5, 3.2, 11.0), AMBER, 0.7, 5.5)
+	lamp(lights, "LightEntry", Vector3(0, 3.6, 3.0), COOL, 1.15, 7.6)
+	lamp(lights, "LightRecess", Vector3(-3.5, 3.2, 11.0), AMBER, 0.85, 5.5)
 	lamp(lights, "LightMiddle", Vector3(0, 3.6, 18.0), COOL, 1.2, 8.0, true)
 	lamp(lights, "LightLift", Vector3(0, 3.4, 28.0), ALARM, 1.1, 7.0)
 	var signs := group(root, "Signs")
@@ -276,7 +330,7 @@ func build_control_office() -> Node3D:
 	kit(dressing, "light_strip", "StripBack", Vector3(1.5, 3.0, 9.95), 180.0)
 	var lights := group(root, "Lights")
 	lamp(lights, "LightEntry", Vector3(0, 3.5, 2.0), COOL, 1.1, 7.5)
-	lamp(lights, "LightDesks", Vector3(-2.5, 3.0, 5.5), AMBER, 1.0, 7.0, true)
+	lamp(lights, "LightDesks", Vector3(-2.5, 3.0, 5.5), AMBER, 1.15, 7.0, true)
 	lamp(lights, "LightConsoles", Vector3(3.5, 2.6, 8.5), CYAN, 0.9, 5.5)
 	var signs := group(root, "Signs")
 	sign_label(signs, "SignOffice", "CONTROL OFFICE\nSECURITY RECORDS", Vector3(-1.0, 3.6, 9.95), 180.0, COOL)
@@ -311,7 +365,7 @@ func build_exit_lift() -> Node3D:
 	kit(dressing, "console", "LiftConsole", Vector3(3.6, 0.0, 13.75), 180.0)
 	kit(dressing, "light_strip", "StripLift", Vector3(0.0, 4.37, 13.95), 180.0)
 	var lights := group(root, "Lights")
-	lamp(lights, "LightHall", Vector3(0, 3.8, 6.0), COOL, 1.2, 10.0, true)
+	lamp(lights, "LightHall", Vector3(0, 3.8, 6.0), COOL, 1.06, 10.0, true)
 	lamp(lights, "LightLift", Vector3(0, 3.0, 16.0), CYAN, 1.0, 5.0)
 	lamp(lights, "LightAlarm", Vector3(-5.5, 3.2, 12.0), ALARM, 0.9, 7.0)
 	var signs := group(root, "Signs")
