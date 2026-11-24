@@ -18,6 +18,10 @@ Regina's current locomotion correction opts into camera-facing directional groun
 
 Regina's handgun uses a calibrated wrist socket and a separate gameplay-only hand pose, without source rig/clip or gun-geometry edits. The vertical aim overlay uses Quaternius up/down poses relative to the neutral pistol pose, scaled against the 70-degree camera limit and filtered to the neck/head and right arm. The support arm stays on the base animation. The user accepted vertical aim in F5 on 2026-11-22. The lateral footwork passes the headless sole-contact gate and was accepted in the combined F5 playtest on 2026-11-24.
 
+## Interaction contract (S1-01)
+
+Every interactable extends `ArcaInteractionPoint` (`arca/interactables/interaction_point.gd`), joins the `arca_interactable` group in `_ready()` and overrides two methods: `get_prompt(room) -> String` for the text after `[ E ]`, and `interact(room) -> bool` for the action. The mission discovers candidates from the group, restricted to its own descendants, and keeps the nearest one that passes the existing reach and line-of-sight check. A new interactable is a new script plus an instance in the scene; `mission_room.gd` does not change. Ammo and medkit boxes share `supply_pickup.gd` with exported `kind` and `amount`. One E press performs at most one action: key-repeat echoes are ignored, and a second press in the same frame is dropped. The room still owns shared feedback (`_notify`, `_collect_supply`) and mission state such as the fuse flag.
+
 ## Keep future work small
 
 The service corridor was accepted by the user in an F5 playtest on 2026-10-17; no human return-time measurement was supplied. The entrance is framed from spawn with yellow signage/lighting and the fuse remains concealed behind a full-height partition and alcove screen. The player explores, then backtracks to the existing panel. Movement, camera-controller code and shooting remain on the tested TPS controller; the robot remains available in its standalone reference scene. Mission navigation is rebaked for the corridor and hatch bay.

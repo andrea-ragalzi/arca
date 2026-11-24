@@ -128,6 +128,7 @@ func run() -> void:
 	await tap(KEY_E)
 	check(not is_instance_valid(medkit) and health.current == 85, "Medkit restores 40 HP when at least 40 is missing")
 	await test_ammo_budget()
+	await test_interaction_contract()
 	await finish()
 
 
@@ -157,3 +158,91 @@ func test_ammo_budget() -> void:
 	await frames(95)
 	check(ammo.magazine == 1 and ammo.reserve == 0 and room.get_mission_summary()["shots"] == 36,
 		"Reload transfers the final reserve round without incrementing shots")
+
+
+func spawn_ammo(amount: int, position: Vector3, parent: Node = null) -> ArcaInteractionPoint:
+	var pickup: ArcaInteractionPoint = load("res://arca/interactables/ammo_pickup.tscn").instantiate()
+	pickup.amount = amount
+	(parent if parent != null else room).add_child(pickup)
+	pickup.position = position
+	return pickup
+
+
+func interaction_text() -> String:
+	var label: Label = room.hud.get_node("Frame/Interaction")
+	return label.text if label.visible else ""
+
+
+func test_interaction_contract() -> void:
+	# S1-01: rooms discover interactables from the group, with no hard-coded list.
+	await reset_mission()
+	var ammo: ArcaAmmo = room.player.ammo_component
+	var spot := Vector3(-2.0, 0.05, -4.0)
+	await move_player(spot)
+	var extra := spawn_ammo(5, spot + Vector3(-1.0, 0.09, 0.0))
+	await frames(4)
+	check(extra.is_in_group(ArcaInteractionPoint.GROUP), "A runtime-instanced pickup joins the interactable group")
+	check(interaction_text() == "[ E ]  Collect 5 rounds",
+		"A runtime ammo pickup with amount 5 is prompted with its own amount (got '%s')" % interaction_text())
+	var reserve: int = ammo.reserve
+	await tap(KEY_E)
+	check(ammo.reserve == reserve + 5 and not is_instance_valid(extra),
+		"One E press grants exactly +5 reserve from the runtime pickup and removes it")
+	check(interaction_text().is_empty(), "The prompt clears once the runtime pickup is gone")
+
+	# Two presses delivered in the same frame perform one action, even with two targets in range.
+	var first := spawn_ammo(5, spot + Vector3(-1.0, 0.09, 0.0))
+	var second := spawn_ammo(7, spot + Vector3(1.0, 0.09, 0.0))
+	await frames(4)
+	reserve = ammo.reserve
+	var frame: int = Engine.get_process_frames()
+	key(KEY_E, true)
+	key(KEY_E, false)
+	key(KEY_E, true)
+	key(KEY_E, false)
+	var same_frame: bool = Engine.get_process_frames() == frame
+	await frames(3)
+	var remaining: int = int(is_instance_valid(first)) + int(is_instance_valid(second))
+	check(same_frame and remaining == 1 and (ammo.reserve == reserve + 5 or ammo.reserve == reserve + 7),
+		"Two E presses in one frame collect exactly one of two pickups in range")
+
+	# Holding E (key repeat echoes over many frames) performs a single action.
+	var survivor: ArcaInteractionPoint = first if is_instance_valid(first) else second
+	var spare := spawn_ammo(3, spot + Vector3(0.0, 0.09, 1.0))
+	await frames(4)
+	reserve = ammo.reserve
+	key(KEY_E, true)
+	for i in 20:
+		await frames(1)
+		key(KEY_E, true, true)
+	key(KEY_E, false)
+	await frames(3)
+	remaining = int(is_instance_valid(survivor)) + int(is_instance_valid(spare))
+	check(remaining == 1 and ammo.reserve > reserve and ammo.reserve <= reserve + 7,
+		"Holding E with repeat echoes collects only one pickup")
+	for pickup in [survivor, spare]:
+		if is_instance_valid(pickup):
+			pickup.queue_free()
+	await frames(3)
+
+	# Interactables outside the room's subtree are never offered.
+	var outsider := spawn_ammo(9, spot + Vector3(-1.0, 0.09, 0.0), root)
+	outsider.global_position = room.player.global_position + Vector3(-1.0, 0.09, 0.0)
+	await frames(4)
+	reserve = ammo.reserve
+	await tap(KEY_E)
+	check(is_instance_valid(outsider) and ammo.reserve == reserve and interaction_text().is_empty(),
+		"A pickup outside the room subtree is neither prompted nor collected")
+	outsider.queue_free()
+	await frames(3)
+
+	# A pickup behind the real corridor partition is in range but occluded.
+	await move_player(Vector3(5.0, 0.05, 3.0))
+	var hidden := spawn_ammo(5, Vector3(6.4, 0.14, 3.0))
+	await frames(4)
+	reserve = ammo.reserve
+	check(hidden.overlaps_body(room.player), "The occlusion test player is inside the hidden pickup's range")
+	check(room._find_interaction_target() != hidden and interaction_text().is_empty(),
+		"A pickup behind the corridor partition is not offered")
+	await tap(KEY_E)
+	check(is_instance_valid(hidden) and ammo.reserve == reserve, "E cannot collect through the corridor partition")

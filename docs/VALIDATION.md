@@ -30,6 +30,10 @@ The full `bash scripts/check.sh` gate passed with the new win and death summarie
 
 `economy_test.gd` adds 21 passing integration checks for real firing input, an empty magazine, manual and automatic reload, frozen reload during pause, death cancellation, HUD feedback, pickup range and occlusion, medkit limits and Backspace restart. The full gate passed before work on the mission summary. The final F5 checks cover pickup readability and resource pressure.
 
+## Interaction contract (S1-01)
+
+`economy_test.gd` adds 10 checks (economy suite 25 → 35) for group discovery. A runtime-instanced `ammo_pickup.tscn` with `amount = 5` joins the group, is prompted as `Collect 5 rounds`, grants exactly +5 reserve on one E press and disappears, with no change to `mission_room.gd`. Two E presses in one frame, or a held E with repeat echoes, collect only one of several pickups in range. A pickup outside the room subtree is ignored. A pickup behind the real corridor partition is in range but not offered or collected. Disabling the same-frame guard makes the double-press check fail. Mission 61, ambush 47 and the original economy checks pass unchanged.
+
 ## KayKit lateral retarget trial (2026-11-22)
 
 The local Free 1.1 archive includes left and right running strafes on the 23-joint Medium rig. The tested lower-body and spine retarget preserved the root-motion and upper-body tracks. With the existing constant floor alignment, the higher sole minimum in each clip was **0.110915 m** (left) and **0.108579 m** (right) against the **0.02 m** criterion. Penetration, direction, facing, blend, speed and aim checks passed.

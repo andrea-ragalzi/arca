@@ -13,9 +13,9 @@ Current sprint: [SPRINT_01.md](SPRINT_01.md). Workflow: [docs/PARALLEL_DEVELOPME
 
 ## S1-01: Interaction contract
 
-- Status: Ready: worktree prepared, not started
-- Branch: `s1/01-interactions`
-- Validation: -
+- Status: Implemented, awaiting review and merge (uncommitted)
+- Branch: `s1/01-interactions` (implemented in a detached Claude Code worktree based on `c41d342`)
+- Validation: Full gate 635 checks / 0 failures (launcher 13, first_playable 42, raptor 59, mission 61, ambush 47, regina_player 378, economy 35). See docs/tasks/S1-01.md Record.
 - Blockers: -
 
 ## S1-02: Raptor hit reaction and alert roar

@@ -19,6 +19,7 @@ var has_fuse: bool = false
 var power_restored: bool = false
 var mission_complete: bool = false
 var interaction_target: ArcaInteractionPoint
+var _last_interaction_frame: int = -1
 var notice_remaining: float = 0.0
 var ambush_remaining: float = -1.0
 var ambush_triggered: bool = false
@@ -55,9 +56,7 @@ func _physics_process(delta: float) -> void:
 	interaction_target = _find_interaction_target()
 	var text: String = ""
 	if is_instance_valid(interaction_target):
-		text = "[ E ]  " + interaction_target.action_text
-		if interaction_target == panel and not has_fuse:
-			text = "[ E ]  Inspect panel - fuse missing"
+		text = "[ E ]  " + interaction_target.get_prompt(self)
 	hud.set_interaction(text)
 	if notice_remaining > 0.0:
 		notice_remaining -= delta
@@ -93,10 +92,14 @@ func _unhandled_input(event: InputEvent) -> void:
 			get_viewport().set_input_as_handled()
 
 func _find_interaction_target() -> ArcaInteractionPoint:
+	# Any ArcaInteractionPoint under this room is a candidate; no hard-coded list.
 	var nearest: ArcaInteractionPoint = null
 	var nearest_distance: float = INF
-	for point in [fuse, panel, ammo_pickup, medkit_pickup]:
-		if not is_instance_valid(point) or not point.is_available_to(player):
+	for node in get_tree().get_nodes_in_group(ArcaInteractionPoint.GROUP):
+		var point := node as ArcaInteractionPoint
+		if point == null or point.is_queued_for_deletion() or not is_ancestor_of(point):
+			continue
+		if not point.is_available_to(player):
 			continue
 		var distance: float = point.global_position.distance_squared_to(player.global_position)
 		if distance < nearest_distance:
@@ -107,23 +110,15 @@ func _find_interaction_target() -> ArcaInteractionPoint:
 func try_interact() -> bool:
 	if get_tree().paused or mission_complete or player.health_component.current <= 0:
 		return false
+	# One action per press: a second press delivered in the same frame is ignored.
+	var frame: int = Engine.get_process_frames()
+	if frame == _last_interaction_frame:
+		return false
 	interaction_target = _find_interaction_target()
 	if not is_instance_valid(interaction_target):
 		return false
-	if interaction_target == fuse:
-		fuse.collect()
-	elif interaction_target == panel:
-		if not panel.activate(has_fuse):
-			_notify("Fuse missing. Search the marked service corridor.")
-	elif interaction_target == ammo_pickup:
-		player.ammo_component.add_reserve(12)
-		_collect_supply(ammo_pickup, "AMMO COLLECTED / +12 reserve")
-	elif interaction_target == medkit_pickup:
-		var previous_health: int = player.health_component.current
-		if player.health_component.heal(40):
-			_collect_supply(medkit_pickup, "MEDKIT USED / +%d HP" % (player.health_component.current - previous_health))
-		else:
-			_notify("HEALTH FULL / Medkit left for later")
+	_last_interaction_frame = frame
+	interaction_target.interact(self)
 	return true
 
 func _collect_supply(pickup: ArcaInteractionPoint, message: String) -> void:

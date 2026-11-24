@@ -3,6 +3,12 @@ extends ArcaInteractionPoint
 
 signal collected
 
+func interact(_room: Node) -> bool:
+	if not enabled:
+		return false
+	collect()
+	return true
+
 func collect() -> void:
 	if not enabled:
 		return
