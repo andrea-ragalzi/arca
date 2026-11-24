@@ -1,0 +1,10 @@
+[gd_resource type="StandardMaterial3D" load_steps=2 format=3]
+
+[ext_resource type="Texture2D" path="res://arca/assets/environment/kit/metal_grain.res" id="1_xvt2r"]
+
+[resource]
+resource_name = "Frame"
+albedo_color = Color(0.22352941, 0.29411766, 0.32156864, 1)
+albedo_texture = ExtResource("1_xvt2r")
+metallic = 0.37
+roughness = 0.54

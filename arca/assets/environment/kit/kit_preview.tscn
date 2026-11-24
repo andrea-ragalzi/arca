@@ -1,0 +1,230 @@
+[gd_scene load_steps=13 format=3]
+
+[ext_resource type="PackedScene" path="res://arca/assets/environment/kit/floor_tile.tscn" id="1_cwxtq"]
+[ext_resource type="PackedScene" path="res://arca/assets/environment/kit/doorway_frame.tscn" id="2_3c6aw"]
+[ext_resource type="PackedScene" path="res://arca/assets/environment/kit/wall_4m.tscn" id="3_0e627"]
+[ext_resource type="PackedScene" path="res://arca/assets/environment/kit/wall_2m.tscn" id="4_538sf"]
+[ext_resource type="PackedScene" path="res://arca/assets/environment/kit/pillar.tscn" id="5_fgmtq"]
+[ext_resource type="PackedScene" path="res://arca/assets/environment/kit/pipe_run.tscn" id="6_luwul"]
+[ext_resource type="PackedScene" path="res://arca/assets/environment/kit/cable_tray.tscn" id="7_wb5fx"]
+[ext_resource type="PackedScene" path="res://arca/assets/environment/kit/light_strip.tscn" id="8_qwsv3"]
+[ext_resource type="PackedScene" path="res://arca/assets/environment/kit/vent_grille.tscn" id="9_e7kii"]
+[ext_resource type="PackedScene" path="res://arca/assets/environment/kit/crate.tscn" id="10_4mleb"]
+[ext_resource type="PackedScene" path="res://arca/assets/environment/kit/console.tscn" id="11_8gv86"]
+
+[sub_resource type="Environment" id="Environment_50m8m"]
+background_mode = 1
+background_color = Color(0.06666667, 0.09803922, 0.11372549, 1)
+ambient_light_source = 2
+ambient_light_color = Color(0.5686275, 0.6784314, 0.7490196, 1)
+ambient_light_energy = 0.29
+tonemap_mode = 2
+
+[node name="KitPreview" type="Node3D"]
+
+[node name="Deck0_0" type="Node3D" parent="." instance=ExtResource("1_cwxtq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 0, -6)
+
+[node name="Ceiling0_0" type="Node3D" parent="." instance=ExtResource("1_cwxtq")]
+transform = Transform3D(-1, 8.742278e-08, 0, -8.742278e-08, -1, 0, 0, 0, 1, -2, 4.5, -6)
+
+[node name="Deck0_4" type="Node3D" parent="." instance=ExtResource("1_cwxtq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 0, -2)
+
+[node name="Ceiling0_4" type="Node3D" parent="." instance=ExtResource("1_cwxtq")]
+transform = Transform3D(-1, 8.742278e-08, 0, -8.742278e-08, -1, 0, 0, 0, 1, -2, 4.5, -2)
+
+[node name="Deck0_8" type="Node3D" parent="." instance=ExtResource("1_cwxtq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 0, 2)
+
+[node name="Ceiling0_8" type="Node3D" parent="." instance=ExtResource("1_cwxtq")]
+transform = Transform3D(-1, 8.742278e-08, 0, -8.742278e-08, -1, 0, 0, 0, 1, -2, 4.5, 2)
+
+[node name="Deck0_12" type="Node3D" parent="." instance=ExtResource("1_cwxtq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 0, 6)
+
+[node name="Ceiling0_12" type="Node3D" parent="." instance=ExtResource("1_cwxtq")]
+transform = Transform3D(-1, 8.742278e-08, 0, -8.742278e-08, -1, 0, 0, 0, 1, -2, 4.5, 6)
+
+[node name="Deck4_0" type="Node3D" parent="." instance=ExtResource("1_cwxtq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0, -6)
+
+[node name="Ceiling4_0" type="Node3D" parent="." instance=ExtResource("1_cwxtq")]
+transform = Transform3D(-1, 8.742278e-08, 0, -8.742278e-08, -1, 0, 0, 0, 1, 2, 4.5, -6)
+
+[node name="Deck4_4" type="Node3D" parent="." instance=ExtResource("1_cwxtq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0, -2)
+
+[node name="Ceiling4_4" type="Node3D" parent="." instance=ExtResource("1_cwxtq")]
+transform = Transform3D(-1, 8.742278e-08, 0, -8.742278e-08, -1, 0, 0, 0, 1, 2, 4.5, -2)
+
+[node name="Deck4_8" type="Node3D" parent="." instance=ExtResource("1_cwxtq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0, 2)
+
+[node name="Ceiling4_8" type="Node3D" parent="." instance=ExtResource("1_cwxtq")]
+transform = Transform3D(-1, 8.742278e-08, 0, -8.742278e-08, -1, 0, 0, 0, 1, 2, 4.5, 2)
+
+[node name="Deck4_12" type="Node3D" parent="." instance=ExtResource("1_cwxtq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0, 6)
+
+[node name="Ceiling4_12" type="Node3D" parent="." instance=ExtResource("1_cwxtq")]
+transform = Transform3D(-1, 8.742278e-08, 0, -8.742278e-08, -1, 0, 0, 0, 1, 2, 4.5, 6)
+
+[node name="Bulkhead" type="Node3D" parent="." instance=ExtResource("2_3c6aw")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 0, -4)
+
+[node name="BackWall" type="Node3D" parent="." instance=ExtResource("3_0e627")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0, -4)
+
+[node name="FarWall" type="Node3D" parent="." instance=ExtResource("3_0e627")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 0, -7.75)
+
+[node name="FarLeft" type="Node3D" parent="." instance=ExtResource("3_0e627")]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -3.75, 0, -6)
+
+[node name="FarRight" type="Node3D" parent="." instance=ExtResource("3_0e627")]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -0.25, 0, -6)
+
+[node name="LeftWall0" type="Node3D" parent="." instance=ExtResource("3_0e627")]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -3.75, 0, -2)
+
+[node name="RightWall0" type="Node3D" parent="." instance=ExtResource("3_0e627")]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 3.75, 0, -2)
+
+[node name="LeftWall4" type="Node3D" parent="." instance=ExtResource("3_0e627")]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -3.75, 0, 2)
+
+[node name="RightWall4" type="Node3D" parent="." instance=ExtResource("3_0e627")]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 3.75, 0, 2)
+
+[node name="LeftWall8" type="Node3D" parent="." instance=ExtResource("3_0e627")]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -3.75, 0, 6)
+
+[node name="RightWall8" type="Node3D" parent="." instance=ExtResource("3_0e627")]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 3.75, 0, 6)
+
+[node name="ServiceDivider" type="Node3D" parent="." instance=ExtResource("4_538sf")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.75, 0, -2.9)
+
+[node name="DividerPost" type="Node3D" parent="." instance=ExtResource("5_fgmtq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.5, 0, -2.9)
+
+[node name="LeftPost" type="Node3D" parent="." instance=ExtResource("5_fgmtq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.38, 0, 0)
+
+[node name="CoolantRun" type="Node3D" parent="." instance=ExtResource("6_luwul")]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -3.29, 2.87, -2)
+
+[node name="CoolantReturn" type="Node3D" parent="." instance=ExtResource("6_luwul")]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -3.29, 2.87, 2)
+
+[node name="OverheadTray" type="Node3D" parent="." instance=ExtResource("7_wb5fx")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4, -2.85)
+
+[node name="WallFixture" type="Node3D" parent="." instance=ExtResource("8_qwsv3")]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -3.26, 2.33, -2)
+
+[node name="DividerFixture" type="Node3D" parent="." instance=ExtResource("8_qwsv3")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.75, 2.88, -2.53)
+
+[node name="ReturnAir" type="Node3D" parent="." instance=ExtResource("9_e7kii")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.77, 0.68, -2.53)
+
+[node name="StoresCrate" type="Node3D" parent="." instance=ExtResource("10_4mleb")]
+transform = Transform3D(0.97437006, 0, -0.22495106, 0, 1, 0, 0.22495106, 0, 0.97437006, -2.71, 0, 1.13)
+
+[node name="AccessTerminal" type="Node3D" parent="." instance=ExtResource("11_8gv86")]
+transform = Transform3D(0.94551855, 0, -0.32556817, 0, 1, 0, 0.32556817, 0, 0.94551855, 1.35, 0, -1.88)
+
+[node name="BulkheadStencil" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 3.27, -3.735)
+pixel_size = 0.0018
+modulate = Color(0.81960785, 0.7490196, 0.58431375, 1)
+text = "S E C T O R   0 3   /   C O N T A I N M E N T"
+font_size = 40
+outline_size = 0
+
+[node name="ServiceStencil" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.75, 1.89, -2.64)
+pixel_size = 0.0018
+modulate = Color(0.81960785, 0.7490196, 0.58431375, 1)
+text = "AIR RETURN  /  B-04"
+font_size = 35
+outline_size = 0
+
+[node name="FloorStencil" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, -2, 0.009, -2.81)
+pixel_size = 0.0018
+modulate = Color(0.81960785, 0.7490196, 0.58431375, 1)
+text = "03"
+font_size = 90
+outline_size = 0
+
+[node name="TerminalStencil" type="Label3D" parent="."]
+transform = Transform3D(0.94551855, 0, -0.32556817, 0, 1, 0, 0.32556817, 0, 0.94551855, 1.39, 1.42, -1.6)
+pixel_size = 0.0018
+modulate = Color(0.81960785, 0.7490196, 0.58431375, 1)
+text = "ACCESS"
+font_size = 14
+outline_size = 0
+
+[node name="Environment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_50m8m")
+
+[node name="EntryLight" type="SpotLight3D" parent="."]
+transform = Transform3D(0.8783888, -0.1850084, 0.44068703, 0, 0.922042, 0.38708997, -0.4779468, -0.3400155, 0.8099114, 1.9, 4.15, 2.9)
+light_color = Color(0.7647059, 0.89411765, 0.98039216, 1)
+light_energy = 4.6
+shadow_enabled = true
+shadow_bias = 0.16
+shadow_normal_bias = 2.1
+spot_range = 14.0
+spot_angle = 57.0
+
+[node name="GrazingLight" type="SpotLight3D" parent="."]
+transform = Transform3D(-0.17859966, -0.6216311, 0.76267755, 0, 0.77514046, 0.6317891, -0.9839219, 0.112837315, -0.1384398, -0.45, 3.91, -1.55)
+light_color = Color(0.5882353, 0.79607844, 0.8509804, 1)
+light_energy = 2.6
+shadow_enabled = true
+shadow_bias = 0.16
+shadow_normal_bias = 2.1
+spot_range = 8.0
+spot_angle = 55.0
+
+[node name="ServiceLight" type="SpotLight3D" parent="."]
+transform = Transform3D(0.856456, -0.44092986, 0.26844746, 0, 0.52002525, 0.8541509, -0.5162201, -0.73154265, 0.4453787, 2.9, 3.72, -1.3)
+light_color = Color(1, 0.88235295, 0.65882355, 1)
+light_energy = 2.3
+shadow_enabled = true
+shadow_bias = 0.16
+shadow_normal_bias = 2.1
+spot_range = 5.5
+spot_angle = 62.0
+
+[node name="ContainmentLight" type="SpotLight3D" parent="."]
+transform = Transform3D(0.99959207, 0.025250088, -0.013345114, 0, 0.46727008, 0.8841146, 0.028559744, -0.88375396, 0.46707946, -2.1, 3.56, -5.7)
+light_color = Color(0.98039216, 0.4745098, 0.28235295, 1)
+light_energy = 4.0
+shadow_enabled = true
+shadow_bias = 0.16
+shadow_normal_bias = 2.1
+spot_range = 7.0
+spot_angle = 58.0
+
+[node name="FillLight" type="SpotLight3D" parent="."]
+transform = Transform3D(0.8655103, 0.24589972, -0.43637738, 0, 0.8712021, 0.49092454, 0.5008911, -0.42490023, 0.7540344, -2, 3.7, 4.2)
+light_color = Color(0.8235294, 0.8862745, 0.93333334, 1)
+light_energy = 1.55
+shadow_bias = 0.16
+shadow_normal_bias = 2.1
+spot_range = 10.0
+spot_angle = 56.0
+
+[node name="CorridorCamera" type="Camera3D" parent="."]
+transform = Transform3D(0.9404124, -0.005419212, 0.3399929, 0, 0.99987304, 0.015937166, -0.3400361, -0.014987509, 0.94029295, 2.35, 2.06, 4.95)
+current = true
+fov = 53.0
+
+[node name="ServiceCamera" type="Camera3D" parent="."]
+transform = Transform3D(0.8659055, 0.037738666, -0.49878192, 0, 0.9971499, 0.07544602, 0.50020754, -0.06532912, 0.8634376, -2.99, 2.42, 2.85)
+fov = 53.0

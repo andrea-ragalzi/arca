@@ -1,0 +1,10 @@
+[gd_resource type="StandardMaterial3D" load_steps=2 format=3]
+
+[ext_resource type="Texture2D" path="res://arca/assets/environment/kit/metal_grain.res" id="1_escee"]
+
+[resource]
+resource_name = "Hazard Trim"
+albedo_color = Color(0.7490196, 0.5372549, 0.20392157, 1)
+albedo_texture = ExtResource("1_escee")
+metallic = 0.25
+roughness = 0.62

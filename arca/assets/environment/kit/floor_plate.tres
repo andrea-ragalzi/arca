@@ -1,0 +1,10 @@
+[gd_resource type="StandardMaterial3D" load_steps=2 format=3]
+
+[ext_resource type="Texture2D" path="res://arca/assets/environment/kit/metal_grain.res" id="1_cjy61"]
+
+[resource]
+resource_name = "Floor Plate"
+albedo_color = Color(0.32156864, 0.38039216, 0.40784314, 1)
+albedo_texture = ExtResource("1_cjy61")
+metallic = 0.35
+roughness = 0.78

@@ -104,10 +104,10 @@ Current sprint: [SPRINT_01.md](SPRINT_01.md). Workflow: [docs/PARALLEL_DEVELOPME
 
 ## D-01: Modular environment kit
 
-- Status: Ready: worktree prepared, not started
+- Status: Implemented and ready for visual approval.
 - Branch: `s1/d01-environment-kit`
-- Validation: -
-- Blockers: -
+- Validation: Full gate 625/0. Kit suite 115/0. Two consecutive bakes matched byte for byte. Two X11/Compatibility captures saved locally.
+- Blockers: Visual approval pending.
 
 ## D-02: Gameplay prop set
 
