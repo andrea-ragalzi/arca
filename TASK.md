@@ -20,14 +20,14 @@ Current sprint: [SPRINT_01.md](SPRINT_01.md). Workflow: [docs/PARALLEL_DEVELOPME
 
 ## S1-02: Raptor hit reaction and alert roar
 
-- Status: Implemented and committed on its branch; NOT merged until user F5 acceptance
+- Status: Merged into `main` on 2026-11-24 after user approval
 - Branch: `s1/02-raptor-reactions`
 - Validation: Worktree gate 649 checks / 0 failures (raptor 83 = 59 existing + 24 new); mutation-checked. Details in docs/tasks/S1-02.md.
-- Blockers: User F5 (README "Hit reaction and alert roar")
+- Blockers: -
 
 ## S1-03: Multiple predators lifecycle
 
-- Status: Implemented and committed on its branch; not merged (merge order: after S1-01 and S1-02)
+- Status: Merged into `main` on 2026-11-24; `multi_predator` registered in the gate
 - Branch: `s1/03-multi-predator`
 - Validation: Worktree gate 625/0 plus new `multi_predator_test.gd` 19/0 (mutation-checked); combined preview with S1-02: 668/0.
 - Blockers: -
@@ -48,7 +48,7 @@ Current sprint: [SPRINT_01.md](SPRINT_01.md). Workflow: [docs/PARALLEL_DEVELOPME
 
 ## S1-06: Regina death and hit reactions
 
-- Status: Implemented, pending F5 acceptance
+- Status: Merged into `main` on 2026-11-24 after user approval
 - Branch: `s1/06-regina-reactions`
 - Validation: Full gate 635 checks / 0 failures, plus 93 static and 68 locomotion checks. See docs/tasks/S1-06.md Record.
 - Blockers: -
@@ -104,10 +104,10 @@ Current sprint: [SPRINT_01.md](SPRINT_01.md). Workflow: [docs/PARALLEL_DEVELOPME
 
 ## D-01: Modular environment kit
 
-- Status: Implemented and ready for visual approval.
+- Status: Merged into `main` on 2026-11-24 after user approval; `environment_kit` registered in the gate
 - Branch: `s1/d01-environment-kit`
 - Validation: Full gate 625/0. Kit suite 115/0. Two consecutive bakes matched byte for byte. Two X11/Compatibility captures saved locally.
-- Blockers: Visual approval pending.
+- Blockers: -
 
 ## D-02: Gameplay prop set
 
