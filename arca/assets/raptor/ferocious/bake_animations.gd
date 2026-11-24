@@ -8,7 +8,7 @@ const MAPPING: Dictionary = {
 	"Attack": "Bite_02", "Death": "Death_01", "Jump": "Leap_01",
 	"Hurt": "Hurt_01", "Roar": "Roar_03",
 	# Godot strips the source loop suffix when importing Sleep_Loop.
-	"Sleep": "Sleep", "Wake": "Wake From Sleep",
+	"Sleep": "Sleep", "Wake": "Wake From Sleep", "Rush": "Tackle",
 }
 # Distances measured from the original FBX root-motion equivalents, in metres.
 const WALK_DISTANCE: float = 2.9
@@ -17,9 +17,9 @@ const ATTACK_START: float = 14.0 / 24.0
 # Reaction windows [start, end] in source seconds, retimed to gameplay durations.
 # Hurt_01 recoils at 0.25-0.62 s and is back near rest by 1.0 s.
 # Roar_03 opens its jaw at 0.5-1.25 s (peak ~0.62 s) and is back near rest by 1.375 s.
-const WINDOWS: Dictionary = {"Hurt": [0.0, 1.0], "Roar": [0.25, 1.375]}
+const WINDOWS: Dictionary = {"Hurt": [0.0, 1.0], "Roar": [0.25, 1.375], "Rush": [0.0, 0.85]}
 # Must match ArcaRaptor.stagger_duration and the unchanged 0.7 s ALERT phase.
-const REACTION_DURATIONS: Dictionary = {"Hurt": 0.5, "Roar": 0.7}
+const REACTION_DURATIONS: Dictionary = {"Hurt": 0.5, "Roar": 0.7, "Rush": 0.74}
 
 func _initialize() -> void:
 	call_deferred("run")
@@ -57,7 +57,7 @@ func run() -> void:
 				for name: StringName in reference.get_animation_list():
 					if str(name).ends_with("_" + action):
 						duration = reference.get_animation(name).length
-			"Hurt", "Roar": duration = REACTION_DURATIONS[action]
+			"Hurt", "Roar", "Rush": duration = REACTION_DURATIONS[action]
 		var animation: Animation = original.duplicate(true) as Animation
 		animation.resource_name = "Ferocious_" + action
 		animation.resource_local_to_scene = true

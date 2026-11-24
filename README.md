@@ -45,6 +45,7 @@ Keep this same `ARCA` folder for future work. Commits identify changes; folder a
 | WASD / mouse | Move / look |
 | Right mouse / left mouse | Aim / fire while aiming |
 | Space | Jump |
+| Q + A/D | Sidestep. Press Q while downed to break free. |
 | E | Interact with the nearest reachable object |
 | R | Reload the pistol |
 | Backspace | Restart the whole mission |
@@ -90,11 +91,19 @@ F5 checklist:
 3. Let it start a bite (the orange `!` marker), then shoot it: the bite should be cancelled and you shouldn't lose health.
 4. Pause during a flinch and resume: the flinch continues from where it froze. Kill it during a flinch: the death plays once.
 
+## Pack Training
+
+From the title choose **Pack Training** to enter the maintenance test bay with three Velociraptors. An exposed player can be seen from across the bay. Gunfire brings the pack towards the last audible shot. Break sight behind a barrier to test searching and flanking. Watch the lead animal give ground after an attack while a nearby partner approaches. The calls and short replies are spatialized.
+
+Approach the short side of the desk, workbench or platform. Hold movement towards the top and tap **Space** near the approach to jump onto it. The desk ramp also reaches the top. Step to one side to leave room for a pursuing raptor's landing.
+
+Use **Q + A/D** to sidestep a windup, **Q** to break free after a pounce, **1 / 2** to select a sidearm, **R** to reload, **Backspace** to reset the drill and **Esc → Return to Title** to leave. The drill has its own room and roster and does not advance mission progress.
+
 ## Inspect the Regina character
 
-Press **F5** to play the mission as Regina. Her gameplay model, animation bake and primitive prototype handgun are integrated into the shared ARCA player; the original TPS controller, camera, collision and projectile behavior remain in use. The base `player/player.tscn` remains the unchanged visible-robot reference. For the separate idle/walk/run experiment, open **`arca/character_locomotion_test.tscn`** and press **F6**; it still inherits the static `arca/character_test.tscn` and its inspection lighting, ruler and visual corrections.
+Press **F5** and choose **New Game** or **Pack Training** to play as Regina. Her dark field uniform, red panels, S.O.R.T. patch and fitted pack are integrated into the shared ARCA player with the animation bake and prototype handgun; the existing TPS controller, camera and collision drive the new pistol trace from camera aim to muzzle impact. The base `player/player.tscn` remains the unchanged visible-robot reference. For the separate idle/walk/run experiment, open **`arca/character_locomotion_test.tscn`** and press **F6**; it still inherits the static `arca/character_test.tscn` and its inspection lighting, ruler and visual corrections.
 
-**Current F5 locomotion status:** facing and low-hop physics have been corrected. Regina now keeps a camera-forward heading outside aim too, using W forward, S backward and A/D side steps. Her hop measures about **0.324 m / 0.50 s**. The two Quaternius UAL2 lateral walks pass the skinned sole-contact tests. The final F5 sweep covers gait and aim during side steps. The original robot keeps its old turn-to-travel policy and 5 m/s jump.
+**Current F5 locomotion status:** facing and low-hop physics have been corrected. Regina now keeps a camera-forward heading outside aim too, using W forward, S backward and A/D side steps. Her open-floor hop measures about **0.447 m / 0.60 s**. At a marked approach, movement input and **Space** can launch a longer hop onto a clear work surface. The two Quaternius UAL2 lateral walks pass the skinned sole-contact tests. The final F5 sweep covers gait and aim during side steps. The original robot keeps its old turn-to-travel policy and 5 m/s jump.
 
 **Current weapon status:** Regina's vertical aim uses Quaternius pistol poses rebased against the human neutral pose. Sampled tests confirm the barrel pitches in the expected direction and remains forward at both camera limits. Both hands clear the slide and barrel in the sampled endpoint poses. The user accepted the vertical aim F5 result on 2026-11-22.
 

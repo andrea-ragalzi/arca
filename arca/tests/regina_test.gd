@@ -119,8 +119,8 @@ func run() -> void:
 	var model: Node3D = scene.get_node("ModelPivot/Regina")
 	var camera: Camera3D = scene.get_node("Camera3D")
 	check(camera.is_current(), "Inspection scene has a current camera")
-	check(ProjectSettings.get_setting("application/run/main_scene") == "res://arca/mission_room.tscn",
-		"F5 main scene remains the mission")
+	check(ProjectSettings.get_setting("application/run/main_scene") == "res://arca/ui/title_screen.tscn",
+		"F5 starts the title instead of the Regina inspection scene")
 	var skeletons: Array[Node] = model.find_children("*", "Skeleton3D", true, false)
 	check(skeletons.size() == 1, "Exactly one imported Skeleton3D")
 	if skeletons.size() != 1:

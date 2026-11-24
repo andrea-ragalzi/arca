@@ -1,0 +1,21 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="PackedScene" path="res://arca/raptor_room.tscn" id="1"]
+[ext_resource type="Script" path="res://arca/pack_arena.gd" id="2"]
+[ext_resource type="PackedScene" path="res://arca/enemies/raptor.tscn" id="3"]
+
+[node name="PackArena" instance=ExtResource("1")]
+script = ExtResource("2")
+
+[node name="CenterStart" type="Marker3D" parent="."]
+position = Vector3(0, 0.05, 2.7)
+
+[node name="WingLeft" parent="." instance=ExtResource("3")]
+position = Vector3(-7.1, 0.05, 2.1)
+rotation = Vector3(0, -0.36, 0)
+preferred_voice = 2
+
+[node name="WingRight" parent="." instance=ExtResource("3")]
+position = Vector3(7.1, 0.05, 3.5)
+rotation = Vector3(0, 0.36, 0)
+preferred_voice = 1

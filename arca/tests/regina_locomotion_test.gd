@@ -315,7 +315,8 @@ func run() -> void:
 	for mesh: MeshInstance3D in scene.get_node("ModelPivot/Regina").find_children("*", "MeshInstance3D", true, false):
 		skin_vertices(mesh, true)
 	check(soles.size() > 50, "Contact probes come from actual reference-pose sole vertices")
-	check(ProjectSettings.get_setting("application/run/main_scene") == "res://arca/mission_room.tscn", "F5 remains the original mission")
+	check(ProjectSettings.get_setting("application/run/main_scene") == "res://arca/ui/title_screen.tscn",
+		"F5 starts the title instead of the locomotion preview")
 	var library: AnimationLibrary = load("res://arca/assets/characters/regina/locomotion.tres")
 	test_library(library)
 	test_motion(library)

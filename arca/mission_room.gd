@@ -7,6 +7,7 @@ enum AmbushPhase { IDLE, WARNING, OPENING, EMERGING, ACTIVE, CANCELLED }
 
 const HATCH_OPEN_DURATION: float = 1.0
 const HATCH_LIFT: float = 3.3
+const VELOCIRAPTOR_BEHAVIOR := preload("res://arca/enemies/velociraptor_behavior.tres")
 const MISSION_AUDIO := preload("res://arca/audio/mission_audio.tscn")
 const CHECKPOINT_SCENE := preload("res://arca/interactables/checkpoint.tscn")
 const Checkpoint := preload("res://arca/interactables/checkpoint.gd")
@@ -39,12 +40,15 @@ var ambush_phase: AmbushPhase = AmbushPhase.IDLE
 var hatch_elapsed: float = 0.0
 var hatch_closed_y: float
 var mission_seconds: float = 0.0
+var contained_snort_played: bool = false
 var shots_fired: int = 0
 var damage_taken: int = 0
 var predators_killed: int = 0
 
 func _ready() -> void:
 	super._ready()
+	for predator: ArcaRaptor in get_predators():
+		predator.behavior = VELOCIRAPTOR_BEHAVIOR
 	mission_audio = MISSION_AUDIO.instantiate()
 	add_child(mission_audio)
 	player.player_input.camera_base.rotation.y = 1.1
@@ -60,7 +64,7 @@ func _ready() -> void:
 	player.health_component.damaged.connect(func(amount: int): damage_taken += amount)
 	hud.get_node("Frame/Subtitle").text = "CONTINUITY STATION   /   POWER RESTORATION"
 	hud.get_node("Frame/Tag").text = "MAINTENANCE SECTOR / POWER RESTORATION\nTEMPORARY ART AND ENVIRONMENT"
-	hud.get_node("Frame/Controls").text = "WASD  move    /    MOUSE  camera\nRMB  aim    /    LMB  fire    /    SPACE  jump\nE  interact    /    R  reload\nBACKSPACE  restart    /    ESC  pause"
+	hud.get_node("Frame/Controls").text = "WASD  move    /    MOUSE  camera\nRMB  aim    /    LMB  fire    /    SPACE  jump\nE  interact    /    R  reload    /    Q  dodge or break free\nBACKSPACE  restart    /    ESC  pause"
 	var anchor: Marker3D = $ControlOffice/Markers/Checkpoint
 	var terminal: Node3D = CHECKPOINT_SCENE.instantiate()
 	terminal.transform = anchor.transform
@@ -78,13 +82,19 @@ func _physics_process(delta: float) -> void:
 	if mission_complete or player.health_component.current <= 0:
 		return
 	mission_seconds += delta
+	if not power_restored and not contained_snort_played and mission_seconds > 3.0 \
+			and player.global_position.distance_squared_to($ServiceHatch/ContainedSnort.global_position) <= 144.0:
+		contained_snort_played = true
+		$ServiceHatch/ContainedSnort.play()
 	if power_restored and not reached_security and security_corridor.to_local(player.global_position).z > 1.0:
 		reached_security = true
 		_update_objective()
 	_advance_ambush(delta)
 	interaction_target = _find_interaction_target()
 	var text: String = ""
-	if is_instance_valid(interaction_target):
+	if player.is_downed():
+		text = "[ Q ]  Break free"
+	elif player.can_use_weapon() and is_instance_valid(interaction_target):
 		text = "[ E ]  " + interaction_target.get_prompt(self)
 	hud.set_interaction(text)
 	if notice_remaining > 0.0:
@@ -139,7 +149,7 @@ func _find_interaction_target() -> ArcaInteractionPoint:
 	return nearest
 
 func try_interact() -> bool:
-	if get_tree().paused or mission_complete or player.health_component.current <= 0:
+	if get_tree().paused or mission_complete or not player.can_use_weapon():
 		return false
 	# One action per press: a second press delivered in the same frame is ignored.
 	var frame: int = Engine.get_process_frames()
@@ -186,9 +196,12 @@ func _on_panel_powered() -> void:
 	if power_restored or mission_complete or player.health_component.current <= 0:
 		return
 	power_restored = true
+	$ServiceHatch/ContainedSnort.stop()
 	consume_key_item(&"fuse")
 	$PowerSound.play()
 	mission_audio.get_node("Alarm").play()
+	for predator: ArcaRaptor in get_predators():
+		predator.hear_noise(global_position + Vector3(2.0, 0, 8.55), 8.0, false)
 	door.open()
 	hud.set_interaction("")
 	ambush_remaining = maxf(ambush_delay, 0.0)
@@ -321,8 +334,7 @@ func save_checkpoint(spawn: Transform3D) -> bool:
 	Checkpoint.snapshot = {
 		"spawn": spawn,
 		"health": player.health_component.current,
-		"magazine": player.ammo_component.magazine,
-		"reserve": player.ammo_component.reserve,
+		"weapons": player.capture_ammo_state(),
 		"keys": key_items.duplicate(),
 		"pickups": collected_paths.duplicate(),
 		"predators": saved_predators,
@@ -392,9 +404,7 @@ func _restore_checkpoint(saved: Dictionary) -> void:
 	player.reset_physics_interpolation()
 	player.health_component.current = saved["health"]
 	player.health_component.changed.emit(player.health_component.current, player.health_component.max_health)
-	player.ammo_component.magazine = saved["magazine"]
-	player.ammo_component.reserve = saved["reserve"]
-	player.ammo_component.changed.emit(player.ammo_component.magazine, player.ammo_component.reserve)
+	player.restore_ammo_state(saved.get("weapons", {"primary": [saved.get("magazine", 12), saved.get("reserve", 12)]}))
 
 	mission_seconds = saved["seconds"]
 	shots_fired = saved["shots"]

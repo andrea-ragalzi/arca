@@ -209,7 +209,7 @@ func reaction_checks() -> void:
 func run() -> void:
 	await reset_room()
 	var predator: ArcaRaptor = room.enemy
-	check(predator.clips.size() == 10, "Ten real source-backed gameplay animation bindings are loaded")
+	check(predator.clips.size() == 11, "Eleven real source-backed gameplay animation bindings are loaded")
 	await presentation_checks(predator)
 	check(room.get_node("NavigationRegion3D").navigation_mesh.get_polygon_count() > 10,
 		"Baked navigation geometry is present")

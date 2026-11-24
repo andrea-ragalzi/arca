@@ -37,6 +37,14 @@ func move_to_exit_fixture() -> void:
 	var zone := room.get_node("ExitZone") as Area3D
 	await move_player(Vector3(zone.position.x, 0.05, zone.position.z))
 
+func hold_navigation_target(predator: ArcaRaptor, target: Vector3) -> void:
+	# These long routes isolate the navmesh after a known target was supplied.
+	predator.behavior = predator.behavior.duplicate()
+	predator.behavior.memory_duration = 40.0
+	predator.last_known_position = target
+	predator.time_out_of_sight = 0.0
+	predator._change_state(ArcaRaptor.State.CHASE)
+
 func approach_fuse() -> void:
 	await move_player(FUSE_APPROACH)
 
@@ -212,7 +220,7 @@ func run() -> void:
 	room.enemy.activate_ambush()
 	room.enemy.position = Vector3(-2.5, 0.05, 7)
 	await approach_fuse()
-	room.enemy.hit()
+	hold_navigation_target(room.enemy, room.player.position)
 	var passed_entrance: bool = false
 	var passed_screen: bool = false
 	for i in 1500:
@@ -226,6 +234,7 @@ func run() -> void:
 	check(passed_entrance and passed_screen and room.enemy.position.distance_to(room.player.position) < 2.0,
 		"Raptor reaches the fuse via the corridor entrance and screened alcove without getting stuck")
 	await move_player(Vector3(1, 0.05, -9.5))
+	hold_navigation_target(room.enemy, room.player.position)
 	for i in 1200:
 		await frames(1)
 		if room.enemy.position.distance_to(room.player.position) < 2.0:

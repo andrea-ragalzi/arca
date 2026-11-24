@@ -17,6 +17,12 @@ script = ExtResource("3_health")
 [node name="AmmoComponent" type="Node" parent="."]
 script = ExtResource("4_ammo")
 
+[node name="BackupAmmo" type="Node" parent="."]
+script = ExtResource("4_ammo")
+magazine_size = 6
+magazine = 6
+reserve = 0
+
 [node name="DryFire" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("5_click")
 volume_db = -16.0

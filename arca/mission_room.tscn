@@ -1,4 +1,4 @@
-[gd_scene load_steps=49 format=3]
+[gd_scene load_steps=51 format=3]
 
 [ext_resource type="PackedScene" path="res://arca/raptor_room.tscn" id="1"]
 [ext_resource type="Script" path="res://arca/mission_room.gd" id="2"]
@@ -20,6 +20,10 @@
 [ext_resource type="PackedScene" path="res://arca/interactables/key_item_pickup.tscn" id="15_keycard"]
 [ext_resource type="PackedScene" path="res://arca/interactables/locked_door.tscn" id="16_locked"]
 [ext_resource type="PackedScene" path="res://arca/interactables/note.tscn" id="17_note"]
+
+[ext_resource type="PackedScene" path="res://arca/areas/maintenance_dressing.tscn" id="18_maintenance"]
+
+[ext_resource type="AudioStream" path="res://arca/audio/raptor/hurt_02.wav" id="19_throat"]
 
 [sub_resource type="StandardMaterial3D" id="Partition"]
 albedo_color = Color(0.13, 0.19, 0.21, 1)
@@ -147,6 +151,9 @@ visible = false
 
 [node name="Collision" parent="WallFront" index="1"]
 disabled = true
+
+[node name="SignSide" parent="."]
+visible = false
 
 [node name="FusePickup" parent="." instance=ExtResource("3")]
 position = Vector3(6.7, 1.0, 8.8)
@@ -380,7 +387,7 @@ shape = SubResource("HatchHeaderShape")
 [node name="Sign" type="Label3D" parent="ServiceHatch"]
 position = Vector3(1.83, 3.5, 8.55)
 rotation_degrees = Vector3(0, -90, 0)
-text = "SERVICE HATCH\nKEEP CLEAR"
+text = "SERVICE HATCH\nLIVE CARGO LOCK"
 font_size = 48
 pixel_size = 0.005
 modulate = Color(1, 0.8, 0.3, 1)
@@ -406,6 +413,14 @@ mesh = SubResource("HatchRibMesh")
 [node name="UpperRib" type="MeshInstance3D" parent="ServiceHatch/Leaf"]
 position = Vector3(-0.15, 0.8, 0)
 mesh = SubResource("HatchRibMesh")
+
+[node name="ContainedSnort" type="AudioStreamPlayer3D" parent="ServiceHatch"]
+position = Vector3(4.1, 1.1, 8.55)
+stream = ExtResource("19_throat")
+volume_db = -23.0
+pitch_scale = 0.71
+unit_size = 4.5
+max_distance = 15.0
 
 [node name="BayLight" type="OmniLight3D" parent="ServiceHatch"]
 position = Vector3(3.9, 2.8, 8.55)
@@ -457,12 +472,14 @@ mesh = SubResource("ThresholdFloorMesh")
 [node name="Collision" type="CollisionShape3D" parent="ThresholdFloor"]
 shape = SubResource("ThresholdFloorShape")
 
+[node name="MaintenanceDressing" parent="." instance=ExtResource("18_maintenance")]
+
 [node name="SecurityCorridor" parent="." instance=ExtResource("11_corridor")]
 position = Vector3(0, 0, 14.2)
 
 [node name="SleepingRaptor" parent="SecurityCorridor" instance=ExtResource("14_raptor")]
-position = Vector3(-4, 0.05, 8.95)
-rotation = Vector3(0, 1.5707963, 0)
+position = Vector3(-3.75, 0.05, 9.35)
+rotation = Vector3(0, 2.7488936, 0)
 start_mode = 1
 
 [node name="StationLog" parent="SecurityCorridor" instance=ExtResource("17_note")]
@@ -488,14 +505,14 @@ position = Vector3(-5.2, 0.1, 1.4)
 [node name="StationLog" parent="ControlOffice" instance=ExtResource("17_note")]
 position = Vector3(-3.4, 0.85, 4)
 title = "Control Office Log"
-body = "Security log, 03:21\n\nMaintenance has lost contact with the hatch team. The lift will still accept the security keycard. Keep the cabin clear until everyone is through."
+body = "Security log, 03:21\n\nThe power dip stalled the freight shutter during feeding. Two animals forced it. One crossed the security gate before it fell shut and went toward the condensate line. The other doubled back to freight.\n\nThe freight bulkhead is shut now. The lift still takes the keycard."
 
 [node name="ExitLift" parent="." instance=ExtResource("13_lift")]
 position = Vector3(0, 0, 44.7)
 
 [node name="FinalRaptor" parent="ExitLift" instance=ExtResource("14_raptor")]
-position = Vector3(-5.6, 0.05, 11.5)
-rotation = Vector3(0, 2.0943951, 0)
+position = Vector3(-9.35, 0.05, 11.5)
+rotation = Vector3(0, -1.5707963, 0)
 
 [node name="AmmoPickup" parent="ExitLift" instance=ExtResource("9_ammo")]
 position = Vector3(5.9, 0.1, 1.6)

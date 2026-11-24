@@ -19,9 +19,14 @@ func run() -> void:
 	var lift := room.get_node_or_null("ExitLift") as Node3D
 	check(corridor != null and office != null and lift != null, "The mission contains the three connected route areas")
 	if corridor != null and office != null and lift != null:
+		var final_raptor := lift.get_node("FinalRaptor") as ArcaRaptor
+		check(final_raptor.position.x < -7.5 and final_raptor.visible
+			and final_raptor.state == ArcaRaptor.State.WAIT,
+			"The final raptor starts physically in the freight gallery beyond the breach")
 		await navigation_checks()
 		await walk_route(office)
 		await chase_checks()
+		await freight_discovery_check()
 	print("ROUTE RESULT: %d checks, %d failures" % [checks, failures])
 	paused = false
 	room.stop_audio()
@@ -122,7 +127,7 @@ func chase_checks() -> void:
 		actor.combat_enabled = true
 		actor.attack_range = 0.1
 		actor.set_physics_process(true)
-		actor._change_state(ArcaRaptor.State.CHASE)
+		hold_navigation_target(actor, room.player.position)
 		for frame: int in range(1500):
 			await frames(1)
 			if actor.global_position.distance_to(room.player.global_position) < 1.5 and actor.agent.is_navigation_finished():
@@ -131,3 +136,17 @@ func chase_checks() -> void:
 			"%s follows its path into pursuit range (actual %s)" % [actor.name, actor.global_position])
 		actor.stop_combat()
 		actor.collision_mask = 0
+
+
+func freight_discovery_check() -> void:
+	await reset_mission()
+	var raptor := room.get_node("ExitLift/FinalRaptor") as ArcaRaptor
+	raptor.combat_enabled = true
+	await move_player(Vector3(-4.75, 0.05, 56.2))
+	for tick: int in range(200):
+		await frames(1)
+		if raptor.position.x > -6.8:
+			break
+	check(raptor.position.x > -6.8 and raptor.state != ArcaRaptor.State.WAIT,
+		"Normal detection brings the freight raptor through the wrecked shutter (actual %s, %s)"
+			% [raptor.global_position, raptor.get_status_text()])

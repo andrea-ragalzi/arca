@@ -204,6 +204,7 @@ func run() -> void:
 		and room.player.health_component.current == 100,
 		"Normal combat starts only after the raptor clears the hatch, with no early damage")
 	var start_distance: float = room.enemy.position.distance_to(room.player.position)
+	hold_navigation_target(room.enemy, room.player.position)
 	await frames(150)
 	check(room.enemy.position.distance_to(room.player.position) < start_distance - 2.0,
 		"The emerged predator has a usable navigation route around cover")

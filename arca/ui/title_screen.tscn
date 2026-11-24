@@ -126,6 +126,13 @@ theme_override_styles/normal = SubResource("Primary")
 text = "New Game"
 alignment = 0
 
+[node name="PackTraining" type="Button" parent="Menu"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+text = "Pack Training"
+alignment = 0
+
 [node name="Controls" type="Button" parent="Menu"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 44)
@@ -138,7 +145,7 @@ unique_name_in_owner = true
 visible = false
 layout_mode = 2
 theme_override_font_sizes/font_size = 15
-text = "WASD  Move     Mouse  Look\nRMB  Aim     LMB  Fire     R  Reload\nE  Interact     Space  Jump\nEsc  Pause     Backspace  Restart\nF3  Telemetry"
+text = "WASD  Move     Mouse  Look\nRMB  Aim     LMB  Fire     R  Reload\nE  Interact     Space  Jump     Q  Dodge\nEsc  Pause     Backspace  Restart\nF3  Telemetry"
 
 [node name="Quit" type="Button" parent="Menu"]
 unique_name_in_owner = true

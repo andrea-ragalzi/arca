@@ -136,3 +136,66 @@ Current sprint: [SPRINT_01.md](SPRINT_01.md). Workflow: [docs/PARALLEL_DEVELOPME
 - Branch: `s1/d05-area-dressing`
 - Validation: Gameplay gate 1002/0, identical collision and markers, deterministic bake, three X11 stills.
 - Blockers: F5 mood and F3 frame-rate review in S1-12.
+
+## S2-01: Environmental continuity
+
+- Status: Integrated into `main`
+- Branch: `s2/environment-continuity`
+- Validation: 1191 headless checks, including 127 area and 50 route checks. Five X11/Compatibility previews.
+- Blockers: Live F5 review of detail readability and performance. See docs/tasks/S2-01.md.
+
+## S2-02: Predator senses, physical combat and pack coordination
+
+- Status: Integrated into `main`
+- Branch: `s2/environment-continuity`
+- Validation: Full gate 1385/0. Route 50, perception 9, physical combat 23, audio 18. RTX 3050 X11/Compatibility captures.
+- Blockers: Live difficulty and mix review. Regina's outfit and floor recovery continued in S2-03 and S2-05.
+
+## S2-03: Regina field outfit and Pack Training
+
+- Status: Integrated into `main`
+- Branch: `s2/environment-continuity`
+- Validation: See [S2-03](docs/tasks/S2-03.md) for the gameplay checks, Godot renders and audio capture.
+- Blockers: Art pass for detailed cloth, boot and strap meshes. Playtest tuning for difficulty and final mix.
+
+## S2-04: Raptor repertoire and surface jumps
+
+- Status: Integrated into `main`
+- Branch: `s2/environment-continuity`
+- Validation: See [S2-04](docs/tasks/S2-04.md) for Godot tests, rendering and pack measurements.
+- Blockers: A live playthrough and final animation polish remain. The supplied dam reference is a stereo audio demo.
+
+## S2-05: TPS surface jumps and combat mix
+
+- Status: Integrated into `main`
+- Branch: `s2/environment-continuity`
+- Validation: See [S2-05](docs/tasks/S2-05.md) for player traversal, reaction, pack, mix and profiling results.
+- Blockers: Human listening and a full free-play session remain. Regina's effort voice and floor pose are provisional.
+
+## S2-06: Utility pack tactics, traversal and weapon feedback
+
+- Status: Integrated into `main`
+- Branch: `s2/environment-continuity`
+- Validation: See [S2-06](docs/tasks/S2-06.md) for reproduction, tests, replay, audio and frame timings.
+- Blockers: Human free-play and final animation and sound polish remain.
+
+## S2-07: Arena acquisition and response to gunfire
+
+- Status: Integrated into `main`
+- Branch: `s2/environment-continuity`
+- Validation: See [S2-07](docs/tasks/S2-07.md) for starting sight, cover and live firing checks.
+- Blockers: Human balance playtest remains.
+
+## S2-08: Predator descent recovery
+
+- Status: Integrated into `main`
+- Branch: `s2/environment-continuity`
+- Validation: See [S2-08](docs/tasks/S2-08.md) for the autonomous descent regression checks.
+- Blockers: Human free-play remains.
+
+## S2-09: Occupied deck and blocked ascent
+
+- Status: Integrated into `main`
+- Branch: `s2/environment-continuity`
+- Validation: 1477 headless checks passed, with 80 Pack Training checks also passing on X11/Compatibility. See [S2-09](docs/tasks/S2-09.md).
+- Blockers: Free play of additional combinations remains open.

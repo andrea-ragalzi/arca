@@ -10,7 +10,7 @@ const REQUIRED_MARKERS := {
 const DOORWAYS := {
 	"security_corridor": [Vector3.ZERO, Vector3(-5.25, 0, 11), Vector3(0, 0, 30.25)],
 	"control_office": [Vector3.ZERO],
-	"exit_lift": [Vector3.ZERO, Vector3(0, 0, 14.25)],
+	"exit_lift": [Vector3.ZERO, Vector3(0, 0, 14.25), Vector3(-7.25, 0, 11.5)],
 }
 const WALL_PROBES := {
 	"security_corridor": Vector3(-2.25, 4.65, 5),

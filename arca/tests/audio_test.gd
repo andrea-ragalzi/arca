@@ -27,6 +27,10 @@ func check_playback(audio: Node) -> void:
 	room.set_paused(false)
 	await frames(3)
 	check(not ambience.stream_paused, "Resume resumes the ambience stream")
+	await move_player(Vector3(-3.4, 0.05, 3.8))
+	await frames(195)
+	check(room.contained_snort_played and room.enemy.state == ArcaRaptor.State.DORMANT and not room.enemy.visible,
+		"A one-shot cue comes from the still sealed hatch without waking the encounter")
 
 	var sleeper: ArcaRaptor = room.get_node("SecurityCorridor/SleepingRaptor")
 	var voice: AudioStreamPlayer3D = sleeper.get_node("Voice")

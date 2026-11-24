@@ -1,4 +1,4 @@
-[gd_scene load_steps=39 format=4]
+[gd_scene load_steps=63 format=4]
 
 [ext_resource type="Material" path="res://arca/assets/environment/kit/gasket.tres" id="1_da0a1"]
 [ext_resource type="Material" path="res://arca/assets/environment/kit/floor_plate.tres" id="2_lh62s"]
@@ -206,13 +206,13 @@ size = Vector3(5, 4.8, 0.5)
 material = ExtResource("5_ylu4q")
 size = Vector3(5, 0.18, 0.54)
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_8vasw"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_5uh7c"]
 albedo_color = Color(0.18, 0.23, 0.25, 1)
 metallic = 0.3
 roughness = 0.75
 
 [sub_resource type="BoxMesh" id="BoxMesh_h5jyt"]
-material = SubResource("StandardMaterial3D_8vasw")
+material = SubResource("StandardMaterial3D_5uh7c")
 size = Vector3(3, 1.4, 0.5)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_mhmqe"]
@@ -321,6 +321,103 @@ size = Vector3(0.6, 2, 2.4)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_uovkw"]
 size = Vector3(0.6, 2, 2.4)
+
+[sub_resource type="BoxMesh" id="BoxMesh_vjjrq"]
+material = ExtResource("3_2uvv6")
+size = Vector3(1.26, 0.72, 0.29)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_3oto5"]
+albedo_color = Color(0.31, 0.24, 0.18, 1)
+metallic = 0.44
+roughness = 0.82
+
+[sub_resource type="BoxMesh" id="BoxMesh_13cir"]
+material = SubResource("StandardMaterial3D_3oto5")
+size = Vector3(0.33, 0.38, 0.17)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_4qu2p"]
+albedo_color = Color(0.68, 0.61, 0.44, 1)
+roughness = 0.92
+
+[sub_resource type="BoxMesh" id="BoxMesh_pdqsk"]
+material = SubResource("StandardMaterial3D_4qu2p")
+size = Vector3(0.33, 0.38, 0.17)
+
+[sub_resource type="BoxMesh" id="BoxMesh_4uebx"]
+material = SubResource("StandardMaterial3D_3oto5")
+size = Vector3(0.33, 0.38, 0.17)
+
+[sub_resource type="BoxMesh" id="BoxMesh_yu45n"]
+material = ExtResource("3_2uvv6")
+size = Vector3(1.26, 0.72, 0.29)
+
+[sub_resource type="BoxMesh" id="BoxMesh_elw5i"]
+material = SubResource("StandardMaterial3D_3oto5")
+size = Vector3(0.33, 0.38, 0.17)
+
+[sub_resource type="BoxMesh" id="BoxMesh_qks4k"]
+material = SubResource("StandardMaterial3D_4qu2p")
+size = Vector3(0.33, 0.38, 0.17)
+
+[sub_resource type="BoxMesh" id="BoxMesh_1c5q1"]
+material = SubResource("StandardMaterial3D_3oto5")
+size = Vector3(0.33, 0.38, 0.17)
+
+[sub_resource type="BoxMesh" id="BoxMesh_5a3cd"]
+material = ExtResource("3_2uvv6")
+size = Vector3(1.26, 0.72, 0.29)
+
+[sub_resource type="BoxMesh" id="BoxMesh_jf7a5"]
+material = SubResource("StandardMaterial3D_3oto5")
+size = Vector3(0.33, 0.38, 0.17)
+
+[sub_resource type="BoxMesh" id="BoxMesh_ia0yf"]
+material = SubResource("StandardMaterial3D_4qu2p")
+size = Vector3(0.33, 0.38, 0.17)
+
+[sub_resource type="BoxMesh" id="BoxMesh_x5wk8"]
+material = SubResource("StandardMaterial3D_3oto5")
+size = Vector3(0.33, 0.38, 0.17)
+
+[sub_resource type="BoxMesh" id="BoxMesh_1coyq"]
+material = ExtResource("1_da0a1")
+size = Vector3(2.12, 0.91, 0.065)
+
+[sub_resource type="BoxMesh" id="BoxMesh_weo0v"]
+material = ExtResource("6_ac8gh")
+size = Vector3(1.86, 0.014, 0.012)
+
+[sub_resource type="BoxMesh" id="BoxMesh_rfq80"]
+material = ExtResource("1_da0a1")
+size = Vector3(0.58, 0.36, 0.08)
+
+[sub_resource type="BoxMesh" id="BoxMesh_ve1qq"]
+material = ExtResource("7_nm31p")
+size = Vector3(0.48, 0.26, 0.015)
+
+[sub_resource type="BoxMesh" id="BoxMesh_oecrl"]
+material = ExtResource("1_da0a1")
+size = Vector3(0.42, 0.026, 0.16)
+
+[sub_resource type="BoxMesh" id="BoxMesh_5xnra"]
+material = SubResource("StandardMaterial3D_4qu2p")
+size = Vector3(0.21, 0.006, 0.3)
+
+[sub_resource type="BoxMesh" id="BoxMesh_rrn1k"]
+material = SubResource("StandardMaterial3D_4qu2p")
+size = Vector3(0.21, 0.006, 0.3)
+
+[sub_resource type="BoxMesh" id="BoxMesh_lp44h"]
+material = SubResource("StandardMaterial3D_4qu2p")
+size = Vector3(0.21, 0.006, 0.3)
+
+[sub_resource type="BoxMesh" id="BoxMesh_h4brb"]
+material = SubResource("StandardMaterial3D_4qu2p")
+size = Vector3(0.21, 0.006, 0.3)
+
+[sub_resource type="BoxMesh" id="BoxMesh_lbufg"]
+material = SubResource("StandardMaterial3D_3oto5")
+size = Vector3(0.32, 0.052, 0.26)
 
 [node name="ControlOffice" type="Node3D"]
 
@@ -585,11 +682,112 @@ transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, -3, 
 [node name="ConsoleBackMid" type="Node3D" parent="Dressing" instance=ExtResource("10_faupo")]
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, -1, 0, 9.75)
 
-[node name="AmbushVent" type="Node3D" parent="Dressing" instance=ExtResource("11_ob87v")]
+[node name="AirReturn" type="Node3D" parent="Dressing" instance=ExtResource("11_ob87v")]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 5.95, 2.6, 5.5)
 
 [node name="StripBack" type="Node3D" parent="Dressing" instance=ExtResource("12_f370y")]
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 1.5, 3, 9.95)
+
+[node name="EvacuationRecords" type="Node3D" parent="Dressing"]
+
+[node name="FileBay0" type="MeshInstance3D" parent="Dressing/EvacuationRecords"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.2, 2.15, 9.84)
+mesh = SubResource("BoxMesh_vjjrq")
+
+[node name="File0_0" type="MeshInstance3D" parent="Dressing/EvacuationRecords"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.58, 2.12, 9.65)
+mesh = SubResource("BoxMesh_13cir")
+
+[node name="File0_1" type="MeshInstance3D" parent="Dressing/EvacuationRecords"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.2, 2.12, 9.65)
+mesh = SubResource("BoxMesh_pdqsk")
+
+[node name="File0_2" type="MeshInstance3D" parent="Dressing/EvacuationRecords"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.82, 2.12, 9.65)
+mesh = SubResource("BoxMesh_4uebx")
+
+[node name="FileBay1" type="MeshInstance3D" parent="Dressing/EvacuationRecords"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.77, 2.15, 9.84)
+mesh = SubResource("BoxMesh_yu45n")
+
+[node name="File1_0" type="MeshInstance3D" parent="Dressing/EvacuationRecords"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.15, 2.12, 9.65)
+mesh = SubResource("BoxMesh_elw5i")
+
+[node name="File1_1" type="MeshInstance3D" parent="Dressing/EvacuationRecords"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.77, 2.12, 9.65)
+mesh = SubResource("BoxMesh_qks4k")
+
+[node name="File1_2" type="MeshInstance3D" parent="Dressing/EvacuationRecords"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.39, 2.12, 9.65)
+mesh = SubResource("BoxMesh_1c5q1")
+
+[node name="FileBay2" type="MeshInstance3D" parent="Dressing/EvacuationRecords"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.34, 2.15, 9.84)
+mesh = SubResource("BoxMesh_5a3cd")
+
+[node name="File2_0" type="MeshInstance3D" parent="Dressing/EvacuationRecords"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.72, 2.12, 9.65)
+mesh = SubResource("BoxMesh_jf7a5")
+
+[node name="File2_1" type="MeshInstance3D" parent="Dressing/EvacuationRecords"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.34, 2.12, 9.65)
+mesh = SubResource("BoxMesh_ia0yf")
+
+[node name="File2_2" type="MeshInstance3D" parent="Dressing/EvacuationRecords"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.96, 2.12, 9.65)
+mesh = SubResource("BoxMesh_x5wk8")
+
+[node name="TransferBoard" type="MeshInstance3D" parent="Dressing/EvacuationRecords"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.33, 2.35, 9.95)
+mesh = SubResource("BoxMesh_1coyq")
+
+[node name="Line" type="MeshInstance3D" parent="Dressing/EvacuationRecords/TransferBoard"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.11, -0.037)
+mesh = SubResource("BoxMesh_weo0v")
+
+[node name="TransferStatus" type="Label3D" parent="Dressing/EvacuationRecords"]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0.33, 2.38, 9.905)
+pixel_size = 0.0036
+modulate = Color(0.69, 0.86, 0.79, 1)
+outline_modulate = Color(0.02, 0.03, 0.04, 1)
+text = "FREIGHT STATUS
+01   LIVE CARGO
+02   HOLD / LOCKDOWN"
+font_size = 44
+outline_size = 8
+
+[node name="TerminalScreen" type="MeshInstance3D" parent="Dressing/EvacuationRecords"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.79, 1.11, 4.18)
+mesh = SubResource("BoxMesh_rfq80")
+
+[node name="ScreenImage" type="MeshInstance3D" parent="Dressing/EvacuationRecords"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.79, 1.11, 4.131)
+mesh = SubResource("BoxMesh_ve1qq")
+
+[node name="Keyboard" type="MeshInstance3D" parent="Dressing/EvacuationRecords"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.79, 0.826, 3.86)
+mesh = SubResource("BoxMesh_oecrl")
+
+[node name="LooseReport0" type="MeshInstance3D" parent="Dressing/EvacuationRecords"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.05, 0.818, 4.05)
+mesh = SubResource("BoxMesh_5xnra")
+
+[node name="LooseReport1" type="MeshInstance3D" parent="Dressing/EvacuationRecords"]
+transform = Transform3D(0.62161, 0, 0.7833269, 0, 1, 0, -0.7833269, 0, 0.62161, 3.19, 0.825, 3.93)
+mesh = SubResource("BoxMesh_rrn1k")
+
+[node name="LooseReport2" type="MeshInstance3D" parent="Dressing/EvacuationRecords"]
+transform = Transform3D(-0.22720204, 0, 0.9738476, 0, 1, 0, -0.9738476, 0, -0.22720204, 3.33, 0.832, 3.81)
+mesh = SubResource("BoxMesh_lp44h")
+
+[node name="LooseReport3" type="MeshInstance3D" parent="Dressing/EvacuationRecords"]
+transform = Transform3D(-0.90407217, 0, 0.42737985, 0, 1, 0, -0.42737985, 0, -0.90407217, 3.47, 0.839, 3.69)
+mesh = SubResource("BoxMesh_h4brb")
+
+[node name="TippedTray" type="MeshInstance3D" parent="Dressing/EvacuationRecords"]
+transform = Transform3D(0.8080275, -0.58914477, 0, 0.58914477, 0.8080275, 0, 0, 0, 1, 4.98, 0.17, 9.37)
+mesh = SubResource("BoxMesh_lbufg")
 
 [node name="Lights" type="Node3D" parent="."]
 

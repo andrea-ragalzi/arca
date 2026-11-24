@@ -19,9 +19,11 @@ func check_title_flow(path: String) -> void:
 	await frames(6)
 	var title := current_scene
 	var new_game := title.find_child("NewGame") as Button
+	var training := title.find_child("PackTraining") as Button
 	var controls := title.find_child("Controls") as Button
 	var quit_button := title.find_child("Quit") as Button
-	check(new_game != null and controls != null and quit_button != null, "Title exposes all three actions")
+	check(new_game != null and training != null and controls != null and quit_button != null,
+		"Title exposes all four actions")
 	check(Input.mouse_mode == Input.MOUSE_MODE_VISIBLE and new_game.has_focus(),
 		"Title shows the cursor and starts with keyboard focus")
 	controls.pressed.emit()

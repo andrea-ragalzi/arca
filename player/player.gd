@@ -108,14 +108,14 @@ func apply_input(delta: float) -> void:
 	# Jump/in-air logic.
 	airborne_time += delta
 	if is_on_floor():
-		if airborne_time > 0.5:
+		if airborne_time > 0.5 and not directional_locomotion:
 			land.rpc()
 		airborne_time = 0
 
 	var on_air: bool = airborne_time > MIN_AIRBORNE_TIME
 
-	if not on_air and player_input.jumping:
-		velocity.y = jump_speed
+	if not on_air and player_input.jumping and (not directional_locomotion or is_on_floor()):
+		velocity = get_jump_launch()
 		on_air = true
 		# Increase airborne time so next frame on_air is still true
 		airborne_time = MIN_AIRBORNE_TIME
@@ -145,17 +145,7 @@ func apply_input(delta: float) -> void:
 		root_motion = Transform3D(animation_tree.get_root_motion_rotation(), animation_tree.get_root_motion_position())
 
 		if player_input.shooting and fire_cooldown.time_left == 0 and can_fire():
-			var shoot_origin: Vector3 = get_shoot_origin()
-			var shoot_dir: Vector3 = (player_input.shoot_target - shoot_origin).normalized()
-
-			var bullet: CharacterBody3D = preload("res://player/bullet/bullet.tscn").instantiate()
-			get_parent().add_child(bullet, true)
-			bullet.global_transform.origin = shoot_origin
-			# If we don't rotate the bullets there is no useful way to control the particles ..
-			bullet.look_at(shoot_origin + shoot_dir)
-			bullet.add_collision_exception_with(self)
-			shoot.rpc()
-			shot_fired.emit()
+			fire_weapon(player_input.shoot_target)
 
 	else: # Not in air or aiming, idle.
 		# Convert orientation to quaternions for interpolating rotation.
@@ -190,6 +180,25 @@ func apply_input(delta: float) -> void:
 	# If we're below -40, respawn (teleport to the initial position).
 	if transform.origin.y < -40.0:
 		transform.origin = initial_position
+
+
+func fire_weapon(target: Vector3) -> void:
+	var shoot_origin: Vector3 = get_shoot_origin()
+	var shoot_dir: Vector3 = (target - shoot_origin).normalized()
+
+	var bullet: CharacterBody3D = preload("res://player/bullet/bullet.tscn").instantiate()
+	get_parent().add_child(bullet, true)
+	bullet.global_transform.origin = shoot_origin
+	# If we don't rotate the bullets there is no useful way to control the particles ..
+	bullet.look_at(shoot_origin + shoot_dir)
+	bullet.add_collision_exception_with(self)
+	shoot.rpc()
+	shot_fired.emit()
+
+
+
+func get_jump_launch() -> Vector3:
+	return Vector3(velocity.x, jump_speed, velocity.z)
 
 
 @rpc("call_local")

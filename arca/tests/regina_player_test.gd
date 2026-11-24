@@ -238,9 +238,9 @@ func test_jumps() -> void:
 				landings += 1
 			was_airborne = airborne
 			landing_pose = landing_pose or actor.animation_tree["parameters/land/active"]
-		check(peak >= 0.25 and peak <= 0.40, "Hop apex is 0.25–0.40 m (moving=%s, actual %.6f m)" % [moving, peak])
-		check(airborne_frames >= 27 and airborne_frames <= 39,
-			"Hop flight is 0.45–0.65 s (actual %.3f s)" % (airborne_frames / 60.0))
+		check(peak >= 0.40 and peak <= 0.50, "Hop apex is 0.40–0.50 m (moving=%s, actual %.6f m)" % [moving, peak])
+		check(airborne_frames >= 32 and airborne_frames <= 42,
+			"Hop flight is 0.53–0.70 s (actual %.3f s)" % (airborne_frames / 60.0))
 		check(takeoffs == 1 and landings == 1, "Holding jump gives one takeoff/landing without rebound")
 		check(landing_pose and actor.is_on_floor(), "Actual floor contact triggers the landing pose and grounded recovery")
 		Input.action_release("jump")

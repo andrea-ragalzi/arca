@@ -7,12 +7,17 @@ signal restarted
 @onready var hud: CanvasLayer = $HUD
 var restart_pending: bool = false
 var paused: bool = false
+var predator_pack: ArcaRaptorPack
 
 
 func _ready() -> void:
 	add_to_group("arca_room")
 	hud.bind(player.health_component, enemy)
 	hud.bind_ammo(player.ammo_component)
+	player.equipped_ammo_changed.connect(hud.bind_ammo)
+	predator_pack = ArcaRaptorPack.new()
+	predator_pack.name = "RaptorPack"
+	add_child(predator_pack)
 	hud.bind_predators(get_predators, player)
 	player.health_component.died.connect(_on_player_died)
 	enemy.exploded.connect(_on_enemy_destroyed)
@@ -39,6 +44,7 @@ func get_predators() -> Array[ArcaRaptor]:
 
 ## Track a predator that is not the primary enemy. Safe to call more than once.
 func register_predator(predator: ArcaRaptor) -> void:
+	predator.pack = predator_pack
 	if predator == enemy or predator.exploded.is_connected(_on_predator_destroyed):
 		return
 	predator.exploded.connect(_on_predator_destroyed)

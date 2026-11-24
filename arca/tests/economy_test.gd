@@ -128,6 +128,7 @@ func run() -> void:
 	await tap(KEY_E)
 	check(not is_instance_valid(medkit) and health.current == 85, "Medkit restores 40 HP when at least 40 is missing")
 	await test_ammo_budget()
+	await weapon_and_impact_checks()
 	await test_interaction_contract()
 	await finish()
 
@@ -246,3 +247,72 @@ func test_interaction_contract() -> void:
 		"A pickup behind the corridor partition is not offered")
 	await tap(KEY_E)
 	check(is_instance_valid(hidden) and ammo.reserve == reserve, "E cannot collect through the corridor partition")
+
+func weapon_and_impact_checks() -> void:
+	await reset_mission()
+	await move_player(Vector3(0, 0.05, -9))
+	var player = room.player
+	var ammo: ArcaAmmo = player.ammo_component
+	var hud_ammo: Label = room.hud.get_node("Frame/AmmoPanel/Margin/VBox/Ammo")
+	var impacts: Array[StringName] = []
+	player.shot_resolved.connect(func(material: StringName, _point: Vector3): impacts.append(material))
+	Input.action_press("aim")
+	await frames(45)
+	var metal := impact_fixture(Vector3(0, 1.35, -5.5), Vector3(1.7, 2.4, 0.20))
+	metal.add_to_group("arca_metal")
+	await shoot_once_at(metal.global_position)
+	check(impacts.back() == &"metal" and ammo.magazine == 11 and hud_ammo.text.contains("11 / 12"),
+		"One shot into metal resolves at impact and updates the magazine HUD")
+	metal.queue_free()
+	await frames(3)
+	var wall := impact_fixture(Vector3(0, 1.40, -5.5), Vector3(1.7, 2.4, 0.20))
+	await shoot_once_at(wall.global_position)
+	check(impacts.back() == &"wall" and ammo.magazine == 10, "A wall impact spends one round and uses the wall effect")
+	wall.queue_free()
+	await frames(3)
+	var raptor: ArcaRaptor = room.get_node("ExitLift/FinalRaptor")
+	raptor.global_position = Vector3(0, 0, -5.5)
+	var before := raptor.health
+	await shoot_once_at(raptor.global_position + Vector3.UP)
+	check(impacts.back() == &"raptor" and raptor.health == before - 1 and ammo.magazine == 9,
+		"The pistol trace deals one packet through the existing predator hit contract")
+	var muzzle: Vector3 = player.shoot_from.global_position
+	var obstruction := impact_fixture((player.global_position + Vector3.UP * 1.4 + muzzle) * 0.5, Vector3(0.30, 1.1, 0.035))
+	await shoot_once_at(raptor.global_position + Vector3.UP)
+	check(impacts.back() == &"wall" and raptor.health == before - 1 and ammo.magazine == 8,
+		"An obstructed muzzle uses the near-surface impact and spends a round")
+	obstruction.queue_free()
+	await frames(3)
+	await shoot_once_at(Vector3(0, 95, -5))
+	check(impacts.back() == &"miss" and ammo.magazine == 7, "A shot with no collision still consumes one round")
+	await tap(KEY_R)
+	check(ammo.reloading, "Primary can begin a partial reload before a weapon switch")
+	var fired_before := impacts.size()
+	Input.action_press("shoot")
+	await frames(11)
+	Input.action_release("shoot")
+	check(impacts.size() == fired_before and ammo.magazine == 7, "A firing input refused during reload consumes zero rounds")
+	var saved := player.capture_ammo_state() as Dictionary
+	await tap(KEY_2)
+	check(player.ammo_component == player.backup_ammo and not ammo.reloading and ammo.magazine == 7
+		and ammo.reserve == 12 and hud_ammo.text.contains("06 / 00"), "Switching cancels reload without transferring rounds and rebinds HUD")
+	await shoot_once_at(Vector3(0, 95, -5))
+	check(player.backup_ammo.magazine == 5 and ammo.magazine == 7 and hud_ammo.text.contains("05 / 00"),
+		"Backup weapon has independent ammunition")
+	await tap(KEY_1)
+	check(player.ammo_component == ammo and hud_ammo.text.contains("07 / 12"), "Returning to the primary restores its exact HUD state")
+	player.restore_ammo_state(saved)
+	check(player.backup_ammo.magazine == 6 and ammo.magazine == 7, "Snapshot restores both weapons without duplicating primary rounds")
+	Input.action_release("aim")
+
+
+func impact_fixture(origin: Vector3, size: Vector3) -> StaticBody3D:
+	var fixture := StaticBody3D.new()
+	var collision := CollisionShape3D.new()
+	var box := BoxShape3D.new()
+	box.size = size
+	collision.shape = box
+	fixture.add_child(collision)
+	room.add_child(fixture)
+	fixture.global_position = origin
+	return fixture

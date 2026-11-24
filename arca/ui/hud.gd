@@ -62,11 +62,18 @@ func _telemetry_target() -> CharacterBody3D:
 
 
 func bind_ammo(component: ArcaAmmo) -> void:
+	if is_instance_valid(ammo):
+		ammo.changed.disconnect(_update_ammo)
+		ammo.reload_started.disconnect(_show_reload)
 	ammo = component
 	ammo.changed.connect(_update_ammo)
-	ammo.reload_started.connect(func(): $Frame/AmmoPanel/Margin/VBox/Reload.show())
+	ammo.reload_started.connect(_show_reload)
 	$Frame/AmmoPanel.show()
 	_update_ammo(ammo.magazine, ammo.reserve)
+
+
+func _show_reload() -> void:
+	$Frame/AmmoPanel/Margin/VBox/Reload.show()
 
 
 func _update_ammo(magazine: int, reserve: int) -> void:
