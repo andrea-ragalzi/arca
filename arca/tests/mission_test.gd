@@ -14,7 +14,7 @@ func reset_mission() -> void:
 		room = load("res://arca/mission_room.tscn").instantiate()
 		root.add_child(room)
 		current_scene = room
-	room.enemy.stop_combat()
+	room.stop_all_predators()
 	await frames(15)
 	room.player.player_input.aiming = false
 	room.player.player_input.toggled_aim = false
@@ -25,6 +25,17 @@ func move_player(position: Vector3) -> void:
 	room.player.velocity = Vector3.ZERO
 	room.player.reset_physics_interpolation()
 	await frames(8)
+
+func open_lift_for_exit_fixture() -> void:
+	# These lifecycle tests exercise the real exit without replaying the walk.
+	room.add_key_item(&"keycard")
+	await move_player(Vector3(0, 0.05, 42.6))
+	await press_e()
+	await frames(70)
+
+func move_to_exit_fixture() -> void:
+	var zone := room.get_node("ExitZone") as Area3D
+	await move_player(Vector3(zone.position.x, 0.05, zone.position.z))
 
 func approach_fuse() -> void:
 	await move_player(FUSE_APPROACH)
@@ -170,7 +181,8 @@ func run() -> void:
 	check(room.door.is_open and gate_hit().is_empty(), "Door animation clears the real exit collision")
 	check(room.hud.status_label.text.begins_with("03") and room.hud.get_node("Frame/Inventory").text.contains("INSTALLED"),
 		"Powered sector shows exit objective and installed fuse")
-	await move_player(Vector3(0, 0.05, 12.4))
+	await open_lift_for_exit_fixture()
+	await move_to_exit_fixture()
 	check(room.mission_complete and paused and room.hud.modal.visible,
 		"Entering the powered exit pauses gameplay and shows completion")
 	room.set_paused(false)
@@ -194,7 +206,7 @@ func run() -> void:
 	await press_e()
 	check(not room.has_fuse and room.hud.modal.visible, "A dead player cannot collect items")
 	await reset_mission()
-	await move_player(Vector3(0, 0.05, 12.4))
+	await move_to_exit_fixture()
 	check(not room.mission_complete, "Entering an unpowered exit cannot complete the mission")
 	await reset_mission()
 	room.enemy.activate_ambush()
@@ -264,9 +276,10 @@ func test_mission_summary() -> void:
 	room.enemy.activate_ambush()
 	room.enemy.health_component.current = 1
 	room.enemy.hit()
+	await open_lift_for_exit_fixture()
 	room.player.ammo_component.reserve = 1
 	room.player.ammo_component.start_reload()
-	await move_player(Vector3(0, 0.05, 12.4))
+	await move_to_exit_fixture()
 	var win_text: String = room.hud.modal_text.text
 	check(room.mission_complete and room.get_mission_summary()["predator"] == "KILLED"
 		and win_text.contains("TIME") and win_text.contains("SHOTS  1") and win_text.contains("DAMAGE TAKEN  25 HP")

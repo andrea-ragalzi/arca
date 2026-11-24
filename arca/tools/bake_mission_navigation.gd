@@ -6,6 +6,9 @@ func _initialize() -> void:
 func run() -> void:
 	var room: Node3D = load("res://arca/mission_room.tscn").instantiate()
 	root.add_child(room)
+	# Bake the traversable route. The working door bodies still block until opened.
+	room.get_node("ExitDoor/DoorBody").collision_layer = 0
+	room.get_node("SecurityCorridor/LiftGate/SlidingDoor/DoorBody").collision_layer = 0
 	var mesh := NavigationMesh.new()
 	mesh.agent_radius = 0.6
 	mesh.agent_height = 1.5

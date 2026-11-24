@@ -161,3 +161,9 @@ Requires Godot 4.5.1, Bash, `timeout` (coreutils) and `grep`. It uses ripgrep wh
 The mission inherits `raptor_room.tscn`, which inherits `test_room.tscn`; the corresponding scripts mirror that structure. All three rooms share the ARCA player scene, which installs Regina at runtime while keeping the inherited robot hidden and inert. The original `player/player.tscn` remains a usable robot reference. In the mission, the raptor starts dormant; the separate raptor test room starts with an active predator.
 
 Read [docs/DESIGN.md](docs/DESIGN.md) for scope and [docs/VALIDATION.md](docs/VALIDATION.md) for verified behavior and limits. Credits and licenses are in [ATTRIBUTIONS.md](ATTRIBUTIONS.md), [LICENSE.md](LICENSE.md), and [LICENSE_ARCA.md](LICENSE_ARCA.md).
+
+## Sprint route playtest
+
+Once the fuse powers the sector, head through the powered door into the new security corridor. The far door needs a keycard. The control office is off the alcove, with the card on the back desk. Return to the far door, use E, then reach the green marker inside the lift. Killing any predator is optional. E reads station logs, and E or Escape closes them.
+
+The automated route verifies the connections and victory using normal movement. See the [integration record](docs/tasks/S1-10.md) for the exact F5 checklist and measured walking time.

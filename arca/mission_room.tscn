@@ -1,4 +1,4 @@
-[gd_scene load_steps=40 format=3]
+[gd_scene load_steps=49 format=3]
 
 [ext_resource type="PackedScene" path="res://arca/raptor_room.tscn" id="1"]
 [ext_resource type="Script" path="res://arca/mission_room.gd" id="2"]
@@ -12,6 +12,14 @@
 
 [ext_resource type="PackedScene" path="res://arca/interactables/ammo_pickup.tscn" id="9_ammo"]
 [ext_resource type="PackedScene" path="res://arca/interactables/medkit_pickup.tscn" id="10_medkit"]
+
+[ext_resource type="PackedScene" path="res://arca/areas/security_corridor.tscn" id="11_corridor"]
+[ext_resource type="PackedScene" path="res://arca/areas/control_office.tscn" id="12_office"]
+[ext_resource type="PackedScene" path="res://arca/areas/exit_lift.tscn" id="13_lift"]
+[ext_resource type="PackedScene" path="res://arca/enemies/raptor.tscn" id="14_raptor"]
+[ext_resource type="PackedScene" path="res://arca/interactables/key_item_pickup.tscn" id="15_keycard"]
+[ext_resource type="PackedScene" path="res://arca/interactables/locked_door.tscn" id="16_locked"]
+[ext_resource type="PackedScene" path="res://arca/interactables/note.tscn" id="17_note"]
 
 [sub_resource type="StandardMaterial3D" id="Partition"]
 albedo_color = Color(0.13, 0.19, 0.21, 1)
@@ -122,8 +130,23 @@ size = Vector3(0.2, 1.8, 4.2)
 size = Vector3(0.07, 0.08, 3.4)
 material = SubResource("ServiceYellow")
 
+[sub_resource type="BoxMesh" id="ThresholdFloorMesh"]
+size = Vector3(3.2, 0.6, 0.2)
+material = SubResource("Partition")
+
+[sub_resource type="BoxShape3D" id="ThresholdFloorShape"]
+size = Vector3(3.2, 0.6, 0.2)
+
 [node name="ArcaMissionRoom" instance=ExtResource("1")]
 script = ExtResource("2")
+
+[node name="WallFront" parent="." index="2"]
+
+[node name="Mesh" parent="WallFront" index="0"]
+visible = false
+
+[node name="Collision" parent="WallFront" index="1"]
+disabled = true
 
 [node name="FusePickup" parent="." instance=ExtResource("3")]
 position = Vector3(6.7, 1.0, 8.8)
@@ -181,11 +204,11 @@ mesh = SubResource("Pedestal")
 shape = SubResource("PedestalSolid")
 
 [node name="ExitMark" type="MeshInstance3D" parent="."]
-position = Vector3(0, 0.025, 12.4)
+position = Vector3(0, 0.025, 61)
 mesh = SubResource("ExitMark")
 
 [node name="ExitZone" type="Area3D" parent="."]
-position = Vector3(0, 1.5, 12.4)
+position = Vector3(0, 1.5, 61)
 collision_layer = 0
 collision_mask = 2
 
@@ -396,3 +419,83 @@ shadow_enabled = true
 process_mode = 3
 stream = ExtResource("7")
 volume_db = -5.0
+
+
+[node name="FrontLeft" type="StaticBody3D" parent="."]
+position = Vector3(-6.3, 2.4, 14)
+
+[node name="Mesh" type="MeshInstance3D" parent="FrontLeft"]
+mesh = SubResource("SideWall")
+
+[node name="Collision" type="CollisionShape3D" parent="FrontLeft"]
+shape = SubResource("SideSolid")
+
+[node name="FrontRight" type="StaticBody3D" parent="."]
+position = Vector3(6.3, 2.4, 14)
+
+[node name="Mesh" type="MeshInstance3D" parent="FrontRight"]
+mesh = SubResource("SideWall")
+
+[node name="Collision" type="CollisionShape3D" parent="FrontRight"]
+shape = SubResource("SideSolid")
+
+[node name="FrontLintel" type="StaticBody3D" parent="."]
+position = Vector3(0, 4.15, 14)
+
+[node name="Mesh" type="MeshInstance3D" parent="FrontLintel"]
+mesh = SubResource("Lintel")
+
+[node name="Collision" type="CollisionShape3D" parent="FrontLintel"]
+shape = SubResource("TopSolid")
+
+[node name="ThresholdFloor" type="StaticBody3D" parent="."]
+position = Vector3(0, -0.3, 14.1)
+
+[node name="Mesh" type="MeshInstance3D" parent="ThresholdFloor"]
+mesh = SubResource("ThresholdFloorMesh")
+
+[node name="Collision" type="CollisionShape3D" parent="ThresholdFloor"]
+shape = SubResource("ThresholdFloorShape")
+
+[node name="SecurityCorridor" parent="." instance=ExtResource("11_corridor")]
+position = Vector3(0, 0, 14.2)
+
+[node name="SleepingRaptor" parent="SecurityCorridor" instance=ExtResource("14_raptor")]
+position = Vector3(-4, 0.05, 8.95)
+rotation = Vector3(0, 1.5707963, 0)
+start_mode = 1
+
+[node name="StationLog" parent="SecurityCorridor" instance=ExtResource("17_note")]
+position = Vector3(1.2, 1.05, 5)
+
+[node name="AmmoPickup" parent="SecurityCorridor" instance=ExtResource("9_ammo")]
+position = Vector3(1.55, 0.1, 21.5)
+
+[node name="LiftGate" parent="SecurityCorridor" instance=ExtResource("16_locked")]
+position = Vector3(0, 0, 29.75)
+consume_item = true
+
+[node name="ControlOffice" parent="." instance=ExtResource("12_office")]
+position = Vector3(-5.5, 0, 25.2)
+rotation = Vector3(0, -1.5707963, 0)
+
+[node name="Keycard" parent="ControlOffice" instance=ExtResource("15_keycard")]
+position = Vector3(4.7, 0.85, 8.6)
+
+[node name="MedkitPickup" parent="ControlOffice" instance=ExtResource("10_medkit")]
+position = Vector3(-5.2, 0.1, 1.4)
+
+[node name="StationLog" parent="ControlOffice" instance=ExtResource("17_note")]
+position = Vector3(-3.4, 0.85, 4)
+title = "Control Office Log"
+body = "Security log, 03:21\n\nMaintenance has lost contact with the hatch team. The lift will still accept the security keycard. Keep the cabin clear until everyone is through."
+
+[node name="ExitLift" parent="." instance=ExtResource("13_lift")]
+position = Vector3(0, 0, 44.7)
+
+[node name="FinalRaptor" parent="ExitLift" instance=ExtResource("14_raptor")]
+position = Vector3(-5.6, 0.05, 11.5)
+rotation = Vector3(0, 2.0943951, 0)
+
+[node name="AmmoPickup" parent="ExitLift" instance=ExtResource("9_ammo")]
+position = Vector3(5.9, 0.1, 1.6)

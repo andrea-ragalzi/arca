@@ -200,3 +200,7 @@ The required gate remains incomplete. Stop at the planned pose-feasibility limit
 - Inventory and progress reset on restart. No save/load system exists.
 - Zed settings/tasks were syntax checked, not exercised in the user's installed Zed/ACP version. Explicit file-reading prompts provide a fallback if agent or skill auto-discovery differs.
 - Hatch F5 acceptance does not establish broader aiming comfort, final polish or frame rate on the user's PC.
+
+## Sprint route integration
+
+The full gate includes the area collision and doorway checks and a route suite that walks the real controller from spawn to victory. The route also checks shared navigation and executes a cross-sector pursuit for each raptor. The automated walk measured 59.17 seconds of movement input against the 150-second target. First-run exploration and combat, camera readability and FPS are verified in S1-12.

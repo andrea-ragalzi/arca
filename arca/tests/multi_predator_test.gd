@@ -100,13 +100,14 @@ func raptor_room_checks() -> void:
 func mission_checks() -> void:
 	await drop_room()
 	await reset_mission()
+	var scene_predator_count: int = room.get_predators().size()
 	var second: ArcaRaptor = await add_predator(Vector3(-5, 0.05, -2))
 	second.stop_combat()
 	room.register_predator(second)
 	await frames(3)
 	check(room.enemy.state == ArcaRaptor.State.DORMANT and telemetry() == second.get_status_text(),
 		"Telemetry ignores the dormant ambush predator and reports an active one")
-	check(room.get_mission_summary()["kills"] == 0 and room.get_mission_summary()["predators_total"] == 2,
+	check(room.get_mission_summary()["kills"] == 0 and room.get_mission_summary()["predators_total"] == scene_predator_count + 1,
 		"The summary counts every predator in the mission")
 	await approach_fuse()
 	await press_e()
@@ -118,7 +119,7 @@ func mission_checks() -> void:
 	second.hit()
 	await frames(2)
 	var summary: Dictionary = room.get_mission_summary()
-	check(second.dead and summary["kills"] == 1 and summary["predators_total"] == 2
+	check(second.dead and summary["kills"] == 1 and summary["predators_total"] == scene_predator_count + 1
 		and summary["predator"] == "STILL ALIVE",
 		"Killing a secondary predator counts one kill without changing the primary outcome")
 	check(room.ambush_phase == room.AmbushPhase.WARNING and room.hud.get_node("Frame/Notice").text == "PREDATOR DOWN",
@@ -132,14 +133,15 @@ func mission_checks() -> void:
 
 	await reset_mission()
 	second = await add_predator(Vector3(-5, 0.05, -2))
-	check(room.get_mission_summary()["kills"] == 0 and room.get_mission_summary()["predators_total"] == 2,
+	check(room.get_mission_summary()["kills"] == 0 and room.get_mission_summary()["predators_total"] == scene_predator_count + 1,
 		"Restart clears the kill count")
 	await approach_fuse()
 	await press_e()
 	await move_player(Vector3(-8.8, 0.05, 5.1))
 	await press_e()
 	await frames(90)
-	await move_player(Vector3(0, 0.05, 12.4))
+	await open_lift_for_exit_fixture()
+	await move_to_exit_fixture()
 	check(room.mission_complete and not second.combat_enabled and not room.enemy.combat_enabled,
 		"Mission completion stops every predator")
 
@@ -148,7 +150,7 @@ func mission_checks() -> void:
 	room.player.take_damage(1000)
 	check(not second.combat_enabled, "Player death in the mission stops a secondary predator")
 	await reset_mission()
-	check(room.get_predators().size() == 1, "Mission restart restores one predator")
+	check(room.get_predators().size() == scene_predator_count, "Mission restart restores the authored predators")
 
 
 func run() -> void:

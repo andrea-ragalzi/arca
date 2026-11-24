@@ -31,3 +31,7 @@ The service corridor was accepted by the user in an F5 playtest on 2026-10-17; n
 The readable physical hatch entrance and its warning were accepted by the user through the F5 checklist on 2026-10-17; the task is closed without further gameplay changes. The limited ammunition and health economy is the next implemented slice, with the mission route and escape option preserved. Implement and playtest one feature at a time. Avoid adding squad AI, two protagonists, a large bestiary, crafting, a general inventory framework or a new engine before the short loop is convincing.
 
 Use licensed independent assets with preserved attribution. Keep dependency/engine versions in technical documentation, but identify project development through Git commits rather than release-numbered folders.
+
+## Sprint route and key items
+
+The mission extends from the maintenance blockout to the security corridor, office and lift hall. The fuse and security keycard are unique mission-local IDs. The power panel spends the fuse, and the lift gate consumes the card. Both access points reuse the sliding door. A nearby corridor sleeper can wake on proximity, gunfire or damage. The final hall has a separate predator. Opening a note suspends the mission and the clock until the player closes it.

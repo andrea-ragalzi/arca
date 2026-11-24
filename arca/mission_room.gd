@@ -14,12 +14,15 @@ const HATCH_LIFT: float = 3.3
 @onready var ammo_pickup: ArcaInteractionPoint = $AmmoPickup
 @onready var medkit_pickup: ArcaInteractionPoint = $MedkitPickup
 @onready var door: Node3D = $ExitDoor
+@onready var lift_gate: ArcaInteractionPoint = $SecurityCorridor/LiftGate
+@onready var security_corridor: Node3D = $SecurityCorridor
 @onready var hatch: AnimatableBody3D = $ServiceHatch/Leaf
 var key_items: Array[StringName] = []
 var has_fuse: bool:
 	get:
 		return has_key_item(&"fuse")
 var power_restored: bool = false
+var reached_security: bool = false
 var mission_complete: bool = false
 var interaction_target: ArcaInteractionPoint
 var _last_interaction_frame: int = -1
@@ -44,6 +47,7 @@ func _ready() -> void:
 	panel.powered.connect(_on_panel_powered)
 	$ExitZone.body_entered.connect(_on_exit_entered)
 	door.opened.connect(_on_door_opened)
+	lift_gate.slider.opened.connect(_update_objective)
 	player.shot_fired.connect(func(): shots_fired += 1)
 	player.health_component.damaged.connect(func(amount: int): damage_taken += amount)
 	hud.get_node("Frame/Subtitle").text = "CONTINUITY STATION   /   POWER RESTORATION"
@@ -56,6 +60,9 @@ func _physics_process(delta: float) -> void:
 	if mission_complete or player.health_component.current <= 0:
 		return
 	mission_seconds += delta
+	if power_restored and not reached_security and security_corridor.to_local(player.global_position).z > 1.0:
+		reached_security = true
+		_update_objective()
 	_advance_ambush(delta)
 	interaction_target = _find_interaction_target()
 	var text: String = ""
@@ -75,7 +82,7 @@ func _advance_ambush(delta: float) -> void:
 			if ambush_remaining == 0.0:
 				ambush_remaining = -1.0
 				ambush_phase = AmbushPhase.OPENING
-				_notify("SERVICE HATCH OPENING - stand clear! Fight or reach the green exit.")
+				_notify("SERVICE HATCH OPENING - stand clear! Fight or head for the powered door.")
 		AmbushPhase.OPENING:
 			hatch_elapsed = minf(hatch_elapsed + delta, HATCH_OPEN_DURATION)
 			var progress: float = smoothstep(0.0, HATCH_OPEN_DURATION, hatch_elapsed)
@@ -169,7 +176,7 @@ func _on_panel_powered() -> void:
 
 func _on_door_opened() -> void:
 	if ambush_phase == AmbushPhase.IDLE:
-		_notify("Door open. Reach the green exit marker.")
+		_notify("Door open. Enter the security corridor.")
 
 func _start_ambush() -> void:
 	if ambush_phase != AmbushPhase.OPENING or hatch_elapsed < HATCH_OPEN_DURATION:
@@ -180,12 +187,19 @@ func _start_ambush() -> void:
 		ambush_triggered = true
 		ambush_phase = AmbushPhase.EMERGING
 		_update_objective()
-		_notify("PREDATOR EMERGING - fight or reach the green exit!")
+		_notify("PREDATOR EMERGING - fight or head for the powered door!")
 		ambush_started.emit()
 
 func _update_objective() -> void:
 	if power_restored:
-		hud.set_status("03 / Escape through the green door. Fight or evade the predator.")
+		if lift_gate.slider.is_open:
+			hud.set_status("06 / Reach the lift. Fight or evade the predators.")
+		elif has_key_item(&"keycard"):
+			hud.set_status("05 / Return to the far corridor door. Unlock it with the keycard.")
+		elif reached_security:
+			hud.set_status("04 / Find the keycard in the control office.")
+		else:
+			hud.set_status("03 / Go through the powered door. Fight or evade the predator.")
 		hud.set_inventory("FUSE  /  INSTALLED", key_items)
 	elif has_fuse:
 		hud.set_status("02 / Return through the corridor to the power panel on the left.")
@@ -232,7 +246,7 @@ func _on_player_died() -> void:
 	hud.set_notice("")
 
 func _on_exit_entered(body: Node3D) -> void:
-	if body != player or not power_restored or not door.is_open or mission_complete:
+	if body != player or not power_restored or not door.is_open or not lift_gate.slider.is_open or mission_complete:
 		return
 	if player.health_component.current <= 0:
 		return

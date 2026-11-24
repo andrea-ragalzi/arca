@@ -40,8 +40,10 @@ func pause_entrance(label: String) -> void:
 		"Pause freezes countdown, hatch and predator during " + label)
 	room.set_paused(false)
 
-func prepare_phase(phase: int) -> void:
+func prepare_phase(phase: int, prepare_lift: bool = false) -> void:
 	await reset_mission()
+	if prepare_lift:
+		await open_lift_for_exit_fixture()
 	await restore_power()
 	await wait_for_phase(phase)
 	if phase != room.AmbushPhase.WARNING:
@@ -71,10 +73,10 @@ func lifecycle_checks() -> void:
 		check(previous_room.get_ref() == null and not room.ambush_triggered and not room.power_restored
 			and room.ambush_phase == room.AmbushPhase.IDLE and is_equal_approx(room.hatch.position.y, 1.5)
 			and room.enemy.state == ArcaRaptor.State.DORMANT and not room.enemy.visible
-			and not hatch_hit().is_empty() and get_nodes_in_group("arca_predator").size() == 1,
-			"Restart during %s restores the closed hatch and one dormant predator" % label)
+			and not hatch_hit().is_empty() and room.get_predators().size() == 3,
+			"Restart during %s restores the closed hatch and its original dormant predator" % label)
 
-		await prepare_phase(phase)
+		await prepare_phase(phase, true)
 		# The exit opens independently, including before the warning has expired.
 		for i in 90:
 			if room.door.is_open:
@@ -82,7 +84,7 @@ func lifecycle_checks() -> void:
 			await frames(1)
 		check(room.door.is_open and room.ambush_phase == phase,
 			"The powered exit is usable during " + label)
-		await move_player(Vector3(0, 0.05, 12.4))
+		await move_to_exit_fixture()
 		hatch_position = room.hatch.position
 		enemy_position = room.enemy.position
 		triggered = room.ambush_triggered
@@ -122,7 +124,7 @@ func obstruction_and_death_checks() -> void:
 	var death_position: Vector3 = room.enemy.position
 	await frames(300)
 	check(room.enemy.dead and room.enemy.position == death_position
-		and room.hud.get_node("Frame/Notice").text != "PREDATOR EMERGING - fight or reach the green exit!",
+		and room.hud.get_node("Frame/Notice").text != "PREDATOR EMERGING - fight or head for the powered door!",
 		"Death during emergence cannot move or revive the predator at the handoff")
 
 func run() -> void:
@@ -206,7 +208,7 @@ func run() -> void:
 	check(room.enemy.position.distance_to(room.player.position) < start_distance - 2.0,
 		"The emerged predator has a usable navigation route around cover")
 	await press_e()
-	check(ambush_count == 1 and get_nodes_in_group("arca_predator").size() == 1,
+	check(ambush_count == 1 and room.get_predators().size() == 3,
 		"Repeated panel input cannot create another predator or replay the entrance")
 	room.player.take_damage(1000)
 	check(not room.enemy.combat_enabled, "Player death stops an active ambush")
