@@ -26,14 +26,17 @@
 - Add focused regression checks for meaningful behavior changes; do not write tests solely to mirror cosmetic edits. Fix errors instead of hiding them or relaxing assertions.
 - Headless checks validate logic and physics, not GPU performance or visual quality. State what actually ran and give manual F5 steps for visual checks.
 
-## AI editor tooling
+## AI agents and parallel worktrees
 
-- Use the built-in Zed Agent and specialized `.agents/skills/`; see `docs/AI_ENVIRONMENT.md` for the pinned MCP, profile safety and validation status. Do not upgrade the engine or add an overlapping Godot MCP.
+- Supported agents: **Codex**, **Claude Code** and the built-in **Zed Agent**. All follow this file and the specialized `.agents/skills/`. Claude Code also loads `CLAUDE.md`, which imports this file.
+- Parallel work uses **one Git worktree and one branch per task** under `../ARCA-wt/<id>`, created from `main`. Follow `docs/PARALLEL_DEVELOPMENT.md` and the task brief in `docs/tasks/<ID>.md`. Edit only the files your brief lists. Only the integration task edits `arca/mission_room.tscn`, navigation meshes, the suite list in `scripts/check.sh` or the main scene.
+- Worktrees run headless checks only. Run a first `--headless --editor --import` in each new worktree before testing. Don't open the Godot editor or the Godot MCP from a worktree.
+- The Godot editor and MCP stay bound to the main checkout; see `docs/AI_ENVIRONMENT.md` for the pinned MCP, profile safety and validation status. Do not upgrade the engine or add an overlapping Godot MCP.
 - MCP connectivity checks are read-only. Verify project identity and bridge connection before acting; scene mutation requires an authorized development task and saved editor work. Use `bash scripts/ai_check.sh [--mcp]` for isolated checks while the editor is open.
 
 ## Handoff and Git
 
 - Update affected documentation. Summarize resulting behavior, changed paths, checks and remaining limits; teach one useful concept when helpful.
-- Keep `TASK.md` updated with the current task, implementation status and remaining validation. Whenever task changes are committed, include the corresponding `TASK.md` update in the same commit; do not ignore it or commit it separately from the work it describes.
+- Keep `TASK.md` updated with the current task, implementation status and remaining validation. `TASK.md` is a board with one `## <ID>` section per task: edit only your own section, and record details below `## Record` in `docs/tasks/<ID>.md`. Whenever task changes are committed, include the corresponding `TASK.md` update in the same commit; do not ignore it or commit it separately from the work it describes. Historical records live verbatim in `docs/archive/`; do not rewrite them.
 - Leave reviewable changes. Commit only when the user asks or the task explicitly includes a checkpoint. Use configured Git identity; never invent the user's name/email.
-- Do not push, publish, change remotes or upgrade the engine as a side effect of a gameplay task.
+- Do not push, publish, change remotes or upgrade the engine as a side effect of a gameplay task. Merge task branches into `main` only in the order given by the current sprint plan, after a rebase and a green gate in the worktree.

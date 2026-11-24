@@ -1,0 +1,1483 @@
+{
+  "asset": {
+    "extras": {
+      "author": "Ferocious Industries (https://sketchfab.com/ferociousindustries.matthias)",
+      "license": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+      "source": "https://sketchfab.com/3d-models/pbr-velociraptor-animated-8f1744af7b0847a2aabe3df90be802f0",
+      "title": "PBR Velociraptor (Animated)"
+    },
+    "generator": "Sketchfab-16.16.0",
+    "version": "2.0"
+  },
+  "extensions_required": [
+    "KHR_materials_pbrSpecularGlossiness"
+  ],
+  "meshes": [
+    {
+      "name": "0",
+      "vertices": 6468,
+      "triangles": 10566,
+      "attributes": [
+        "JOINTS_0",
+        "NORMAL",
+        "POSITION",
+        "TANGENT",
+        "TEXCOORD_0",
+        "TEXCOORD_1",
+        "WEIGHTS_0"
+      ],
+      "morph_targets": 5,
+      "max_weight_sum_error": 1.4528632164001465e-07,
+      "max_influences": 4
+    },
+    {
+      "name": "1",
+      "vertices": 3027,
+      "triangles": 4532,
+      "attributes": [
+        "JOINTS_0",
+        "NORMAL",
+        "POSITION",
+        "TANGENT",
+        "TEXCOORD_0",
+        "TEXCOORD_1",
+        "WEIGHTS_0"
+      ],
+      "morph_targets": 5,
+      "max_weight_sum_error": 7.450580596923828e-08,
+      "max_influences": 3
+    }
+  ],
+  "clips": [
+    {
+      "name": "Sniff",
+      "duration": 2.9166667461395264,
+      "channels": 228,
+      "varying_channels": 205,
+      "interpolation": [
+        "LINEAR"
+      ],
+      "target_paths": [
+        "rotation",
+        "scale",
+        "translation",
+        "weights"
+      ]
+    },
+    {
+      "name": "Eat Prey",
+      "duration": 1.9583333730697632,
+      "channels": 307,
+      "varying_channels": 301,
+      "interpolation": [
+        "LINEAR"
+      ],
+      "target_paths": [
+        "rotation",
+        "scale",
+        "translation",
+        "weights"
+      ]
+    },
+    {
+      "name": "Drink",
+      "duration": 2.4583332538604736,
+      "channels": 132,
+      "varying_channels": 66,
+      "interpolation": [
+        "LINEAR"
+      ],
+      "target_paths": [
+        "rotation",
+        "translation",
+        "weights"
+      ]
+    },
+    {
+      "name": "Call_Alert",
+      "duration": 2.5416667461395264,
+      "channels": 163,
+      "varying_channels": 109,
+      "interpolation": [
+        "LINEAR"
+      ],
+      "target_paths": [
+        "rotation",
+        "scale",
+        "translation",
+        "weights"
+      ]
+    },
+    {
+      "name": "Go to Sleep",
+      "duration": 1.25,
+      "channels": 328,
+      "varying_channels": 326,
+      "interpolation": [
+        "LINEAR"
+      ],
+      "target_paths": [
+        "rotation",
+        "scale",
+        "translation",
+        "weights"
+      ]
+    },
+    {
+      "name": "Sleep_Loop",
+      "duration": 1.25,
+      "channels": 119,
+      "varying_channels": 40,
+      "interpolation": [
+        "LINEAR"
+      ],
+      "target_paths": [
+        "rotation",
+        "scale",
+        "translation",
+        "weights"
+      ]
+    },
+    {
+      "name": "Wake From Sleep",
+      "duration": 1.8333333730697632,
+      "channels": 328,
+      "varying_channels": 326,
+      "interpolation": [
+        "LINEAR"
+      ],
+      "target_paths": [
+        "rotation",
+        "scale",
+        "translation",
+        "weights"
+      ]
+    },
+    {
+      "name": "Idle_01",
+      "duration": 1.2916666269302368,
+      "channels": 147,
+      "varying_channels": 93,
+      "interpolation": [
+        "LINEAR"
+      ],
+      "target_paths": [
+        "rotation",
+        "scale",
+        "translation",
+        "weights"
+      ]
+    },
+    {
+      "name": "Idle_02",
+      "duration": 4.041666507720947,
+      "channels": 140,
+      "varying_channels": 68,
+      "interpolation": [
+        "LINEAR"
+      ],
+      "target_paths": [
+        "rotation",
+        "scale",
+        "translation",
+        "weights"
+      ]
+    },
+    {
+      "name": "Roar_01",
+      "duration": 2.3333332538604736,
+      "channels": 310,
+      "varying_channels": 307,
+      "interpolation": [
+        "LINEAR"
+      ],
+      "target_paths": [
+        "rotation",
+        "scale",
+        "translation",
+        "weights"
+      ]
+    },
+    {
+      "name": "Roar_02",
+      "duration": 1.4166666269302368,
+      "channels": 264,
+      "varying_channels": 226,
+      "interpolation": [
+        "LINEAR"
+      ],
+      "target_paths": [
+        "rotation",
+        "scale",
+        "translation",
+        "weights"
+      ]
+    },
+    {
+      "name": "Roar_03",
+      "duration": 1.625,
+      "channels": 133,
+      "varying_channels": 74,
+      "interpolation": [
+        "LINEAR"
+      ],
+      "target_paths": [
+        "rotation",
+        "translation",
+        "weights"
+      ]
+    },
+    {
+      "name": "Bite_01",
+      "duration": 2.3333332538604736,
+      "channels": 307,
+      "varying_channels": 305,
+      "interpolation": [
+        "LINEAR"
+      ],
+      "target_paths": [
+        "rotation",
+        "scale",
+        "translation",
+        "weights"
+      ]
+    },
+    {
+      "name": "Bite_02",
+      "duration": 1.9583333730697632,
+      "channels": 139,
+      "varying_channels": 69,
+      "interpolation": [
+        "LINEAR"
+      ],
+      "target_paths": [
+        "rotation",
+        "translation",
+        "weights"
+      ]
+    },
+    {
+      "name": "Leap_01",
+      "duration": 1.0,
+      "channels": 320,
+      "varying_channels": 317,
+      "interpolation": [
+        "LINEAR"
+      ],
+      "target_paths": [
+        "rotation",
+        "scale",
+        "translation",
+        "weights"
+      ]
+    },
+    {
+      "name": "Leap_02",
+      "duration": 1.2083333730697632,
+      "channels": 320,
+      "varying_channels": 317,
+      "interpolation": [
+        "LINEAR"
+      ],
+      "target_paths": [
+        "rotation",
+        "scale",
+        "translation",
+        "weights"
+      ]
+    },
+    {
+      "name": "Tackle",
+      "duration": 1.4583333730697632,
+      "channels": 317,
+      "varying_channels": 315,
+      "interpolation": [
+        "LINEAR"
+      ],
+      "target_paths": [
+        "rotation",
+        "scale",
+        "translation",
+        "weights"
+      ]
+    },
+    {
+      "name": "Hurt_01",
+      "duration": 1.25,
+      "channels": 306,
+      "varying_channels": 304,
+      "interpolation": [
+        "LINEAR"
+      ],
+      "target_paths": [
+        "rotation",
+        "scale",
+        "translation",
+        "weights"
+      ]
+    },
+    {
+      "name": "Hurt_02",
+      "duration": 1.2916666269302368,
+      "channels": 306,
+      "varying_channels": 304,
+      "interpolation": [
+        "LINEAR"
+      ],
+      "target_paths": [
+        "rotation",
+        "scale",
+        "translation",
+        "weights"
+      ]
+    },
+    {
+      "name": "Knocked Down",
+      "duration": 2.2083332538604736,
+      "channels": 261,
+      "varying_channels": 220,
+      "interpolation": [
+        "LINEAR"
+      ],
+      "target_paths": [
+        "rotation",
+        "scale",
+        "translation",
+        "weights"
+      ]
+    },
+    {
+      "name": "Death_01",
+      "duration": 0.8333333134651184,
+      "channels": 318,
+      "varying_channels": 316,
+      "interpolation": [
+        "LINEAR"
+      ],
+      "target_paths": [
+        "rotation",
+        "scale",
+        "translation",
+        "weights"
+      ]
+    },
+    {
+      "name": "Death_02",
+      "duration": 0.9166666865348816,
+      "channels": 313,
+      "varying_channels": 311,
+      "interpolation": [
+        "LINEAR"
+      ],
+      "target_paths": [
+        "rotation",
+        "scale",
+        "translation",
+        "weights"
+      ]
+    },
+    {
+      "name": "Walk",
+      "duration": 1.2916666269302368,
+      "channels": 144,
+      "varying_channels": 62,
+      "interpolation": [
+        "LINEAR"
+      ],
+      "target_paths": [
+        "rotation",
+        "scale",
+        "translation",
+        "weights"
+      ]
+    },
+    {
+      "name": "Jog",
+      "duration": 1.0,
+      "channels": 294,
+      "varying_channels": 284,
+      "interpolation": [
+        "LINEAR"
+      ],
+      "target_paths": [
+        "rotation",
+        "scale",
+        "translation",
+        "weights"
+      ]
+    },
+    {
+      "name": "Sprint",
+      "duration": 1.0,
+      "channels": 185,
+      "varying_channels": 130,
+      "interpolation": [
+        "LINEAR"
+      ],
+      "target_paths": [
+        "rotation",
+        "scale",
+        "translation",
+        "weights"
+      ]
+    },
+    {
+      "name": "Action_Pose",
+      "duration": 0.0,
+      "channels": 68,
+      "varying_channels": 0,
+      "interpolation": [
+        "LINEAR"
+      ],
+      "target_paths": [
+        "rotation",
+        "scale",
+        "translation",
+        "weights"
+      ]
+    }
+  ],
+  "textures": [
+    {
+      "path": "textures/Body_Mat_diffuse.png",
+      "size": [
+        2048,
+        2048
+      ]
+    },
+    {
+      "path": "textures/Body_Mat_specularGlossiness.png",
+      "size": [
+        2048,
+        2048
+      ]
+    },
+    {
+      "path": "textures/Body_Mat_normal.png",
+      "size": [
+        2048,
+        2048
+      ]
+    },
+    {
+      "path": "textures/Body_Mat_occlusion.png",
+      "size": [
+        2048,
+        2048
+      ]
+    },
+    {
+      "path": "textures/Other_Mat_diffuse.png",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "path": "textures/Other_Mat_specularGlossiness.png",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "path": "textures/Other_Mat_normal.png",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "path": "textures/Other_Mat_occlusion.png",
+      "size": [
+        1024,
+        1024
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "doubleSided": true,
+      "extensions": {
+        "KHR_materials_pbrSpecularGlossiness": {
+          "diffuseFactor": [
+            0.5470492862454438,
+            0.5470492862454438,
+            0.5470492862454438,
+            1.0
+          ],
+          "diffuseTexture": {
+            "index": 0
+          },
+          "glossinessFactor": 1.0,
+          "specularFactor": [
+            0.18133388596993819,
+            0.18133388596993819,
+            0.18133388596993819
+          ],
+          "specularGlossinessTexture": {
+            "index": 1
+          }
+        }
+      },
+      "name": "Body_Mat",
+      "normalTexture": {
+        "index": 2
+      },
+      "occlusionTexture": {
+        "index": 3
+      }
+    },
+    {
+      "extensions": {
+        "KHR_materials_pbrSpecularGlossiness": {
+          "diffuseFactor": [
+            0.4921919762041179,
+            0.4921919762041179,
+            0.4921919762041179,
+            1.0
+          ],
+          "diffuseTexture": {
+            "index": 4
+          },
+          "glossinessFactor": 1.0,
+          "specularFactor": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "specularGlossinessTexture": {
+            "index": 5
+          }
+        }
+      },
+      "name": "Other_Mat",
+      "normalTexture": {
+        "index": 6
+      },
+      "occlusionTexture": {
+        "index": 7
+      }
+    }
+  ],
+  "skin_joints": [
+    {
+      "node": 6,
+      "name": "_rootJoint",
+      "parent_node": 5
+    },
+    {
+      "node": 7,
+      "name": "Root_02",
+      "parent_node": 6
+    },
+    {
+      "node": 8,
+      "name": "Spine_1_03",
+      "parent_node": 7
+    },
+    {
+      "node": 9,
+      "name": "Spine_2_04",
+      "parent_node": 8
+    },
+    {
+      "node": 10,
+      "name": "Spine_3_05",
+      "parent_node": 9
+    },
+    {
+      "node": 11,
+      "name": "Neck_1_06",
+      "parent_node": 10
+    },
+    {
+      "node": 12,
+      "name": "Neck_2_07",
+      "parent_node": 11
+    },
+    {
+      "node": 13,
+      "name": "Neck_3_08",
+      "parent_node": 12
+    },
+    {
+      "node": 14,
+      "name": "Head_09",
+      "parent_node": 13
+    },
+    {
+      "node": 15,
+      "name": "Eye.R_010",
+      "parent_node": 14
+    },
+    {
+      "node": 16,
+      "name": "Eye.R_end_011",
+      "parent_node": 15
+    },
+    {
+      "node": 17,
+      "name": "Eye.R_end_end_0113",
+      "parent_node": 16
+    },
+    {
+      "node": 18,
+      "name": "Eye.L_012",
+      "parent_node": 14
+    },
+    {
+      "node": 19,
+      "name": "Eye.L_end_013",
+      "parent_node": 18
+    },
+    {
+      "node": 20,
+      "name": "Eye.L_end_end_0114",
+      "parent_node": 19
+    },
+    {
+      "node": 21,
+      "name": "Jaw_1_014",
+      "parent_node": 14
+    },
+    {
+      "node": 22,
+      "name": "Jaw_2_015",
+      "parent_node": 21
+    },
+    {
+      "node": 23,
+      "name": "Jaw_2_end_016",
+      "parent_node": 22
+    },
+    {
+      "node": 24,
+      "name": "Jaw_2_end_end_0115",
+      "parent_node": 23
+    },
+    {
+      "node": 25,
+      "name": "Tongue_1_017",
+      "parent_node": 21
+    },
+    {
+      "node": 26,
+      "name": "Tongue_2_018",
+      "parent_node": 25
+    },
+    {
+      "node": 27,
+      "name": "Tongue_3_019",
+      "parent_node": 26
+    },
+    {
+      "node": 28,
+      "name": "Tongue_4_020",
+      "parent_node": 27
+    },
+    {
+      "node": 29,
+      "name": "Tongue_4_end_021",
+      "parent_node": 28
+    },
+    {
+      "node": 30,
+      "name": "Tongue_4_end_end_0116",
+      "parent_node": 29
+    },
+    {
+      "node": 31,
+      "name": "Shoulder.R_022",
+      "parent_node": 10
+    },
+    {
+      "node": 32,
+      "name": "UpperArm.R_023",
+      "parent_node": 31
+    },
+    {
+      "node": 33,
+      "name": "LowerArm.R_024",
+      "parent_node": 32
+    },
+    {
+      "node": 34,
+      "name": "Hand.R_025",
+      "parent_node": 33
+    },
+    {
+      "node": 35,
+      "name": "PinkyFinger1.R_026",
+      "parent_node": 34
+    },
+    {
+      "node": 36,
+      "name": "PinkyFinger2.R_027",
+      "parent_node": 35
+    },
+    {
+      "node": 37,
+      "name": "PinkyFinger3.R_028",
+      "parent_node": 36
+    },
+    {
+      "node": 38,
+      "name": "PinkyFinger3.R_end_029",
+      "parent_node": 37
+    },
+    {
+      "node": 39,
+      "name": "PinkyFinger3.R_end_end_00",
+      "parent_node": 38
+    },
+    {
+      "node": 40,
+      "name": "MiddleFinger1.R_030",
+      "parent_node": 34
+    },
+    {
+      "node": 41,
+      "name": "MiddleFinger2.R_031",
+      "parent_node": 40
+    },
+    {
+      "node": 42,
+      "name": "MiddleFinger3.R_032",
+      "parent_node": 41
+    },
+    {
+      "node": 43,
+      "name": "MiddleFinger3.R_end_033",
+      "parent_node": 42
+    },
+    {
+      "node": 44,
+      "name": "MiddleFinger3.R_end_end_01",
+      "parent_node": 43
+    },
+    {
+      "node": 45,
+      "name": "ForeFinger1.R_034",
+      "parent_node": 34
+    },
+    {
+      "node": 46,
+      "name": "ForeFinger2.R_035",
+      "parent_node": 45
+    },
+    {
+      "node": 47,
+      "name": "ForeFinger3.R_036",
+      "parent_node": 46
+    },
+    {
+      "node": 48,
+      "name": "ForeFinger3.R_end_037",
+      "parent_node": 47
+    },
+    {
+      "node": 49,
+      "name": "ForeFinger3.R_end_end_0117",
+      "parent_node": 48
+    },
+    {
+      "node": 50,
+      "name": "Shoulder.L_038",
+      "parent_node": 10
+    },
+    {
+      "node": 51,
+      "name": "UpperArm.L_039",
+      "parent_node": 50
+    },
+    {
+      "node": 52,
+      "name": "LowerArm.L_040",
+      "parent_node": 51
+    },
+    {
+      "node": 53,
+      "name": "Hand.L_041",
+      "parent_node": 52
+    },
+    {
+      "node": 54,
+      "name": "PinkyFinger1.L_042",
+      "parent_node": 53
+    },
+    {
+      "node": 55,
+      "name": "PinkyFinger2.L_043",
+      "parent_node": 54
+    },
+    {
+      "node": 56,
+      "name": "PinkyFinger3.L_044",
+      "parent_node": 55
+    },
+    {
+      "node": 57,
+      "name": "PinkyFinger3.L_end_045",
+      "parent_node": 56
+    },
+    {
+      "node": 58,
+      "name": "PinkyFinger3.L_end_end_0118",
+      "parent_node": 57
+    },
+    {
+      "node": 59,
+      "name": "MiddleFinger1.L_046",
+      "parent_node": 53
+    },
+    {
+      "node": 60,
+      "name": "MiddleFinger2.L_047",
+      "parent_node": 59
+    },
+    {
+      "node": 61,
+      "name": "MiddleFinger3.L_048",
+      "parent_node": 60
+    },
+    {
+      "node": 62,
+      "name": "MiddleFinger3.L_end_049",
+      "parent_node": 61
+    },
+    {
+      "node": 63,
+      "name": "MiddleFinger3.L_end_end_0119",
+      "parent_node": 62
+    },
+    {
+      "node": 64,
+      "name": "ForeFinger1.L_050",
+      "parent_node": 53
+    },
+    {
+      "node": 65,
+      "name": "ForeFinger2.L_051",
+      "parent_node": 64
+    },
+    {
+      "node": 66,
+      "name": "ForeFinger3.L_052",
+      "parent_node": 65
+    },
+    {
+      "node": 67,
+      "name": "ForeFinger3.L_end_053",
+      "parent_node": 66
+    },
+    {
+      "node": 68,
+      "name": "ForeFinger3.L_end_end_0120",
+      "parent_node": 67
+    },
+    {
+      "node": 69,
+      "name": "Breast.R_054",
+      "parent_node": 10
+    },
+    {
+      "node": 70,
+      "name": "Breast.R_end_055",
+      "parent_node": 69
+    },
+    {
+      "node": 71,
+      "name": "Breast.R_end_end_0121",
+      "parent_node": 70
+    },
+    {
+      "node": 72,
+      "name": "Breast.L_056",
+      "parent_node": 10
+    },
+    {
+      "node": 73,
+      "name": "Breast.L_end_057",
+      "parent_node": 72
+    },
+    {
+      "node": 74,
+      "name": "Breast.L_end_end_0122",
+      "parent_node": 73
+    },
+    {
+      "node": 75,
+      "name": "Pelvis.R_058",
+      "parent_node": 8
+    },
+    {
+      "node": 76,
+      "name": "Hip.R_059",
+      "parent_node": 75
+    },
+    {
+      "node": 77,
+      "name": "UpperLeg.R_060",
+      "parent_node": 76
+    },
+    {
+      "node": 78,
+      "name": "LowerLeg.R_061",
+      "parent_node": 77
+    },
+    {
+      "node": 79,
+      "name": "Ankle.R_062",
+      "parent_node": 78
+    },
+    {
+      "node": 80,
+      "name": "Foot.R_063",
+      "parent_node": 79
+    },
+    {
+      "node": 81,
+      "name": "PinkyToe1.R_064",
+      "parent_node": 80
+    },
+    {
+      "node": 82,
+      "name": "PinkyToe2.R_065",
+      "parent_node": 81
+    },
+    {
+      "node": 83,
+      "name": "PinkyToe2.R_end_066",
+      "parent_node": 82
+    },
+    {
+      "node": 84,
+      "name": "PinkyToe2.R_end_end_0123",
+      "parent_node": 83
+    },
+    {
+      "node": 85,
+      "name": "MiddleToe1.R_067",
+      "parent_node": 80
+    },
+    {
+      "node": 86,
+      "name": "MiddleToe2.R_068",
+      "parent_node": 85
+    },
+    {
+      "node": 87,
+      "name": "MiddleToe2.R_end_069",
+      "parent_node": 86
+    },
+    {
+      "node": 88,
+      "name": "MiddleToe2.R_end_end_0124",
+      "parent_node": 87
+    },
+    {
+      "node": 89,
+      "name": "BigToe1.R_070",
+      "parent_node": 80
+    },
+    {
+      "node": 90,
+      "name": "BigToe2.R_071",
+      "parent_node": 89
+    },
+    {
+      "node": 91,
+      "name": "BigToe3.R_072",
+      "parent_node": 90
+    },
+    {
+      "node": 92,
+      "name": "BigToe3.R_end_073",
+      "parent_node": 91
+    },
+    {
+      "node": 93,
+      "name": "BigToe3.R_end_end_0125",
+      "parent_node": 92
+    },
+    {
+      "node": 94,
+      "name": "Tail_1_074",
+      "parent_node": 8
+    },
+    {
+      "node": 95,
+      "name": "Tail_2_075",
+      "parent_node": 94
+    },
+    {
+      "node": 96,
+      "name": "Tail_3_076",
+      "parent_node": 95
+    },
+    {
+      "node": 97,
+      "name": "Tail_4_077",
+      "parent_node": 96
+    },
+    {
+      "node": 98,
+      "name": "Tail_5_078",
+      "parent_node": 97
+    },
+    {
+      "node": 99,
+      "name": "Tail_6_079",
+      "parent_node": 98
+    },
+    {
+      "node": 100,
+      "name": "Tail_7_080",
+      "parent_node": 99
+    },
+    {
+      "node": 101,
+      "name": "Tail_8_081",
+      "parent_node": 100
+    },
+    {
+      "node": 102,
+      "name": "Tail_9_082",
+      "parent_node": 101
+    },
+    {
+      "node": 103,
+      "name": "Tail_10_083",
+      "parent_node": 102
+    },
+    {
+      "node": 104,
+      "name": "Tail_10_end_084",
+      "parent_node": 103
+    },
+    {
+      "node": 105,
+      "name": "Tail_10_end_end_0126",
+      "parent_node": 104
+    },
+    {
+      "node": 106,
+      "name": "Thigh.R_085",
+      "parent_node": 8
+    },
+    {
+      "node": 107,
+      "name": "Thigh.R_end_086",
+      "parent_node": 106
+    },
+    {
+      "node": 108,
+      "name": "Thigh.R_end_end_0127",
+      "parent_node": 107
+    },
+    {
+      "node": 109,
+      "name": "Pelvis.L_087",
+      "parent_node": 8
+    },
+    {
+      "node": 110,
+      "name": "Hip.L_088",
+      "parent_node": 109
+    },
+    {
+      "node": 111,
+      "name": "UpperLeg.L_089",
+      "parent_node": 110
+    },
+    {
+      "node": 112,
+      "name": "LowerLeg.L_090",
+      "parent_node": 111
+    },
+    {
+      "node": 113,
+      "name": "Ankle.L_091",
+      "parent_node": 112
+    },
+    {
+      "node": 114,
+      "name": "Foot.L_092",
+      "parent_node": 113
+    },
+    {
+      "node": 115,
+      "name": "PinkyToe1.L_093",
+      "parent_node": 114
+    },
+    {
+      "node": 116,
+      "name": "PinkyToe2.L_094",
+      "parent_node": 115
+    },
+    {
+      "node": 117,
+      "name": "PinkyToe2.L_end_095",
+      "parent_node": 116
+    },
+    {
+      "node": 118,
+      "name": "PinkyToe2.L_end_end_0128",
+      "parent_node": 117
+    },
+    {
+      "node": 119,
+      "name": "MiddleToe1.L_096",
+      "parent_node": 114
+    },
+    {
+      "node": 120,
+      "name": "MiddleToe2.L_097",
+      "parent_node": 119
+    },
+    {
+      "node": 121,
+      "name": "MiddleToe2.L_end_098",
+      "parent_node": 120
+    },
+    {
+      "node": 122,
+      "name": "MiddleToe2.L_end_end_0129",
+      "parent_node": 121
+    },
+    {
+      "node": 123,
+      "name": "BigToe1.L_099",
+      "parent_node": 114
+    },
+    {
+      "node": 124,
+      "name": "BigToe2.L_0100",
+      "parent_node": 123
+    },
+    {
+      "node": 125,
+      "name": "BigToe3.L_0101",
+      "parent_node": 124
+    },
+    {
+      "node": 126,
+      "name": "BigToe3.L_end_0102",
+      "parent_node": 125
+    },
+    {
+      "node": 127,
+      "name": "BigToe3.L_end_end_0130",
+      "parent_node": 126
+    },
+    {
+      "node": 128,
+      "name": "Thigh.L_0103",
+      "parent_node": 8
+    },
+    {
+      "node": 129,
+      "name": "Thigh.L_end_0104",
+      "parent_node": 128
+    },
+    {
+      "node": 130,
+      "name": "Thigh.L_end_end_0131",
+      "parent_node": 129
+    },
+    {
+      "node": 131,
+      "name": "Tail_IK_0105",
+      "parent_node": 7
+    },
+    {
+      "node": 132,
+      "name": "Tail_IK_end_0106",
+      "parent_node": 131
+    },
+    {
+      "node": 133,
+      "name": "Tail_IK_end_end_0132",
+      "parent_node": 132
+    },
+    {
+      "node": 134,
+      "name": "Tongue_IK_0107",
+      "parent_node": 7
+    },
+    {
+      "node": 135,
+      "name": "Tongue_IK_end_0108",
+      "parent_node": 134
+    },
+    {
+      "node": 136,
+      "name": "Tongue_IK_end_end_0133",
+      "parent_node": 135
+    },
+    {
+      "node": 137,
+      "name": "FootIK.R_0109",
+      "parent_node": 7
+    },
+    {
+      "node": 138,
+      "name": "FootIK.R_end_0110",
+      "parent_node": 137
+    },
+    {
+      "node": 139,
+      "name": "FootIK.R_end_end_0134",
+      "parent_node": 138
+    },
+    {
+      "node": 140,
+      "name": "FootIK.L_0111",
+      "parent_node": 7
+    },
+    {
+      "node": 141,
+      "name": "FootIK.L_end_0112",
+      "parent_node": 140
+    },
+    {
+      "node": 142,
+      "name": "FootIK.L_end_end_0135",
+      "parent_node": 141
+    }
+  ],
+  "fbx": {
+    "version": 7400,
+    "animation_stacks": [
+      [
+        245173048,
+        "RaptorArmature|RaptorArmature|RaptorArmature|Raptor_Action_Pose|RaptorArmature\u0000\u0001AnimStack",
+        ""
+      ],
+      [
+        704349559,
+        "RaptorArmature|RaptorArmature|RaptorArmature|Raptor_Bite1_Anim|RaptorArmature|\u0000\u0001AnimStack",
+        ""
+      ],
+      [
+        880384515,
+        "RaptorArmature|RaptorArmature|RaptorArmature|Raptor_Bite2_Anim|RaptorArmature|\u0000\u0001AnimStack",
+        ""
+      ],
+      [
+        6083641,
+        "RaptorArmature|RaptorArmature|RaptorArmature|Raptor_Call1_Anim|RaptorArmature|\u0000\u0001AnimStack",
+        ""
+      ],
+      [
+        84237988,
+        "RaptorArmature|RaptorArmature|RaptorArmature|Raptor_Death1_Anim|RaptorArmature\u0000\u0001AnimStack",
+        ""
+      ],
+      [
+        373964536,
+        "RaptorArmature|RaptorArmature|RaptorArmature|Raptor_Death2_Anim|RaptorArmature\u0000\u0001AnimStack",
+        ""
+      ],
+      [
+        925283512,
+        "RaptorArmature|RaptorArmature|RaptorArmature|Raptor_Drink_Anim|RaptorArmature|\u0000\u0001AnimStack",
+        ""
+      ],
+      [
+        528110752,
+        "RaptorArmature|RaptorArmature|RaptorArmature|Raptor_EatPrey_Anim|RaptorArmatur\u0000\u0001AnimStack",
+        ""
+      ],
+      [
+        696575776,
+        "RaptorArmature|RaptorArmature|RaptorArmature|Raptor_GoToSleep_Anim|RaptorArmat\u0000\u0001AnimStack",
+        ""
+      ],
+      [
+        14159130,
+        "RaptorArmature|RaptorArmature|RaptorArmature|Raptor_Hit1_Anim|RaptorArmature|R\u0000\u0001AnimStack",
+        ""
+      ],
+      [
+        527088279,
+        "RaptorArmature|RaptorArmature|RaptorArmature|Raptor_Hit2_Anim|RaptorArmature|R\u0000\u0001AnimStack",
+        ""
+      ],
+      [
+        420350767,
+        "RaptorArmature|RaptorArmature|RaptorArmature|Raptor_Hit3_Anim_RM|RaptorArmatur\u0000\u0001AnimStack",
+        ""
+      ],
+      [
+        354367475,
+        "RaptorArmature|RaptorArmature|RaptorArmature|Raptor_Hit3_Anim|RaptorArmature|R\u0000\u0001AnimStack",
+        ""
+      ],
+      [
+        834734951,
+        "RaptorArmature|RaptorArmature|RaptorArmature|Raptor_Idle1_Anim|RaptorArmature|\u0000\u0001AnimStack",
+        ""
+      ],
+      [
+        908496447,
+        "RaptorArmature|RaptorArmature|RaptorArmature|Raptor_Idle2_Anim|RaptorArmature|\u0000\u0001AnimStack",
+        ""
+      ],
+      [
+        357793840,
+        "RaptorArmature|RaptorArmature|RaptorArmature|Raptor_Leap1_Anim_RM|RaptorArmatu\u0000\u0001AnimStack",
+        ""
+      ],
+      [
+        98617321,
+        "RaptorArmature|RaptorArmature|RaptorArmature|Raptor_Leap1_Anim|RaptorArmature|\u0000\u0001AnimStack",
+        ""
+      ],
+      [
+        964161222,
+        "RaptorArmature|RaptorArmature|RaptorArmature|Raptor_Leap2_Anim_RM|RaptorArmatu\u0000\u0001AnimStack",
+        ""
+      ],
+      [
+        746390795,
+        "RaptorArmature|RaptorArmature|RaptorArmature|Raptor_Leap2_Anim|RaptorArmature|\u0000\u0001AnimStack",
+        ""
+      ],
+      [
+        822241562,
+        "RaptorArmature|RaptorArmature|RaptorArmature|Raptor_Roar1_Anim|RaptorArmature|\u0000\u0001AnimStack",
+        ""
+      ],
+      [
+        876853287,
+        "RaptorArmature|RaptorArmature|RaptorArmature|Raptor_Roar2_Anim|RaptorArmature|\u0000\u0001AnimStack",
+        ""
+      ],
+      [
+        685014076,
+        "RaptorArmature|RaptorArmature|RaptorArmature|Raptor_Run1_Anim_RM|RaptorArmatur\u0000\u0001AnimStack",
+        ""
+      ],
+      [
+        736485502,
+        "RaptorArmature|RaptorArmature|RaptorArmature|Raptor_Run1_Anim|RaptorArmature|R\u0000\u0001AnimStack",
+        ""
+      ],
+      [
+        621122983,
+        "RaptorArmature|RaptorArmature|RaptorArmature|Raptor_Run2_Anim_RM|RaptorArmatur\u0000\u0001AnimStack",
+        ""
+      ],
+      [
+        305066287,
+        "RaptorArmature|RaptorArmature|RaptorArmature|Raptor_Run2_Anim|RaptorArmature|R\u0000\u0001AnimStack",
+        ""
+      ],
+      [
+        97052254,
+        "RaptorArmature|RaptorArmature|RaptorArmature|Raptor_Screech1_Anim|RaptorArmatu\u0000\u0001AnimStack",
+        ""
+      ],
+      [
+        49484835,
+        "RaptorArmature|RaptorArmature|RaptorArmature|Raptor_SleepLoop_Anim|RaptorArmat\u0000\u0001AnimStack",
+        ""
+      ],
+      [
+        26985414,
+        "RaptorArmature|RaptorArmature|RaptorArmature|Raptor_SniffGround_Anim|RaptorArm\u0000\u0001AnimStack",
+        ""
+      ],
+      [
+        158626851,
+        "RaptorArmature|RaptorArmature|RaptorArmature|Raptor_Tackle_Anim_RM|RaptorArmat\u0000\u0001AnimStack",
+        ""
+      ],
+      [
+        568194686,
+        "RaptorArmature|RaptorArmature|RaptorArmature|Raptor_Tackle_Anim|RaptorArmature\u0000\u0001AnimStack",
+        ""
+      ],
+      [
+        285351465,
+        "RaptorArmature|RaptorArmature|RaptorArmature|Raptor_WakeFromSleep_Anim|RaptorA\u0000\u0001AnimStack",
+        ""
+      ],
+      [
+        737785005,
+        "RaptorArmature|RaptorArmature|RaptorArmature|Raptor_Walk_Anim_RM|RaptorArmatur\u0000\u0001AnimStack",
+        ""
+      ],
+      [
+        710164860,
+        "RaptorArmature|RaptorArmature|RaptorArmature|Raptor_Walk_Anim|RaptorArmature|R\u0000\u0001AnimStack",
+        ""
+      ],
+      [
+        425605903,
+        "RaptorArmature|RaptorArmature|RaptorArmature|Standard_Pose|RaptorArmature|Stan\u0000\u0001AnimStack",
+        ""
+      ]
+    ],
+    "geometry_arrays": [
+      {
+        "property": "Vertices",
+        "data": [
+          {
+            "array_length": 23532
+          }
+        ]
+      },
+      {
+        "property": "PolygonVertexIndex",
+        "data": [
+          {
+            "array_length": 30658
+          }
+        ]
+      },
+      {
+        "property": "Vertices",
+        "data": [
+          {
+            "array_length": 924
+          }
+        ]
+      },
+      {
+        "property": "Vertices",
+        "data": [
+          {
+            "array_length": 522
+          }
+        ]
+      },
+      {
+        "property": "Vertices",
+        "data": [
+          {
+            "array_length": 1029
+          }
+        ]
+      },
+      {
+        "property": "Vertices",
+        "data": [
+          {
+            "array_length": 4515
+          }
+        ]
+      },
+      {
+        "property": "Vertices",
+        "data": [
+          {
+            "array_length": 312
+          }
+        ]
+      }
+    ]
+  }
+}

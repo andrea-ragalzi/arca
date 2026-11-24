@@ -105,7 +105,22 @@ The source model remains 69 bones, nine materials, 17 textures, approximately 1.
 
 The project includes `.zed/settings.json` with save on focus change, plus `.zed/tasks.json` with editor, play, test and Git-status tasks. Open Zed's command palette, run **task: spawn**, and select an **ARCA:** task. Keep one Godot editor instance open on this folder.
 
-Use the **built-in Zed Agent with the existing ChatGPT subscription**, not an external Codex agent. The bootstrap prompt is in [docs/PROMPTS.md](docs/PROMPTS.md); `AGENTS.md` and `.agents/skills/` provide repository instructions and specialized Godot skills. [docs/AI_ENVIRONMENT.md](docs/AI_ENVIRONMENT.md) records the pinned Godot MCP installation, Zed settings, verified read-only checks and remaining live-editor activation steps. No custom slash-command registry or second Godot MCP is needed.
+**Codex**, **Claude Code** and the built-in **Zed Agent** are all supported. They share `AGENTS.md` (Claude Code loads it through `CLAUDE.md`) and the specialized skills in `.agents/skills/`. Single-folder prompts are in [docs/PROMPTS.md](docs/PROMPTS.md). [docs/AI_ENVIRONMENT.md](docs/AI_ENVIRONMENT.md) records the pinned Godot MCP installation, Zed settings and verified read-only checks. No custom slash-command registry or second Godot MCP is needed.
+
+### Parallel agents
+
+Codex and Claude Code can work at the same time, each in **its own Git worktree and branch** under `../ARCA-wt/`. The live Godot editor and MCP stay in this main checkout. Worktrees run headless checks only.
+
+- [docs/PARALLEL_DEVELOPMENT.md](docs/PARALLEL_DEVELOPMENT.md): creating worktrees, file ownership, merge order and task records.
+- [SPRINT_01.md](SPRINT_01.md): current tasks, lanes and integration order.
+- `docs/tasks/<ID>.md`: one self-contained brief per task; paste it as the agent's prompt.
+- [TASK.md](TASK.md): status board with one section per task. Earlier task history is preserved verbatim in [docs/archive/](docs/archive/README.md).
+
+```bash
+git worktree add -b s1/02-raptor-reactions ../ARCA-wt/s1-02 main
+"$HOME/Applications/Godot_v4.5.1-stable_linux.x86_64" --headless --editor --import --path ../ARCA-wt/s1-02
+(cd ../ARCA-wt/s1-02 && bash scripts/check.sh)
+```
 
 Stop the game and save scenes before an agent edits them. Reload external scene changes from disk instead of overwriting them from an old editor tab. Godot auto-reload settings and daily steps are in [docs/WORKFLOW.md](docs/WORKFLOW.md).
 
@@ -117,7 +132,7 @@ bash scripts/check.sh
 
 If Godot is already open, use `bash scripts/ai_check.sh` for the same gate in an isolated source snapshot, or `bash scripts/ai_check.sh --mcp` for a read-only MCP/4.5.1 check without touching live scenes. See [the AI environment guide](docs/AI_ENVIRONMENT.md) for logs and the existing local ripgrep fallback.
 
-Requires Godot 4.5.1, Bash, `timeout` (coreutils) and `rg` (ripgrep). It imports assets and runs the actual gameplay/physics suites. Logs go to ignored `.artifacts/test-logs/`. On Pop!_OS, install missing ripgrep with `sudo apt install ripgrep`.
+Requires Godot 4.5.1, Bash, `timeout` (coreutils) and `grep`. It uses ripgrep when installed and falls back to `grep` otherwise, so fresh worktrees need no extra tools. It imports assets and runs the actual gameplay/physics suites. Logs go to ignored `.artifacts/test-logs/`. Installing ripgrep (`sudo apt install ripgrep`) is optional.
 
 ## Understand the code
 

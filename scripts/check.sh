@@ -4,6 +4,17 @@ source "$(dirname -- "${BASH_SOURCE[0]}")/godot_common.sh"
 if [[ $# -gt 0 ]]; then echo 'Usage: bash scripts/check.sh' >&2; exit 2; fi
 resolve_godot
 mkdir -p "$ARCA_ROOT/.artifacts/test-logs"
+# Keep Godot from importing logs or snapshots stored under .artifacts.
+touch "$ARCA_ROOT/.artifacts/.gdignore"
+
+# Prefer ripgrep; fall back to POSIX grep so fresh worktrees need no extra tools.
+if command -v rg >/dev/null 2>&1; then
+  arca_search() { rg -n "$@"; }
+  arca_list() { rg "$@"; }
+else
+  arca_search() { grep -nE "$@"; }
+  arca_list() { grep -E "$@"; }
+fi
 
 run_check() {
   local arca_check_name="$1"
@@ -14,15 +25,15 @@ run_check() {
     cat "$arca_log"
     return 1
   fi
-  if rg -n 'SCRIPT ERROR:|ERROR:|FAIL:' "$arca_log"; then
+  if arca_search 'SCRIPT ERROR:|ERROR:|FAIL:' "$arca_log"; then
     cat "$arca_log"
     return 1
   fi
-  rg 'RESULT:|checks,|SHADOW TEST:' "$arca_log" || true
+  arca_list 'RESULT:|checks,|SHADOW TEST:' "$arca_log" || true
 }
 
-if ! command -v timeout >/dev/null || ! command -v rg >/dev/null; then
-  echo 'The check command requires timeout (coreutils) and rg (ripgrep).' >&2
+if ! command -v timeout >/dev/null || ! command -v grep >/dev/null; then
+  echo 'The check command requires timeout (coreutils) and grep.' >&2
   exit 1
 fi
 bash "$ARCA_ROOT/scripts/launcher_test.sh"

@@ -2,7 +2,7 @@
 
 ## One working folder
 
-Open the same folder containing `project.godot` in Zed and Godot. Keep Godot open for scene editing, asset import, and F5 playtesting; use Zed and its built-in Agent with the existing ChatGPT subscription for source changes. Work in one folder and use Git commits to keep working checkpoints.
+Open the same folder containing `project.godot` in Zed and Godot. Keep Godot open for scene editing, asset import, and F5 playtesting. Use Zed's built-in Agent, Codex or Claude Code for source changes. Use Git commits to keep working checkpoints. For several agents at once, give each its own worktree; see [PARALLEL_DEVELOPMENT.md](PARALLEL_DEVELOPMENT.md). The main checkout stays the only folder opened in the Godot editor.
 
 Keep one Git repository at the `ARCA` root containing `project.godot`. The `arca/` source folder belongs to that repository; do not initialize a nested repository there. For a source archive without Git history, initialize Git using the README commands. For an existing clone, keep its history and configured remote. Use your own Git identity; local history needs a separate backup or remote to protect against disk loss.
 
@@ -12,7 +12,7 @@ Project settings already enable `autosave: on_focus_change` and disable automati
 
 Set `GODOT_BIN` in your shell environment if Godot is outside `~/Applications/` and not on PATH. Start Zed from that environment when relying on the variable. The default launchers deliberately use Godot 4.5.1 Standard, Compatibility and X11.
 
-The native Zed Agent reads `AGENTS.md` and discovers project skills under `.agents/skills/`; skill loading was verified during setup. The existing `arca-godot` workflow is complemented by focused 3D-pattern, animation-audit, debugging/regression and MCP-editor skills. Prompts are ordinary text, not invented Zed slash commands. See [AI_ENVIRONMENT.md](AI_ENVIRONMENT.md) for the pinned hybridindie Godot MCP, profile safety, installation evidence and manual activation steps. Do not switch to an external agent or install a second Godot MCP.
+The native Zed Agent reads `AGENTS.md` and discovers project skills under `.agents/skills/`; skill loading was verified during setup. The existing `arca-godot` workflow is complemented by focused 3D-pattern, animation-audit, debugging/regression and MCP-editor skills. Prompts are ordinary text, not invented Zed slash commands. See [AI_ENVIRONMENT.md](AI_ENVIRONMENT.md) for the pinned hybridindie Godot MCP, profile safety, installation evidence and manual activation steps. Codex and Claude Code read the same `AGENTS.md` (Claude Code through `CLAUDE.md`) and may work in parallel worktrees. Do not install a second Godot MCP.
 
 ## Godot
 
@@ -43,7 +43,7 @@ Open `.import` metadata and Markdown documentation in Zed, not as Godot resource
 4. Inspect `git diff --stat` and the relevant file changes.
 5. Run `bash scripts/check.sh` after gameplay changes. Do not run another import process during an active Godot import; wait for it to finish. With the editor open, `bash scripts/ai_check.sh` runs that existing gate in an isolated source snapshot; it does not capture unsaved scene buffers.
 6. In Godot, press F5 and test the actual player experience.
-7. Update `TASK.md` with the task, implementation status and remaining validation. Stage it with the relevant files and include it in the same checkpoint commit when the result works.
+7. Update your task's own section in `TASK.md`, and the `## Record` in `docs/tasks/<ID>.md` when one exists. Stage them with the relevant files and include them in the same checkpoint commit when the result works.
 
 ```bash
 git switch -c feature/your-change
@@ -61,7 +61,9 @@ Inspect `git status` before staging: when a change includes files outside `arca/
 | --- | --- |
 | `bash scripts/editor.sh --nvidia` | Open the editor with NVIDIA PRIME offload |
 | `bash scripts/run.sh --nvidia` | Import and launch the game directly |
-| `bash scripts/check.sh` | Import and run gameplay suites |
+| `bash scripts/check.sh` | Import and run gameplay suites (ripgrep optional) |
+| `git worktree add -b s1/<id>-<slug> ../ARCA-wt/<id> main` | Create an isolated task worktree for a parallel agent |
+| `git worktree list` | List active task worktrees |
 | `bash scripts/ai_check.sh` | Run the same gate in an isolated source snapshot |
 | `bash scripts/ai_check.sh --mcp` | Verify read-only MCP calls against an isolated 4.5.1 editor |
 | `git status --short --branch` | See branch and working-tree changes |

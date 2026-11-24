@@ -31,9 +31,23 @@ All tested systems stay intact: TPS controls, ammo economy, hatch ambush, pause/
 | **A**: systems and integration | **Claude Code** | S1-01 → S1-04 → **S1-10 (integrator)** → S1-08 |
 | **B**: predator | **Codex** | S1-02 → S1-03 → S1-07 → S1-09 hookup |
 | **C**: isolated content (new files) | Codex: S1-05, S1-13. Claude Code: S1-06. Either: S1-11 | Runs alongside lanes A/B |
-| **U**: user | User | S1-00 approval, S1-09 audio source approval, F5 acceptance, S1-12 |
+| **D**: assets and audio | **Third agent session** (Codex or Claude Code) | D-01 → D-02 → D-04, D-03 (parallel), D-05 (after S1-10) |
+| **U**: user | User | S1-00 approval, audio source approval (D-03), Blender install decision (D-04), F5 acceptance, S1-12 |
 
-At most **four worktrees active at once** (two per agent). Only the integrator (S1-10) touches `arca/mission_room.tscn` and `arca/mission_navigation.tres`.
+Up to **two worktrees per lane**. Only the integrator (S1-10) touches `arca/mission_room.tscn` and `arca/mission_navigation.tres`. Workflow details are in [docs/PARALLEL_DEVELOPMENT.md](docs/PARALLEL_DEVELOPMENT.md). Each task's self-contained brief is in `docs/tasks/<ID>.md`.
+
+### Prepared worktrees (2026-11-24)
+
+| Task | Branch | Worktree | Lane / agent |
+| --- | --- | --- | --- |
+| S1-01 | `s1/01-interactions` | `../ARCA-wt/s1-01` | A / Claude Code |
+| S1-02 | `s1/02-raptor-reactions` | `../ARCA-wt/s1-02` | B / Codex lane. **Implementation started** (see TASK.md) |
+| S1-05 | `s1/05-areas` | `../ARCA-wt/s1-05` | C / Codex |
+| S1-06 | `s1/06-regina-reactions` | `../ARCA-wt/s1-06` | C / Claude Code |
+| D-01 | `s1/d01-environment-kit` | `../ARCA-wt/d-01` | D / asset agent |
+| D-03 | `s1/d03-audio-prep` | `../ARCA-wt/d-03` | D / asset agent |
+
+Later tasks get their worktree from the current `main` once their dependencies have merged, so they start from the merged APIs.
 
 ## Dependency graph
 
@@ -46,6 +60,12 @@ S1-00 ─┬─ S1-01 ── S1-04 ─────────┐
        ├─ S1-13 ──────────────────┘         ├─ S1-11 (stretch, can run parallel to S1-10)
        └─ S1-09 asset acquisition (user-gated) ───┘
                                              └─ S1-12 final playtest
+
+Lane D (assets, no gameplay files):
+S1-00 ─┬─ D-01 env kit ─┬─ D-02 props ──────────(mesh swap by S1-04/S1-08/S1-13 owners or S1-10)
+       │                └─ D-04 Blender pipeline (gated on Blender install)
+       ├─ D-03 audio prep ── feeds S1-09 hookup
+       └─ (after S1-10) D-05 area dressing and atmosphere
 ```
 
 ## Integration order
@@ -53,9 +73,9 @@ S1-00 ─┬─ S1-01 ── S1-04 ─────────┐
 | Wave | Merge to `main`, in order | Gate after each merge |
 | --- | --- | --- |
 | 0 | S1-00 | Full gate on `main` |
-| 1 | S1-06 → S1-01 → S1-02 → S1-05 | Full gate, plus user F5 for S1-06 and S1-02 visuals |
-| 2 | S1-03 (rebased on S1-01) → S1-04 → S1-07 → S1-13 | Full gate |
-| 3 | S1-10 → S1-09 hookup → S1-08 → S1-11 | Full gate, plus route test |
+| 1 | S1-06 → S1-01 → S1-02 → S1-05 → D-01 | Full gate, plus user F5 for S1-06 and S1-02 visuals, and a D-01 preview capture |
+| 2 | S1-03 (rebased on S1-01) → S1-04 → S1-07 → S1-13 → D-02 → D-03 | Full gate |
+| 3 | S1-10 → S1-09 hookup → S1-08 → S1-11 → D-05 | Full gate, plus route test |
 | 4 | S1-12 | User F5 full route |
 
 Rule: **rebase the branch onto the current `main`, re-run the full gate in the worktree, then merge.** If two branches touch `mission_room.gd` or `hud.gd`, the later one rebases and resolves the conflict, never the integrator after the fact.
@@ -63,6 +83,14 @@ Rule: **rebase the branch onto the current `main`, re-run the full gate in the w
 ---
 
 ## S1-00: Baseline checkpoint and parallel-work protocol (blocking)
+
+**Status: complete (2026-11-24).**
+
+- Checkpoint commit `90ae020`.
+- `check.sh` falls back to `grep` when `rg` is missing.
+- `TASK.md` history moved verbatim to `docs/archive/TASK_HISTORY.md`. Tasks now have per-task sections and `docs/tasks/` briefs.
+- `AGENTS.md`, `CLAUDE.md`, `README.md` and the workflow docs support Codex and Claude Code worktrees.
+- Wave 1 and lane D worktrees created.
 
 **Owner:** user plus Claude Code, on `main`. **Depends on:** nothing. **Blocks:** everything.
 
@@ -128,7 +156,7 @@ git worktree add -b s1/01-interactions ../ARCA-wt/s1-01 main
 
 **Implementation:**
 
-- Bake two new bindings with the existing root-hold treatment: `Ferocious_Hurt` ← `Hurt_01` and `Ferocious_Roar` ← `Roar_01` (or `Call_Alert` if the roar is too long for 0.7 s; document the choice). Add `"Hurt"` and `"Roar"` to the suffix discovery list.
+- Bake two new bindings with the existing root-hold treatment: `Ferocious_Hurt` ← `Hurt_01` (1.250 s, in place) and `Ferocious_Roar` ← `Roar_03` (1.625 s, in place, closes). Retime or trim each to fit its gameplay window and document the choice. The archived review (`docs/archive/velociraptor-review/VELOCIRAPTOR_REVIEW.md`) recommends `Hurt_01/02` and `Roar_03`. `Roar_02` travels 0.252 m and `Knocked Down` travels 0.933 m, so both are rejected for now. Add `"Hurt"` and `"Roar"` to the suffix discovery list.
 - Add a `HURT` state, appended to the **end** of the enum so existing integer state values and labels stay stable.
 - An accepted hit enters HURT for `stagger_duration` (export, default 0.5 s) when all of these hold:
   - state is ALERT, CHASE, WINDUP or RECOVER;
@@ -454,6 +482,118 @@ One rendered still per area is captured with the existing capture pattern under 
 - At least one complete run takes **5–10 minutes**.
 - No soft-lock.
 - The full gate is green on `main`.
+
+---
+
+# Lane D: assets and audio (third independent workstream)
+
+This lane produces assets that gameplay lanes can adopt without waiting, and it never blocks them.
+
+**Hard boundaries:**
+
+- The lane **never edits** gameplay scripts (`arca/*.gd`, `arca/enemies/`, `arca/player/`, `arca/components/`, `arca/interactables/*.gd`), room scenes (`arca/*_room.tscn`), navigation or tests of gameplay behavior.
+- **Paths it owns:** `arca/assets/environment/**`, `arca/assets/props/**`, `arca/audio/**` (new subfolders only), `arca/tools/assets/**`, `tools/blender/**` (with `.gdignore`), `docs/assets/**`, and its own block in `ATTRIBUTIONS.md`.
+- Every asset has a known source and license. Generated assets are ARCA MIT additions. Downloads need the user's approval of the exact source first.
+
+**Tool facts (audited 2026-11-24):**
+
+- **Blender, ffmpeg and sox aren't installed.** Python 3 and Godot 4.5.1 are.
+- So the default automation is **Godot-headless generation** (`SceneTree` scripts that build meshes and materials and save `.tres`/`.tscn`, or export `.glb` through `GLTFDocument`), plus Python stdlib `wave` for PCM audio checks.
+- A Blender pipeline is optional and gated on installing a portable Blender LTS in `~/Applications` (D-04).
+
+## D-01: Modular environment kit (Godot-generated)
+
+**Branch:** `s1/d01-environment-kit`. **Worktree:** `../ARCA-wt/d-01`. **Depends on:** S1-00.
+
+**Deliverables:**
+
+- `arca/tools/assets/build_environment_kit.gd`, a headless generator. It must be deterministic: re-running it produces identical resources apart from UIDs.
+- The output goes to `arca/assets/environment/kit/`:
+  - materials: wall panel, floor plate, hazard trim, pipe, emissive light strip, dark glass;
+  - pieces: wall 4 m, wall 2 m, doorway frame (1.8 × 2.6 m opening), floor tile 4 × 4 m, ceiling-height pillar, pipe run, cable tray, light-strip fixture, vent grille, crate/console blocks.
+- Each piece is a `.tscn` with `MeshInstance3D` plus `StaticBody3D` on collision **layer 1** (where solid), origin at its floor centre, and dimensions on a 0.5 m grid.
+- The palette matches `arca/test_room.tscn` materials (cold industrial) and stays Compatibility-safe: no SSR, SDFGI or volumetrics, and emissive pieces use plain emission.
+- `arca/assets/environment/kit/kit_preview.tscn` lays out every piece. `docs/assets/ENVIRONMENT_KIT.md` gives the piece catalogue, dimensions and usage.
+
+**Acceptance criteria:**
+
+- A headless check (`arca/tests/environment_kit_test.gd`) loads every piece and verifies:
+  - no errors;
+  - AABB dimensions on the 0.5 m grid;
+  - collision layer 1 on solids;
+  - the doorway opening is at least 1.8 × 2.6 m;
+  - the triangle budget is at most 2,000 per piece.
+- Re-running the generator yields no diff in mesh data.
+- One X11/Compatibility capture of `kit_preview.tscn` goes into `.artifacts/` for the user. It's not a gate.
+
+## D-02: Gameplay prop set
+
+**Depends on:** D-01 materials.
+
+**Deliverables:** `arca/assets/props/`:
+
+- `keycard`, `checkpoint_terminal`, `note_clipboard`, `locked_door_frame` (status light node `StatusLight`), `lift_doors`, `ammo_box`, `medkit_case`, `fuse`.
+- Each prop is **visual only**: root `Node3D`, a child `Mesh` (or `Meshes`), and optional named `StatusLight` / `Screen` nodes. No scripts and no collision except the door frame.
+- The node contract is documented in `docs/assets/PROPS.md` so S1-04, S1-08 and S1-13 owners, or S1-10, can swap visuals by instancing a prop under an existing interactable without changing behavior.
+
+**Acceptance criteria:**
+
+- A headless check loads each prop and verifies the named contract nodes and size bounds. For example, the keycard is at most 0.12 m and the terminal fits 0.8 × 1.6 × 0.6 m.
+- Props are readable at gameplay distance: a capture is provided for user review.
+
+## D-03: Audio preparation
+
+**Branch:** `s1/d03-audio-prep`. **Worktree:** `../ARCA-wt/d-03`. **Depends on:** S1-00. **User gate:** source approval before any download.
+
+**Steps:**
+
+1. Write `docs/assets/AUDIO_PLAN.md`. It holds the required cue list with the naming contract `arca/audio/<category>/<cue>_<nn>.wav`. Categories are `raptor`, `env`, `ui` and `door`. Cues:
+   - raptor: roar ×2, bite, hurt ×2, death, footstep ×3, breath/sleep loop;
+   - environment: ambience loop, alarm loop;
+   - door: servo open, locked deny;
+   - UI: keycard accept, note open.
+   The plan also gives the target format (WAV PCM 16-bit, 44.1 or 48 kHz, mono for 3D cues), loudness targets (peak at most −1 dBFS; loops seamless) and loop flags.
+2. Propose a **shortlist of CC0 (preferred) or CC BY sources** with exact URLs, authors and licenses. **Stop for user approval.** Synthesized original sounds (procedural Python/Godot generation, MIT) are an approved fallback for UI, door and alarm cues that needs no download.
+3. After approval, stage the downloads outside tracked paths (`.artifacts/audio-staging/`). Convert, trim and normalize with `arca/tools/assets/prepare_audio.py` (stdlib `wave`/`audioop`-free implementation, or ffmpeg if the user installs it). Commit only the final files with their `.import` settings: loop on for loops, and 3D-ready mono.
+4. Record every file in `ATTRIBUTIONS.md` (URL, author, license, SHA-256 of the original) and in `docs/assets/AUDIO_MANIFEST.md` (cue → file → duration → loop → peak).
+
+**Acceptance criteria:**
+
+- A headless check verifies that every manifest entry exists, imports, has the declared loop mode and a duration within bounds, and that the peak is at most −1 dBFS (measured from PCM).
+- No unlicensed file is committed.
+- S1-09 can wire cues by name without renaming anything.
+
+## D-04: Optional Blender automation pipeline
+
+**Depends on:** D-01. **User gate:** install portable Blender LTS (for example 4.2 LTS) to `~/Applications/` and pin its version.
+
+**Deliverables:**
+
+- `tools/blender/` with a `.gdignore` and headless scripts (`blender --background --factory-startup --python ...`) that generate kit variants or props as `.glb`, with deterministic seeds, applied transforms, meters, +Y up for Godot import, and no embedded absolute paths.
+- `scripts/blender_build.sh` discovers the pinned Blender like `godot_common.sh` does and refuses other versions.
+- Generated `.glb` files plus source-side `.import` are committed. `.blend` files are committed only if small and needed.
+
+**Acceptance criteria:**
+
+- Running the build twice produces byte-identical `.glb` files.
+- Godot imports them without errors.
+- If Blender isn't installed, the lane continues with D-01's Godot generator and D-04 stays parked; nothing else waits on it.
+
+## D-05: Area dressing and atmosphere
+
+**Depends on:** S1-10 merged, and D-01/D-02.
+
+**Deliverables:**
+
+- Replace primitive boxes in `arca/areas/*.tscn` with kit pieces, keeping collision footprints and marker positions identical.
+- Add `arca/assets/environment/atmosphere/*.tres`: `Environment` resources with Compatibility-safe fog, ambient and tonemap per area mood, and light presets.
+
+**Acceptance criteria:**
+
+- `areas_test.gd`, `route_test.gd` and the full gate pass unchanged.
+- Navigation is rebaked only if a collision footprint changed; footprints are meant to stay identical.
+- The user accepts the mood in F5.
+- The frame-rate check with F3 is recorded in S1-12.
 
 ---
 

@@ -1,0 +1,34 @@
+{
+  "archives": {
+    "pbr-velociraptor-animated.zip": "dfd024012ab971ee99d14a78475a63f64449f9c4c596f9c8b4ce5fe7489e4bf3",
+    "RaptorSF.zip": "e01bff36eb37217c7084e9454eb80e6af81e3f207ca03c787b6c9caf62832991",
+    "pbr_velociraptor_animated.zip": "110add9c1ff229f2b57f61fc24a83f9f87a3242c43d59c52728a99b82e80efdc"
+  },
+  "files": {
+    "LICENSE_CC_BY_4.txt": "5a1a040a18e0d4f11828df45134eefe945dbba3c09ebac2ed3c5894ae15cef31",
+    "gltf/license.txt": "5a1a040a18e0d4f11828df45134eefe945dbba3c09ebac2ed3c5894ae15cef31",
+    "gltf/scene.bin": "4bff4bd4fa72cd8d86da1e8cd5d367e866f350674f0823ed40f0f0c3eb853eb9",
+    "gltf/scene.gltf": "be399c8d8dca4fc263af3b008cfeaa7786ea7baf5d2bd9c0cffc908bf5092366",
+    "gltf/textures/Body_Mat_normal.png": "3caec1efd9575d8319af3440b196174704000632cfb426b38f49281b7f2396e1",
+    "gltf/textures/Other_Mat_specularGlossiness.png": "ba2fd22e8c6e7caf8e0a705da110992006f1c45547668647896167bcd03b62db",
+    "gltf/textures/Body_Mat_occlusion.png": "c7eab396df9a84f9fe931dc84a5d4c94bca58b5f8c86091b96f6f874fc49d53d",
+    "gltf/textures/Other_Mat_occlusion.png": "031486fcc6355570f362ad19a12aebf57d2afb97f896ee3177dafb14855994c9",
+    "gltf/textures/Other_Mat_normal.png": "5484d7f28875885e5057deb921887cf727afd99ff6ccf66368419eb9db2d0baa",
+    "gltf/textures/Other_Mat_diffuse.png": "1e7e259d5efdd4b72ca731b41646869b868ac35f4fafa2fd2f28e1af0af6e984",
+    "gltf/textures/Body_Mat_diffuse.png": "6cd69b2a828cabb3688a37e81843bc62c0533b83583ac6b9a5794e47887f52d7",
+    "gltf/textures/Body_Mat_specularGlossiness.png": "bf089c380b9a73a3c2137334373ee73c592128ea56b6b8305e92c1735fc5b1a2",
+    "original/Raptor/Raptor_Animated_FBX.fbx": "eb94464b65f578c2e5cfba1631c68d9a51548b14208f73b732abb4202cb8e3cd",
+    "original/Raptor/Textures/Raptor_NormalDetailed.png": "653584ae839612d0608a90c31ee49e8a2e0755c971c36e8057f8d8c4c49e88b7",
+    "original/Raptor/Textures/Raptor_Scales_AlbedoA.png": "3e87d419c16a0db8cdd9781ee73268a7e8db2d63fc4b47bde4fc1c04fad99e54",
+    "original/Raptor/Textures/Raptor_PatternB_Albedo.png": "8848b56f9ec073f7e338b1a05e44c345d3220cffa3d940e2d815a9c5eb9f8ca7",
+    "original/Raptor/Textures/Raptor_AO.png": "1f58a022cc2d71382c4685b56530ff6b060f58345b98efa71caa11720ea3e7e2",
+    "original/Raptor/Textures/Raptor_Normal.png": "81c52b4db171c6c05b6769b918fd080108f9c6bdb5133ce9cf6cbb5c1ed2d6d4",
+    "original/Raptor/Textures/Other_Normal 1K.png": "052e88b96dd89fce6a2f349fc24d8b57f86387d8afaefee3314376a49bf1d7c1",
+    "original/Raptor/Textures/Raptor_PatternA_Albedo.png": "e8b55ee1f531963f4f98e66682a41dcc386ef74579f438fb88e09f2d661f98af",
+    "original/Raptor/Textures/Other_Albedo.png": "1b0291b59e36d1f5459bc14ebc16e7999d0e1ff16195a6b1e5f59623a014e885",
+    "original/Raptor/Textures/Raptor_PatternC_Albedo.png": "41b684055ba37f09d74e1ef7abf26e291a2f3f38b8e69a483959f43b3a77fe97",
+    "original/Raptor/Textures/Raptor_PatternE_Albedo.png": "dd57ba4c66b266b8b64694210c6ea8b8f8a76bed7ec3edb4dae8e1e7d2745f26",
+    "original/Raptor/Textures/Raptor_PatternD_Albedo.png": "9d6d50a2e2ae7528d2d55548700a7221810400a08771350a2c18a4a02a7423e9",
+    "original/Raptor/Textures/Other_Albedo2 1K.png": "517fbc535212c6d16a69a308cb3eb471ad0ba9b053a7ecd1e8a591df29972555"
+  }
+}

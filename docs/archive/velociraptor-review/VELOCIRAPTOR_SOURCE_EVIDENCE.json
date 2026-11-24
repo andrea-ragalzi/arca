@@ -1,0 +1,142 @@
+{
+  "scope": "Public listing metadata, public license deed and unauthenticated official download availability; no viewer payloads or asset archives obtained.",
+  "license_deed": {
+    "url": "https://creativecommons.org/licenses/by/4.0/",
+    "status": 200,
+    "response_sha256": "8dda1ccec4be91fc80821d4e4fd5c568072b9a3a74b2fdc07c249a27e920ef01"
+  },
+  "models": [
+    {
+      "candidate": "A",
+      "checked_at_utc": "2026-10-17T14:12:21.885289+00:00",
+      "api_url": "https://api.sketchfab.com/v3/models/59910f5d62f74e558499c166738b0e6d",
+      "api_status": 200,
+      "api_response_sha256": "d9e67f246bd4ee4425c4cca8998c0212762c8f2bf9ca2727f1b57f1edea19565",
+      "listing": {
+        "uid": "59910f5d62f74e558499c166738b0e6d",
+        "name": "Velociraptor",
+        "description": "Sculpt: ZBrush<br>\nTexture: substance painter<br>\nAnimation: blender",
+        "license": {
+          "uri": "https://api.sketchfab.com/v3/licenses/322a749bcfa841b29dff1e8a1bb74b0b",
+          "label": "CC Attribution",
+          "fullName": "Creative Commons Attribution",
+          "requirements": "Author must be credited. Commercial use is allowed.",
+          "url": "http://creativecommons.org/licenses/by/4.0/",
+          "slug": "by"
+        },
+        "isDownloadable": true,
+        "animationCount": 5,
+        "vertexCount": 16893,
+        "faceCount": 33238,
+        "publishedAt": "2024-03-02T18:13:37.893388",
+        "createdAt": "2024-03-02T15:07:00.222350"
+      },
+      "author": {
+        "username": "absol_cg",
+        "displayName": "absol",
+        "profileUrl": "https://sketchfab.com/absol_cg"
+      },
+      "page": {
+        "url": "https://sketchfab.com/3d-models/velociraptor-59910f5d62f74e558499c166738b0e6d",
+        "status": 202,
+        "response_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "title": [],
+        "embedded_listing_fields": {}
+      },
+      "download_probe": {
+        "url": "https://api.sketchfab.com/v3/models/59910f5d62f74e558499c166738b0e6d/download",
+        "status": 401,
+        "content_type": "application/json",
+        "error": {
+          "detail": "Authentication credentials were not provided."
+        },
+        "authenticated": false,
+        "asset_acquired": false,
+        "limitation": "Unauthenticated API access only; successful authenticated download and archive contents remain unverified."
+      },
+      "initial_page_observation": {
+        "status": 200,
+        "evidence_source": "Initial read-only HTML inspection in the agent terminal transcript, before the recorded probe; original response was not archived.",
+        "fields": {
+          "title": "Velociraptor - Download Free 3D model by absol (@absol_cg) [59910f5] - Sketchfab",
+          "downloadType": "free",
+          "originalFileName": "Raptor",
+          "ext": "blend",
+          "archiveSize": 1724834
+        },
+        "limitation": "Public page metadata, not downloaded archive contents. Subsequent recorded request returned HTTP 202 with an empty body."
+      }
+    },
+    {
+      "candidate": "B",
+      "checked_at_utc": "2026-10-17T14:12:22.218640+00:00",
+      "api_url": "https://api.sketchfab.com/v3/models/8f1744af7b0847a2aabe3df90be802f0",
+      "api_status": 200,
+      "api_response_sha256": "03d64876282536e2e60327d298a795a695fdddd690035b709c5cf33e394f5bde",
+      "listing": {
+        "uid": "8f1744af7b0847a2aabe3df90be802f0",
+        "name": "PBR Velociraptor (Animated)",
+        "description": "An animated Velociraptor!\n\nDesigned for games in Low-poly PBR including Albedo, Normal, AO, and Secondary 2K textures.\n\nThis model from Ferocious Industries can be found in 5 different material skins, and this one uses the \u2018Green\u2019 texture set.\n\n15144 Triangles.",
+        "license": {
+          "uri": "https://api.sketchfab.com/v3/licenses/322a749bcfa841b29dff1e8a1bb74b0b",
+          "label": "CC Attribution",
+          "fullName": "Creative Commons Attribution",
+          "requirements": "Author must be credited. Commercial use is allowed.",
+          "url": "http://creativecommons.org/licenses/by/4.0/",
+          "slug": "by"
+        },
+        "isDownloadable": true,
+        "animationCount": 26,
+        "vertexCount": 8332,
+        "faceCount": 15098,
+        "publishedAt": "2023-05-14T13:52:51.011338",
+        "createdAt": "2023-05-14T12:49:54.053550"
+      },
+      "author": {
+        "username": "ferociousindustries.matthias",
+        "displayName": "Ferocious Industries",
+        "profileUrl": "https://sketchfab.com/ferociousindustries.matthias"
+      },
+      "page": {
+        "url": "https://sketchfab.com/3d-models/pbr-velociraptor-animated-8f1744af7b0847a2aabe3df90be802f0",
+        "status": 202,
+        "response_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "title": [],
+        "embedded_listing_fields": {}
+      },
+      "download_probe": {
+        "url": "https://api.sketchfab.com/v3/models/8f1744af7b0847a2aabe3df90be802f0/download",
+        "status": 401,
+        "content_type": "application/json",
+        "error": {
+          "detail": "Authentication credentials were not provided."
+        },
+        "authenticated": false,
+        "asset_acquired": false,
+        "limitation": "Unauthenticated API access only; successful authenticated download and archive contents remain unverified."
+      },
+      "initial_page_observation": {
+        "status": 200,
+        "evidence_source": "Initial read-only HTML inspection in the agent terminal transcript, before the recorded probe; original response was not archived.",
+        "fields": {
+          "title": "PBR Velociraptor (Animated) - Download Free 3D model by Ferocious Industries (@ferociousindustries.matthias) [8f1744a] - Sketchfab",
+          "downloadType": "free",
+          "originalFileName": "RaptorSF",
+          "ext": "fbx",
+          "archiveSize": 28484913
+        },
+        "limitation": "Public page metadata, not downloaded archive contents. Subsequent recorded request returned HTTP 202 with an empty body."
+      }
+    }
+  ],
+  "user_supplied_acquisition": {
+    "date": "2026-10-17",
+    "model_id": "8f1744af7b0847a2aabe3df90be802f0",
+    "archives": [
+      "/home/andrea/Downloads/pbr-velociraptor-animated.zip",
+      "/home/andrea/Downloads/pbr_velociraptor_animated.zip"
+    ],
+    "status": "Original FBX and licensed Sketchfab glTF archive supplied by user and CRC/hash validated. Earlier 401 probes are historical unauthenticated-session evidence, not a current acquisition blocker for B.",
+    "manifest": "VELOCIRAPTOR_FILE_MANIFEST.json"
+  }
+}

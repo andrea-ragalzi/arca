@@ -2,6 +2,8 @@
 
 Configured on 2026-10-17 for the **built-in Zed Agent with the existing ChatGPT subscription**. No external Codex agent, editor replacement, extra Godot MCP, paid service, API key or test framework was installed. Gameplay and the engine are outside this task.
 
+**Update 2026-11-24:** Codex and Claude Code are now officially supported alongside the Zed Agent, each in a separate Git worktree. See [PARALLEL_DEVELOPMENT.md](PARALLEL_DEVELOPMENT.md). The pinned MCP and its live-editor bridge below remain bound to the main checkout only. The status table records the October setup and is not re-verified here.
+
 ## Status
 
 | Component | State | Evidence / limitation |

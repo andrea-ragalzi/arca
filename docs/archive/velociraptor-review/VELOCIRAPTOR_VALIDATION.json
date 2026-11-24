@@ -1,0 +1,18 @@
+{
+  "live_files_checked": 418,
+  "changed_live_files": [],
+  "live_status_unchanged": true,
+  "main_refs": [
+    "305a5ccaae7b76e0ef41921131ccfbb9084f7c63",
+    "305a5ccaae7b76e0ef41921131ccfbb9084f7c63"
+  ],
+  "source_files_verified": 25,
+  "archives_verified": 3,
+  "preview_checks": 94,
+  "preview_failures": 0,
+  "baseline_checks": 175,
+  "baseline_failures": 0,
+  "new_gdscript_parse_checks": 6,
+  "new_gdscript_parse_failures": 0,
+  "history_note": "The worktree intentionally retains its older task-history snapshot. The live Regina task had already advanced before this resume, so equality to the live task history is not a valid invariant. All live bytes match the fresh pre-resume manifest; no synchronization or overwrite was performed."
+}

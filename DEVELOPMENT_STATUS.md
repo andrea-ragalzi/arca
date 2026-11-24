@@ -83,17 +83,17 @@ No functional regression reproduced: the whole gate is green. The issues below b
 
 | ID | Severity | Issue | Evidence | Fix direction |
 | --- | --- | --- | --- | --- |
-| B1 | **P0** | Accepted Phases 2–4 are **uncommitted**. `git worktree add` branches from `0497430`, so every worktree would **lack ammo, medkit, reload, summary and the UAL2 strafe**, and would diverge from F5-accepted behavior | `git status`, `TASK.md` | User-approved checkpoint commit (or commits) of the current tree, including `TASK.md`, before creating any worktree |
-| B2 | **P0** | `scripts/check.sh` fails without a system `rg`. Only `ai_check.sh` adds the local fallback, and that fallback lives in ignored `.artifacts/`, so **it won't exist in new worktrees** | First gate run failed; `docs/AI_ENVIRONMENT.md:117` | Install ripgrep (`sudo apt install ripgrep`) on the machine, or make `check.sh` fall back to `grep -E`. Either way every worktree can run the gate |
-| B3 | **P0** | `TASK.md` is 224 KB of history, and AGENTS.md requires updating it in the same commit as each task. Two parallel branches will **always conflict on TASK.md**, and every agent pays the context cost of reading it | `wc -c TASK.md` | Move history to `docs/archive/TASK_HISTORY.md`. Keep TASK.md as a short sprint board where each task owns one row or block (see SPRINT_01 protocol) |
+| B1 | ~~P0~~ **Resolved** (commit `90ae020`) | Accepted Phases 2–4 are **uncommitted**. `git worktree add` branches from `0497430`, so every worktree would **lack ammo, medkit, reload, summary and the UAL2 strafe**, and would diverge from F5-accepted behavior | `git status`, `TASK.md` | User-approved checkpoint commit (or commits) of the current tree, including `TASK.md`, before creating any worktree |
+| B2 | ~~P0~~ **Resolved** (`check.sh` falls back to `grep`; ripgrep is also now installed system-wide) | `scripts/check.sh` fails without a system `rg`. Only `ai_check.sh` adds the local fallback, and that fallback lives in ignored `.artifacts/`, so **it won't exist in new worktrees** | First gate run failed; `docs/AI_ENVIRONMENT.md:117` | Install ripgrep (`sudo apt install ripgrep`) on the machine, or make `check.sh` fall back to `grep -E`. Either way every worktree can run the gate |
+| B3 | ~~P0~~ **Resolved** (history in `docs/archive/TASK_HISTORY.md`; per-task board) | `TASK.md` is 224 KB of history, and AGENTS.md requires updating it in the same commit as each task. Two parallel branches will **always conflict on TASK.md**, and every agent pays the context cost of reading it | `wc -c TASK.md` | Move history to `docs/archive/TASK_HISTORY.md`. Keep TASK.md as a short sprint board where each task owns one row or block (see SPRINT_01 protocol) |
 | B4 | P1 | Single-enemy architecture (see section 4) | `test_room.gd:5,14-17`, `mission_room.gd:get_mission_summary` | Lifecycle over group `arca_predator`, keeping `enemy` as the primary ambush predator for backward compatibility |
 | B5 | P1 | Hard-coded interaction list and dispatch in `mission_room.gd`. Every new pickup or door edits the same function, so it **conflicts across parallel branches** | `mission_room.gd:_find_interaction_target`, `try_interact` | Group-based discovery plus a polymorphic `interact()` on each point |
 | B6 | P1 | `mission_room.tscn` and `mission_navigation.tres` are single shared files. Parallel scene edits are not mergeable in practice | Inheritance chain test → raptor → mission | New geometry goes into separate area sub-scenes. Only the integrator instances them and rebakes navigation |
 | B7 | P1 | Extending the map requires opening the inherited `WallFront` (z = 14, defined in `test_room.tscn`). Editing it in the base would change the robot and raptor test rooms | `test_room.tscn:487` | Override in `mission_room.tscn` only (hide the mesh, disable the collision, add mission-local wall segments), then re-run the first_playable and raptor suites |
 | B8 | P1 | Regina freezes on death. That reads as a bug in a horror demo | `arca_player.gd:_on_died` | Play the UAL `Death01` clip before disabling the tree |
-| B9 | P2 | Docs say "use the built-in Zed Agent, not an external Codex agent" (`README.md`, `AGENTS.md`), which contradicts the new Codex + Claude Code worktree plan | README "Develop with Zed and Godot" | Update the AI tooling docs once the user confirms the workflow |
+| B9 | ~~P2~~ **Resolved** (AGENTS.md, README, `docs/PARALLEL_DEVELOPMENT.md`) | Docs say "use the built-in Zed Agent, not an external Codex agent" (`README.md`, `AGENTS.md`), which contradicts the new Codex + Claude Code worktree plan | README "Develop with Zed and Godot" | Update the AI tooling docs once the user confirms the workflow |
 | B10 | P2 | `shadows_test.gd` hangs forever headless (no internal timeout) | This audit | Leave it outside the gate. Optionally add a `DisplayServer.get_name() == "headless"` early exit |
-| B11 | P2 | 2.6 GB of `.artifacts/` and a stale `arca-asset-review` worktree | `du`, `git worktree list` | User decides whether to clean them. Don't delete automatically |
+| B11 | P2 | 2.6 GB of `.artifacts/` and a stale `arca-asset-review` worktree | `du`, `git worktree list` | See section 10. Nothing has been deleted |
 | B12 | P2 | Each new worktree needs its own first Godot import (`.godot/` isn't shared) [A: about 1–3 min] | — | Run `godot --headless --editor --import --path <wt>` once per worktree before testing |
 
 **Lower-risk code observations [C]:** after first sight, the raptor chases forever and never gives up. Bullets do a flat 1 damage, with a 0.15 s raptor hit cooldown against the 0.4 s fire cooldown, so no shots are lost. The medkit prompt is offered at full health and correctly refuses. None of these break the current mission.
@@ -154,3 +154,34 @@ Minimum systems to reach that: multiple areas, key items with a locked door, mul
 - [A] The Ferocious `Hurt`, `Roar` and `Sleep` clips are usable after the same root-hold treatment as the current six. The README notes ground penetration in unselected clips.
 - [A] The UAL `Death01`/`Hit_*` clips retarget cleanly onto Regina through the existing mapping, as locomotion and pistol poses did.
 - [A] Static script variables survive `reload_current_scene()` in Godot 4.5.1, which would allow a checkpoint without a new autoload. Verify with a focused test before relying on it (S1-08).
+
+## 10. Cleanup report (2026-11-24, nothing deleted)
+
+### Old worktree `/home/andrea/Workspace/arca-asset-review/ARCA` (413 MB)
+
+Detached at `305a5cc`. Its tracked files are older copies of `main`. The unique content and its status:
+
+| Content | Size | Unique? | Status |
+| --- | --- | --- | --- |
+| `docs/VELOCIRAPTOR_*.md/json` (untracked) | 0.7 MB | Yes: the full Ferocious evaluation | **Copied unchanged** to `docs/archive/velociraptor-review/` |
+| Uncommitted `TASK.md` / `ATTRIBUTIONS.md` edits | 130 KB diff | Yes | **Preserved** as `docs/archive/velociraptor-review/worktree-uncommitted.diff` |
+| `arca/asset_review/candidate_b/gltf/` | 21 MB | No: SHA-256 identical to `arca/assets/raptor/ferocious/source/` | Safe to remove |
+| `arca/asset_review/candidate_b/original/` (FBX tree) | 64 MB | No: the official archives are in `~/Downloads/` (`pbr_velociraptor_animated.zip` matches the pinned `110add9c…`; the FBX zip is `pbr-velociraptor-animated.zip`) | Safe to remove **while the Downloads copies are kept** |
+| `arca/asset_review/*.gd/.py/.tscn` (preview, audit and capture tools) | small | Yes, but superseded by the integrated wrapper | Optional: copy to the archive if you want the viewer back |
+| `.artifacts/velociraptor-review/` (per-clip frames for all 26 clips, `all_clips_1x.avi`) | 177 MB | Regenerable but costly | **Useful for S1-02/S1-07 clip choice.** Keep until S1-07 is accepted, or move outside the repo |
+| `.godot/` | 85 MB | No (import cache) | Safe to remove |
+
+**Safe removal, once you approve:** after the documents were archived, `git worktree remove --force /home/andrea/Workspace/arca-asset-review/ARCA` (force is needed because of untracked files). Keep `.artifacts/velociraptor-review/` elsewhere first if you want it.
+
+### Main `.artifacts/` (2.6 GB, ignored)
+
+| Category | Entries | Size | Recommendation |
+| --- | --- | --- | --- |
+| Isolated gate snapshots | 9 × `ai-check-*` | ~1.30 GB | **Safe to remove.** Full project copies of committed or since-superseded trees. Some VALIDATION.md lines cite their logs as historical evidence; keep the `*.log` files if you want those citations to resolve |
+| Evaluation project copies | `project/`, `clean-project/`, `source/`, `baseline/`, `validation-project/` under `ai-setup`, `regina`, `regina-grip`, `regina-locomotion`, `regina-motion`, `regina-pistol-evaluation`, `regina-player-baseline` | ~0.98 GB | **Safe to remove** (subfolders only). Keep each parent's `REPORT.md`, logs and captures |
+| Pinned animation sources | `regina-locomotion/AnimationLibrary_Godot_Standard.{gltf,bin}` (SHA-256 verified against the pinned values), `phase2-ual2/UAL2.{gltf,bin,glb}` and its License/README | ~45 MB | **Keep.** Required to re-bake Regina and for S1-06. Consider moving to a stable folder such as `~/Workspace/arca-sources/` |
+| `regina-pistol-evaluation/kaykit/free-1.1.zip` | 1 | 15 MB | Keep (KayKit CC0 source of the rejected trial) or remove; nothing uses it |
+| Tooling | `baseline-tools/` (local ripgrep) | 6.7 MB | Keep: the `ai_check.sh` fallback. Optional now that ripgrep is installed |
+| Evidence and logs | `test-logs/`, `*-captures/`, `final-playtest/`, `raptor-replacement/`, `phase*.log`, probes | ~70 MB | Keep: cited by docs and small |
+
+Estimated reclaimable space: **about 2.3 GB** in `.artifacts/` and **about 0.4 GB** from the old worktree.
