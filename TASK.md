@@ -27,10 +27,10 @@ Current sprint: [SPRINT_01.md](SPRINT_01.md). Workflow: [docs/PARALLEL_DEVELOPME
 
 ## S1-03: Multiple predators lifecycle
 
-- Status: Waiting: start after S1-02 merges
+- Status: Implemented and committed on its branch; not merged (merge order: after S1-01 and S1-02)
 - Branch: `s1/03-multi-predator`
-- Validation: -
-- Blockers: -
+- Validation: Worktree gate 625/0 plus new `multi_predator_test.gd` 19/0 (mutation-checked); combined preview with S1-02: 668/0.
+- Blockers: Integrator must register `multi_predator` in `scripts/check.sh` at merge
 
 ## S1-04: Key items and locked door
 

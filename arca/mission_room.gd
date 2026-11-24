@@ -29,6 +29,7 @@ var hatch_closed_y: float
 var mission_seconds: float = 0.0
 var shots_fired: int = 0
 var damage_taken: int = 0
+var predators_killed: int = 0
 
 func _ready() -> void:
 	super._ready()
@@ -183,10 +184,18 @@ func _notify(message: String) -> void:
 	hud.set_notice(message)
 
 func _on_enemy_destroyed() -> void:
+	predators_killed += 1
 	_cancel_ambush()
 	$AlarmLight.hide()
 	$BreachWarning.hide()
 	_notify("PREDATOR DOWN - continue to the exit.")
+
+func _on_predator_destroyed() -> void:
+	# Secondary predators never affect the hatch ambush, which belongs to `enemy`.
+	predators_killed += 1
+	if not mission_complete and player.health_component.current > 0:
+		_notify("PREDATOR DOWN")
+
 
 func get_mission_summary() -> Dictionary:
 	var predator: String = "STILL ALIVE"
@@ -194,7 +203,10 @@ func get_mission_summary() -> Dictionary:
 		predator = "KILLED"
 	elif mission_complete:
 		predator = "EVADED"
-	return {"seconds": mission_seconds, "shots": shots_fired, "damage": damage_taken, "predator": predator}
+	return {
+		"seconds": mission_seconds, "shots": shots_fired, "damage": damage_taken, "predator": predator,
+		"kills": predators_killed, "predators_total": get_predators().size(),
+	}
 
 func _on_player_died() -> void:
 	_cancel_ambush()
@@ -212,7 +224,7 @@ func _on_exit_entered(body: Node3D) -> void:
 	mission_complete = true
 	player.ammo_component.cancel_reload()
 	_cancel_ambush()
-	enemy.stop_combat()
+	stop_all_predators()
 	stop_audio()
 	hud.set_interaction("")
 	hud.set_notice("")
@@ -224,7 +236,7 @@ func _on_exit_entered(body: Node3D) -> void:
 
 func restart_room() -> void:
 	_cancel_ambush()
-	enemy.stop_combat()
+	stop_all_predators()
 	super.restart_room()
 
 func set_paused(value: bool) -> void:

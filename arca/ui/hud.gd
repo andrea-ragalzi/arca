@@ -17,6 +17,8 @@ signal pause_requested
 var enemy: CharacterBody3D
 var health: ArcaHealth
 var ammo: ArcaAmmo
+var predators_provider: Callable
+var telemetry_origin: Node3D
 
 
 func _ready() -> void:
@@ -30,6 +32,27 @@ func bind(component: ArcaHealth, target: CharacterBody3D) -> void:
 	enemy = target
 	health.changed.connect(_update_health)
 	_update_health(health.current, health.max_health)
+
+
+## Telemetry follows the nearest active predator when the room has several.
+func bind_predators(provider: Callable, origin: Node3D) -> void:
+	predators_provider = provider
+	telemetry_origin = origin
+
+
+func _telemetry_target() -> CharacterBody3D:
+	if not predators_provider.is_valid() or not is_instance_valid(telemetry_origin):
+		return enemy
+	var nearest: CharacterBody3D = null
+	var nearest_distance: float = INF
+	for predator: ArcaRaptor in predators_provider.call():
+		if predator.dead or predator.state == ArcaRaptor.State.DORMANT:
+			continue
+		var distance: float = predator.global_position.distance_squared_to(telemetry_origin.global_position)
+		if distance < nearest_distance:
+			nearest = predator
+			nearest_distance = distance
+	return nearest if nearest else enemy
 
 
 func bind_ammo(component: ArcaAmmo) -> void:
@@ -47,12 +70,13 @@ func _update_ammo(magazine: int, reserve: int) -> void:
 
 func _process(_delta: float) -> void:
 	fps_label.text = "%s  /  %d FPS  /  F3 details" % [RenderingServer.get_current_rendering_method(), Engine.get_frames_per_second()]
-	if is_instance_valid(enemy):
-		if enemy.has_method("get_status_text"):
-			enemy_label.text = enemy.get_status_text()
+	var target: CharacterBody3D = _telemetry_target()
+	if is_instance_valid(target):
+		if target.has_method("get_status_text"):
+			enemy_label.text = target.get_status_text()
 		else:
-			var state_name: String = ["APPROACH", "AIMING", "FIRING"][enemy.state]
-			enemy_label.text = "TARGET %d/5  /  %s" % [maxi(enemy.health, 0), "DESTROYED" if enemy.dead else state_name]
+			var state_name: String = ["APPROACH", "AIMING", "FIRING"][target.state]
+			enemy_label.text = "TARGET %d/5  /  %s" % [maxi(target.health, 0), "DESTROYED" if target.dead else state_name]
 	else:
 		enemy_label.text = "TARGET DESTROYED"
 
