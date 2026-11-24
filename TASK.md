@@ -41,10 +41,10 @@ Current sprint: [SPRINT_01.md](SPRINT_01.md). Workflow: [docs/PARALLEL_DEVELOPME
 
 ## S1-05: Area blockouts
 
-- Status: Ready: worktree prepared, not started
+- Status: Merged into `main` on 2026-11-24 after user approval
 - Branch: `s1/05-areas`
-- Validation: -
-- Blockers: -
+- Validation: Full gate 803/0, standalone areas suite 118/0, and three X11/Compatibility stills. See docs/tasks/S1-05.md.
+- Blockers: Integrated F5 walkthrough belongs to S1-10.
 
 ## S1-06: Regina death and hit reactions
 
