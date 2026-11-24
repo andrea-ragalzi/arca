@@ -13,8 +13,8 @@ Current sprint: [SPRINT_01.md](SPRINT_01.md). Workflow: [docs/PARALLEL_DEVELOPME
 
 ## S1-01: Interaction contract
 
-- Status: Implemented, awaiting review and merge (uncommitted)
-- Branch: `s1/01-interactions` (implemented in a detached Claude Code worktree based on `c41d342`)
+- Status: Merged into `main` (`02df38f`) on 2026-11-24 after review; F5 prompt check pending (see docs/tasks/S1-01.md)
+- Branch: `s1/01-interactions` (ported unchanged from the agent's detached worktree `loyal-sycamore`)
 - Validation: Full gate 635 checks / 0 failures (launcher 13, first_playable 42, raptor 59, mission 61, ambush 47, regina_player 378, economy 35). See docs/tasks/S1-01.md Record.
 - Blockers: -
 
