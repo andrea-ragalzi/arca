@@ -1,0 +1,38 @@
+[gd_resource type="StandardMaterial3D" load_steps=6 format=3]
+
+[sub_resource type="FastNoiseLite" id="Wear"]
+seed = 77
+frequency = 0.035
+fractal_octaves = 5
+fractal_gain = 0.55
+
+[sub_resource type="Gradient" id="WornResin"]
+offsets = PackedFloat32Array(0, 0.55, 1)
+colors = PackedColorArray(0.82, 0.82, 0.82, 1, 0.95, 0.95, 0.95, 1, 1, 1, 1, 1)
+
+[sub_resource type="NoiseTexture2D" id="Mottle"]
+width = 1024
+height = 1024
+seamless = true
+color_ramp = SubResource("WornResin")
+noise = SubResource("Wear")
+
+[sub_resource type="NoiseTexture2D" id="Relief"]
+width = 512
+height = 512
+seamless = true
+as_normal_map = true
+bump_strength = 2.0
+noise = SubResource("Wear")
+
+[resource]
+resource_name = "Technical Resin Floor"
+albedo_color = Color(0.2118, 0.2431, 0.251, 1)
+albedo_texture = SubResource("Mottle")
+roughness = 0.78
+normal_enabled = true
+normal_scale = 0.18
+normal_texture = SubResource("Relief")
+uv1_scale = Vector3(0.25, 0.25, 0.25)
+uv1_triplanar = true
+uv1_world_triplanar = true

@@ -1,0 +1,34 @@
+[gd_scene load_steps=7 format=3]
+
+[ext_resource type="Material" path="res://arca/assets/environment/kit/gasket.tres" id="1"]
+[ext_resource type="Shader" path="res://arca/assets/environment/kit/instrument_display.gdshader" id="2"]
+
+[sub_resource type="ShaderMaterial" id="Phosphor"]
+shader = ExtResource("2")
+shader_parameter/channel = 0.0
+
+[sub_resource type="BoxMesh" id="Frame"]
+material = ExtResource("1")
+size = Vector3(1, 0.66, 0.135)
+
+[sub_resource type="QuadMesh" id="Screen"]
+material = SubResource("Phosphor")
+size = Vector2(0.87, 0.50)
+
+[sub_resource type="BoxMesh" id="Mount"]
+material = ExtResource("1")
+size = Vector3(0.37, 0.14, 0.16)
+
+[node name="InstrumentDisplay" type="Node3D"]
+
+[node name="Mount" type="MeshInstance3D" parent="."]
+position = Vector3(0, -0.38, 0)
+mesh = SubResource("Mount")
+
+[node name="Housing" type="MeshInstance3D" parent="."]
+mesh = SubResource("Frame")
+
+[node name="Phosphor" type="MeshInstance3D" parent="."]
+position = Vector3(0, 0.013, 0.069)
+cast_shadow = 0
+mesh = SubResource("Screen")

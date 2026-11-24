@@ -1,0 +1,8 @@
+[gd_resource type="StandardMaterial3D" format=3]
+
+[resource]
+resource_name = "Bare Steel"
+albedo_color = Color(0.2118, 0.2431, 0.2510, 1)
+metallic = 0.75
+roughness = 0.48
+

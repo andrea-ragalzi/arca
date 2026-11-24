@@ -1,0 +1,8 @@
+[gd_resource type="StandardMaterial3D" format=3]
+
+[resource]
+resource_name = "Emergency Red"
+albedo_color = Color(0.6431, 0.2196, 0.1961, 1)
+metallic = 0.0
+roughness = 0.70
+

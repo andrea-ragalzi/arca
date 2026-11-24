@@ -1,0 +1,47 @@
+[gd_scene load_steps=8 format=3]
+
+[ext_resource type="Material" path="res://arca/assets/environment/kit/frame.tres" id="1"]
+[ext_resource type="Material" path="res://arca/assets/environment/kit/pipe.tres" id="2"]
+[ext_resource type="Material" path="res://arca/assets/environment/kit/hazard_trim.tres" id="3"]
+
+[sub_resource type="BoxMesh" id="Jamb"]
+material = ExtResource("1")
+size = Vector3(0.23, 3.4, 0.58)
+
+[sub_resource type="BoxMesh" id="Header"]
+material = ExtResource("1")
+size = Vector3(3.46, 0.36, 0.58)
+
+[sub_resource type="BoxMesh" id="RubPlate"]
+material = ExtResource("2")
+size = Vector3(0.025, 0.83, 0.51)
+
+[sub_resource type="BoxMesh" id="HeaderStripe"]
+material = ExtResource("3")
+size = Vector3(3.46, 0.043, 0.596)
+
+[node name="BulkheadTrim" type="Node3D"]
+
+[node name="WestJamb" type="MeshInstance3D" parent="."]
+position = Vector3(-1.615, 1.7, 0)
+mesh = SubResource("Jamb")
+
+[node name="EastJamb" type="MeshInstance3D" parent="."]
+position = Vector3(1.615, 1.7, 0)
+mesh = SubResource("Jamb")
+
+[node name="Header" type="MeshInstance3D" parent="."]
+position = Vector3(0, 3.58, 0)
+mesh = SubResource("Header")
+
+[node name="WestRubPlate" type="MeshInstance3D" parent="."]
+position = Vector3(-1.518, 0.53, 0)
+mesh = SubResource("RubPlate")
+
+[node name="EastRubPlate" type="MeshInstance3D" parent="."]
+position = Vector3(1.518, 0.53, 0)
+mesh = SubResource("RubPlate")
+
+[node name="HeaderStripe" type="MeshInstance3D" parent="."]
+position = Vector3(0, 3.46, 0)
+mesh = SubResource("HeaderStripe")

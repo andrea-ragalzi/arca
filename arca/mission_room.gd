@@ -63,7 +63,7 @@ func _ready() -> void:
 	player.shot_fired.connect(func(): shots_fired += 1)
 	player.health_component.damaged.connect(func(amount: int): damage_taken += amount)
 	hud.get_node("Frame/Subtitle").text = "CONTINUITY STATION   /   POWER RESTORATION"
-	hud.get_node("Frame/Tag").text = "MAINTENANCE SECTOR / POWER RESTORATION\nTEMPORARY ART AND ENVIRONMENT"
+	hud.get_node("Frame/Tag").text = "SECTOR B  /  TRANSFER & EVACUATION"
 	hud.get_node("Frame/Controls").text = "WASD  move    /    MOUSE  camera\nRMB  aim    /    LMB  fire    /    SPACE  jump\nE  interact    /    R  reload    /    Q  dodge or break free\nBACKSPACE  restart    /    ESC  pause"
 	var anchor: Marker3D = $ControlOffice/Markers/Checkpoint
 	var terminal: Node3D = CHECKPOINT_SCENE.instantiate()

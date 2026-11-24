@@ -10,6 +10,8 @@ enum Reaction { READY, DODGING, DOWN, RISING }
 const DODGE_TIME: float = 0.34
 const DODGE_SPEED: float = 6.4
 const RISE_TIME: float = 0.55
+## Radius of the sphere swept by the TPS spring arm; covers the camera near plane.
+const CAMERA_CLEARANCE: float = 0.12
 
 const TRAVERSAL := preload("res://arca/player/regina_traversal.gd")
 const EFFORT := preload("res://arca/audio/regina/effort.wav")
@@ -81,7 +83,14 @@ func _ready() -> void:
 	$BulletCache.process_mode = Node.PROCESS_MODE_DISABLED
 	health_component.died.connect(_on_died)
 	# The spring arm should collide with walls, never its owner's capsule.
-	$CameraBase/CameraRot/SpringArm3D.add_excluded_object(get_rid())
+	var spring_arm: SpringArm3D = $CameraBase/CameraRot/SpringArm3D
+	spring_arm.add_excluded_object(get_rid())
+	# Sweep a sphere instead of the inherited ray so the camera stops clear of
+	# walls, floors and the 2.50-2.65 m soffits. The ray left 1 cm, which put the
+	# 5 cm near plane inside the surface when the arm contracted.
+	var camera_volume := SphereShape3D.new()
+	camera_volume.radius = CAMERA_CLEARANCE
+	spring_arm.shape = camera_volume
 
 
 func _install_regina() -> void:

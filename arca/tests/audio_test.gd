@@ -20,10 +20,15 @@ func run() -> void:
 func check_playback(audio: Node) -> void:
 	var ambience: AudioStreamPlayer = audio.get_node("Ambience")
 	var alarm: AudioStreamPlayer = audio.get_node("Alarm")
+	var sources := interior_sources()
+	check(sources.all(func(source: AudioStreamPlayer3D) -> bool: return source.playing),
+		"Positional pump, drain, rack and lift loops play at mission start")
 	check(ambience.playing and not alarm.playing, "Only the ambience plays at mission start")
 	room.set_paused(true)
 	await frames(8)
 	check(ambience.stream_paused, "Mission pause pauses the ambience stream")
+	check(sources.all(func(source: AudioStreamPlayer3D) -> bool: return source.stream_paused),
+		"Mission pause freezes the positional interior loops")
 	room.set_paused(false)
 	await frames(3)
 	check(not ambience.stream_paused, "Resume resumes the ambience stream")
@@ -71,6 +76,8 @@ func check_playback(audio: Node) -> void:
 	room.player.take_damage(1000)
 	check(not ambience.playing and not alarm.playing and not voice.playing
 		and not room.door.get_node("Servo").playing, "Death silences the route and predator audio")
+	check(sources.all(func(source: AudioStreamPlayer3D) -> bool: return not source.playing),
+		"Death stops the positional interior loops")
 
 	await reset_mission()
 	audio = room.get_node("MissionAudio")
@@ -85,3 +92,15 @@ func check_playback(audio: Node) -> void:
 	await move_to_exit_fixture()
 	check(room.mission_complete and not audio.get_node("Ambience").playing and not audio.get_node("Alarm").playing,
 		"Completion stops the mission loops")
+	check(interior_sources().all(func(source: AudioStreamPlayer3D) -> bool: return not source.playing),
+		"Completion stops the positional interior loops")
+
+
+func interior_sources() -> Array[AudioStreamPlayer3D]:
+	return [
+		room.get_node("MaintenanceDressing/TransferEquipment/PumpHum"),
+		room.get_node("SecurityCorridor/Dressing/CondensateAndTracks/LeakingDrain"),
+		room.get_node("ControlOffice/Dressing/RackHum"),
+		room.get_node("ExitLift/Dressing/CableDrive"),
+		room.get_node("ExitLift/Dressing/ShaftExtractor/FanRumble"),
+	]

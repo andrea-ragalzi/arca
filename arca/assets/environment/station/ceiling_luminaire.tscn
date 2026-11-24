@@ -1,0 +1,24 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Material" path="res://arca/assets/environment/station/steel_painted.tres" id="1_steel"]
+[ext_resource type="Material" path="res://arca/assets/environment/station/lamp_diffuser.tres" id="2_diffuser"]
+
+[sub_resource type="BoxMesh" id="Housing"]
+material = ExtResource("1_steel")
+size = Vector3(1.26, 0.07, 0.34)
+
+[sub_resource type="BoxMesh" id="Diffuser"]
+material = ExtResource("2_diffuser")
+size = Vector3(1.14, 0.02, 0.24)
+
+[node name="StationLuminaire" type="Node3D"]
+
+[node name="Housing" type="MeshInstance3D" parent="."]
+position = Vector3(0, -0.035, 0)
+cast_shadow = 0
+mesh = SubResource("Housing")
+
+[node name="Diffuser" type="MeshInstance3D" parent="."]
+position = Vector3(0, -0.075, 0)
+cast_shadow = 0
+mesh = SubResource("Diffuser")

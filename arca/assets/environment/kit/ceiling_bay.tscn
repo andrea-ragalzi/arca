@@ -1,0 +1,42 @@
+[gd_scene load_steps=7 format=3]
+
+[ext_resource type="Material" path="res://arca/assets/environment/kit/mineral_liner.tres" id="1"]
+[ext_resource type="Material" path="res://arca/assets/environment/kit/frame.tres" id="2"]
+
+[sub_resource type="BoxMesh" id="Slab"]
+material = ExtResource("1")
+size = Vector3(4, 0.2, 4)
+
+[sub_resource type="BoxMesh" id="Rail"]
+material = ExtResource("2")
+size = Vector3(0.09, 0.08, 4)
+
+[sub_resource type="BoxMesh" id="Joint"]
+material = ExtResource("2")
+size = Vector3(4, 0.04, 0.055)
+
+[sub_resource type="BoxMesh" id="CrossMember"]
+material = ExtResource("2")
+size = Vector3(4, 0.17, 0.14)
+
+[node name="CeilingBay" type="Node3D"]
+
+[node name="Liner" type="MeshInstance3D" parent="."]
+position = Vector3(0, 0.1, 0)
+cast_shadow = 0
+mesh = SubResource("Slab")
+
+[node name="LongitudinalRail" type="MeshInstance3D" parent="."]
+position = Vector3(-1.94, -0.02, 0)
+cast_shadow = 0
+mesh = SubResource("Rail")
+
+[node name="TransverseJoint" type="MeshInstance3D" parent="."]
+position = Vector3(0, -0.015, -1.95)
+cast_shadow = 0
+mesh = SubResource("Joint")
+
+[node name="SuspensionBeam" type="MeshInstance3D" parent="."]
+position = Vector3(0, -0.067, 0)
+cast_shadow = 0
+mesh = SubResource("CrossMember")

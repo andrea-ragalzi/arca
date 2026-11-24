@@ -1,0 +1,12 @@
+[gd_resource type="StandardMaterial3D" load_steps=2 format=3]
+
+[ext_resource type="Texture2D" uid="uid://b3w1735rw3dim" path="res://arca/assets/environment/station/ceiling_panel_grid.png" id="1_grid"]
+
+[resource]
+resource_name = "Ceiling Panel"
+albedo_color = Color(0.7725, 0.7725, 0.7098, 1)
+albedo_texture = ExtResource("1_grid")
+roughness = 0.85
+uv1_scale = Vector3(1.6666666, 1.6666666, 1.6666666)
+uv1_triplanar = true
+uv1_world_triplanar = true

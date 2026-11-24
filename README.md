@@ -52,6 +52,8 @@ Keep this same `ARCA` folder for future work. Commits identify changes; folder a
 | Escape | Pause / resume |
 | F3 | Toggle debug telemetry |
 
+The connected interior uses one station finish in all four spaces: steel skirting, a grey-green washable band and clinical white walls, a dark resin floor and a 0.60 m panel ceiling at 2.65 m (2.50 m in the security corridor). The control office monitors the habitats and Third Energy. The security recess and freight approach show different traces of the emergency. See the [environment style guide](ENVIRONMENT_STYLE_GUIDE.md), the [interior review record](docs/tasks/S2-10.md) and the [station finish record](docs/tasks/S2-11.md).
+
 ### Earlier maintenance-sector playtest
 
 The user accepted the combined F5 playtest on 2026-11-24.

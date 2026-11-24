@@ -42,6 +42,8 @@ Every predator encounter has a verifiable entrance, a reason for the animal to b
 
 The maintenance raptor is inside a live-cargo lock with a water trough. Restoration opens its real hatch. A freight fault earlier in the shift let a second raptor reach the condensate alcove before the security gate fell shut. The last raptor waits in the damaged freight gallery because the outer bulkhead has closed. It reaches the lift hall through the wrecked inner shutter. See the [encounter record](tasks/S2-01.md) for their physical routes and checks.
 
+The same station construction is visible from transfer maintenance through security, habitat operations and the evacuation lift. The condensate service recess contains small prints and pried ventilation slats suggesting Troodont activity. Their trace is separate from the larger raptor trackway and has no encounter trigger. The [environment style guide](../ENVIRONMENT_STYLE_GUIDE.md) defines the construction, maintenance and emergency-light cues.
+
 ## Sensory pursuit and physical combat
 
 The Velociraptor profile uses distance, field of view and occlusion. Sound provides its source position, and a call can reveal the caller to another animal. Sight alone refreshes the observed player position. The raptor can hold distance while observing, follow a recent sighting, search, flank or retreat. Nearby animals reserve their attack window using local state, and their physical bodies still collide.

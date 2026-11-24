@@ -24,6 +24,7 @@ func run() -> void:
 			and final_raptor.state == ArcaRaptor.State.WAIT,
 			"The final raptor starts physically in the freight gallery beyond the breach")
 		await navigation_checks()
+		await camera_clearance_checks()
 		await walk_route(office)
 		await chase_checks()
 		await freight_discovery_check()
@@ -35,6 +36,47 @@ func run() -> void:
 	await process_frame
 	OS.delay_msec(200)
 	quit(0 if failures == 0 else 1)
+
+
+## The TPS spring arm keeps the camera near plane out of the lowered soffits,
+## the walls beside a doorway and the floor at both pitch limits.
+func camera_clearance_checks() -> void:
+	room.stop_all_predators()
+	var input: Node = room.player.player_input
+	var camera: Camera3D = input.camera_camera
+	var arm := camera.get_parent() as SpringArm3D
+	var probe := PhysicsShapeQueryParameters3D.new()
+	var sphere := SphereShape3D.new()
+	sphere.radius = camera.near + 0.01
+	probe.shape = sphere
+	probe.collision_mask = 1
+	probe.exclude = [room.player.get_rid()]
+	var space := room.get_world_3d().direct_space_state
+	# Hold the default (non-aiming) arm pose.
+	input.aiming = false
+	input.camera_animation.play("far")
+	input.camera_animation.seek(input.camera_animation.current_animation_length, true)
+	var spawn: Vector3 = room.player.position
+	# Corridor (2.50 m soffit) just past the entry door head, under the crate-bay
+	# soffit step, and the maintenance power panel (2.65 m soffit).
+	for spot: Vector3 in [Vector3(0, 0.05, CORRIDOR_Z + 1.4), Vector3(0, 0.05, CORRIDOR_Z + 16.2),
+			Vector3(-8.8, 0.05, 5.1)]:
+		await move_player(spot)
+		for pitch: float in [0.0, -1.2, 0.9]:
+			input.camera_rot.rotation.x = pitch
+			for step: int in 4:
+				input.camera_base.rotation.y = step * TAU / 4.0
+				await frames(6)
+				probe.transform = Transform3D(Basis.IDENTITY, camera.global_position)
+				var touching := space.intersect_shape(probe, 1)
+				var sight := space.intersect_ray(PhysicsRayQueryParameters3D.create(
+					arm.global_position, camera.global_position, 1, [room.player.get_rid()]))
+				check(touching.is_empty() and sight.is_empty(),
+					"TPS camera near plane clears geometry at %s pitch %.1f yaw step %d (camera %s)" % [
+						spot, pitch, step, camera.global_position])
+	input.camera_rot.rotation.x = 0.0
+	input.camera_base.rotation.y = 0.0
+	await move_player(spawn)
 
 
 func walk_route(office: Node3D) -> void:

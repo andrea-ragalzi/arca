@@ -283,7 +283,12 @@ func weapon_and_impact_checks() -> void:
 		"An obstructed muzzle uses the near-surface impact and spends a round")
 	obstruction.queue_free()
 	await frames(3)
-	await shoot_once_at(Vector3(0, 95, -5))
+	# A shot aimed into the room ceiling is a real impact. Use an
+	# isolated fixture floor to keep exercising the no-hit shot contract.
+	impact_fixture(Vector3(0, -0.15, -24), Vector3(8, 0.3, 8))
+	await move_player(Vector3(0, 0.05, -24))
+	var clear_aim := Vector3(0, 95, -22)
+	await shoot_once_at(clear_aim)
 	check(impacts.back() == &"miss" and ammo.magazine == 7, "A shot with no collision still consumes one round")
 	await tap(KEY_R)
 	check(ammo.reloading, "Primary can begin a partial reload before a weapon switch")
@@ -296,7 +301,7 @@ func weapon_and_impact_checks() -> void:
 	await tap(KEY_2)
 	check(player.ammo_component == player.backup_ammo and not ammo.reloading and ammo.magazine == 7
 		and ammo.reserve == 12 and hud_ammo.text.contains("06 / 00"), "Switching cancels reload without transferring rounds and rebinds HUD")
-	await shoot_once_at(Vector3(0, 95, -5))
+	await shoot_once_at(clear_aim)
 	check(player.backup_ammo.magazine == 5 and ammo.magazine == 7 and hud_ammo.text.contains("05 / 00"),
 		"Backup weapon has independent ammunition")
 	await tap(KEY_1)

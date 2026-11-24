@@ -1,0 +1,28 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Material" path="res://arca/assets/environment/kit/frame.tres" id="1"]
+[ext_resource type="Material" path="res://arca/assets/environment/kit/light_emissive.tres" id="2"]
+
+[sub_resource type="BoxMesh" id="Housing"]
+material = ExtResource("1")
+size = Vector3(1.68, 0.16, 0.44)
+
+[sub_resource type="BoxMesh" id="Tube"]
+material = ExtResource("2")
+size = Vector3(1.46, 0.065, 0.09)
+
+[node name="StripLuminaire" type="Node3D"]
+
+[node name="Housing" type="MeshInstance3D" parent="."]
+cast_shadow = 0
+mesh = SubResource("Housing")
+
+[node name="TubeLeft" type="MeshInstance3D" parent="."]
+position = Vector3(0, -0.082, -0.108)
+cast_shadow = 0
+mesh = SubResource("Tube")
+
+[node name="TubeRight" type="MeshInstance3D" parent="."]
+position = Vector3(0, -0.082, 0.108)
+cast_shadow = 0
+mesh = SubResource("Tube")
