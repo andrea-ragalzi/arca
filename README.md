@@ -1,13 +1,13 @@
 # ARCA
 
-A small third-person survival-action game built with **Godot 4.5.1 Standard** and GDScript. The current playable mission is a maintenance-sector blockout: recover a fuse, restore power, survive a predator ambush, and reach the exit. Regina is the playable prototype; character, dinosaur and environment art remain temporary. The mission uses limited ammunition and one healing pickup. Progress resets on restart.
+A small third-person survival-action game built with **Godot 4.5.1 Standard** and GDScript. The playable demo follows Regina through Continuity Station's maintenance sector, security corridor, control office and exit lift. Restore power, evade or fight the predators, then find the lift keycard. Ammunition and healing supplies are limited. An optional office checkpoint is kept in memory for the current run.
 
 ## Start here
 
 1. Extract the archive once into your development folder, for example `~/Projects/ARCA`.
 2. Open that entire folder in Zed, and open a terminal there.
 3. Run `bash scripts/editor.sh --nvidia`. It finds the portable Godot executable in `~/Applications/` or Godot on your PATH.
-4. Wait for import, then press **F5** to play. **F6** runs only the scene currently open in Godot.
+4. Wait for import, press **F5**, then select **New Game**. **F6** runs only the scene currently open in Godot.
 
 If your executable is elsewhere:
 
@@ -35,8 +35,10 @@ Keep this same `ARCA` folder for future work. Commits identify changes; folder a
 
 1. Find the yellow **SERVICE / FUSE ACCESS** entrance framed by the starting camera. Enter the corridor, follow the floor stripe and explore around the far screen to find the concealed fuse. Collect it with **E**.
 2. Retrace the corridor into the maintenance room and install the fuse at the power panel with **E**.
-3. Power returns and the exit opens, but containment fails. Watch the marked **SERVICE HATCH**: a red warning precedes it sliding open, then the existing raptor walks out before normal combat begins.
-4. Fight it or evade it and cross the green exit marker. Killing the predator is optional. Regina starts with 12 rounds loaded and 12 in reserve. Press **E** to collect 12 more rounds in the corridor or use the medkit in the maintenance room to restore up to 40 HP.
+3. When power returns, the marked **SERVICE HATCH** opens and releases a raptor. Fight or evade it and go through the powered door to the security corridor.
+4. Find the **CONTROL OFFICE** off the alcove and take the keycard from the back workstation. A sleeping raptor can wake if you linger nearby or fire. Use the office checkpoint terminal to save the current run in memory.
+5. Return to the far door. Press **E** to use the keycard, continue through the lift hall and cross the green marker inside the cabin. Killing a predator is optional.
+6. Regina starts with 12 rounds loaded and 12 in reserve. An ammo box supplies 12 rounds. A medkit restores up to 40 HP. Use **E** to collect supplies and read station logs. Press **E** or **Escape** to close a log.
 
 | Input | Action |
 | --- | --- |
@@ -49,7 +51,7 @@ Keep this same `ARCA` folder for future work. Commits identify changes; folder a
 | Escape | Pause / resume |
 | F3 | Toggle debug telemetry |
 
-### Final F5 playtest
+### Earlier maintenance-sector playtest
 
 The user accepted the combined F5 playtest on 2026-11-24.
 
@@ -158,12 +160,10 @@ Requires Godot 4.5.1, Bash, `timeout` (coreutils) and `grep`. It uses ripgrep wh
 | `player/`, `enemies/red_robot/` | Adapted official TPS controller and robot test opponent |
 | `arca/tests/` | Gameplay integration suites; capture/shadow scripts are optional visual tools |
 
-The mission inherits `raptor_room.tscn`, which inherits `test_room.tscn`; the corresponding scripts mirror that structure. All three rooms share the ARCA player scene, which installs Regina at runtime while keeping the inherited robot hidden and inert. The original `player/player.tscn` remains a usable robot reference. In the mission, the raptor starts dormant; the separate raptor test room starts with an active predator.
+The mission inherits `raptor_room.tscn`, which inherits `test_room.tscn`. Their scripts mirror that structure. All three rooms share the ARCA player scene, which installs Regina at runtime while keeping the inherited robot hidden and inert. The original `player/player.tscn` remains a robot reference. In the mission, the hatch predator starts dormant, the corridor predator starts asleep, and the lift predator starts active.
 
 Read [docs/DESIGN.md](docs/DESIGN.md) for scope and [docs/VALIDATION.md](docs/VALIDATION.md) for verified behavior and limits. Credits and licenses are in [ATTRIBUTIONS.md](ATTRIBUTIONS.md), [LICENSE.md](LICENSE.md), and [LICENSE_ARCA.md](LICENSE_ARCA.md).
 
-## Sprint route playtest
+## Final demo playtest
 
-Once the fuse powers the sector, head through the powered door into the new security corridor. The far door needs a keycard. The control office is off the alcove, with the card on the back desk. Return to the far door, use E, then reach the green marker inside the lift. Killing any predator is optional. E reads station logs, and E or Escape closes them.
-
-The automated route verifies the connections and victory using normal movement. See the [integration record](docs/tasks/S1-10.md) for the exact F5 checklist and measured walking time.
+The automated route verifies the connections and victory using ordinary movement. For first-run timing, camera readability, audio and FPS, follow the [full-route checklist](docs/tasks/S1-12.md).

@@ -38,7 +38,10 @@ if ! command -v timeout >/dev/null || ! command -v grep >/dev/null; then
 fi
 bash "$ARCA_ROOT/scripts/launcher_test.sh"
 run_check import --headless --editor --import --path "$ARCA_ROOT"
-for arca_suite in first_playable raptor mission ambush regina_player economy multi_predator environment_kit areas route; do
+for arca_suite in first_playable raptor mission ambush regina_player economy multi_predator environment_kit areas route audio checkpoint title; do
   run_check "$arca_suite" --headless --audio-driver Dummy --fixed-fps 60 --path "$ARCA_ROOT" -s "res://arca/tests/${arca_suite}_test.gd"
 done
-echo 'All gameplay suites passed. Logs: .artifacts/test-logs/'
+for arca_asset_suite in props audio; do
+  run_check "asset_$arca_asset_suite" --headless --audio-driver Dummy --fixed-fps 60 --path "$ARCA_ROOT" -s "res://arca/tools/assets/check_${arca_asset_suite}.gd"
+done
+echo 'All ARCA checks passed. Logs: .artifacts/test-logs/'

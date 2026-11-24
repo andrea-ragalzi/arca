@@ -78,7 +78,7 @@ Current sprint: [SPRINT_01.md](SPRINT_01.md). Workflow: [docs/PARALLEL_DEVELOPME
 
 - Status: Route integrated into `main` on 2026-11-24
 - Branch: `s1/10-integration`
-- Validation: Full gate 1002/0. Route 48/0, 59.17 s of scripted walking; navigation spans all four sectors.
+- Validation: Full sprint gate 1180/0. Route 48/0, 59.17 s of scripted walking; navigation spans all four sectors.
 - Blockers: Walking length is below the 150 s target. First-run time and visual acceptance remain for S1-12.
 
 ## S1-11: Title and end screens (stretch)
