@@ -1,0 +1,51 @@
+[gd_scene load_steps=9 format=3]
+
+[ext_resource type="Material" path="res://arca/assets/environment/kit/gasket.tres" id="dark"]
+
+[ext_resource type="Material" path="res://arca/assets/environment/kit/hazard_trim.tres" id="gold"]
+
+[ext_resource type="Material" path="res://arca/assets/environment/kit/frame.tres" id="steel"]
+
+[sub_resource type="BoxMesh" id="LeftMesh"]
+size = Vector3(1.57, 3.4, 0.27)
+material = ExtResource("steel")
+
+[sub_resource type="BoxMesh" id="RightMesh"]
+size = Vector3(1.57, 3.4, 0.27)
+material = ExtResource("steel")
+
+[sub_resource type="BoxMesh" id="GuideTopMesh"]
+size = Vector3(3.2, 0.05, 0.28)
+material = ExtResource("dark")
+
+[sub_resource type="BoxMesh" id="BraceLeftMesh"]
+size = Vector3(0.13, 2.38, 0.04)
+material = ExtResource("gold")
+
+[sub_resource type="BoxMesh" id="BraceRightMesh"]
+size = Vector3(0.13, 2.38, 0.04)
+material = ExtResource("gold")
+
+[node name="LiftDoors" type="Node3D"]
+
+[node name="Meshes" type="Node3D" parent="."]
+
+[node name="Left" type="MeshInstance3D" parent="Meshes"]
+position = Vector3(-0.8, 1.7, 0)
+mesh = SubResource("LeftMesh")
+
+[node name="Right" type="MeshInstance3D" parent="Meshes"]
+position = Vector3(0.8, 1.7, 0)
+mesh = SubResource("RightMesh")
+
+[node name="GuideTop" type="MeshInstance3D" parent="Meshes"]
+position = Vector3(0, 3.42, 0)
+mesh = SubResource("GuideTopMesh")
+
+[node name="BraceLeft" type="MeshInstance3D" parent="Meshes"]
+position = Vector3(-0.31, 1.66, -0.143)
+mesh = SubResource("BraceLeftMesh")
+
+[node name="BraceRight" type="MeshInstance3D" parent="Meshes"]
+position = Vector3(0.31, 1.66, -0.143)
+mesh = SubResource("BraceRightMesh")

@@ -1,0 +1,40 @@
+[gd_scene load_steps=7 format=3]
+
+[ext_resource type="Material" path="res://arca/assets/environment/kit/gasket.tres" id="dark"]
+
+[ext_resource type="Material" path="res://arca/assets/environment/kit/hazard_trim.tres" id="gold"]
+
+[sub_resource type="StandardMaterial3D" id="aqua"]
+albedo_color = Color(0.20, 0.78, 0.70, 1)
+roughness = 0.68
+emission_enabled = true
+emission = Color(0.20, 0.78, 0.70, 1)
+emission_energy_multiplier = 0.45
+
+[sub_resource type="BoxMesh" id="BodyMesh"]
+size = Vector3(0.118, 0.008, 0.074)
+material = SubResource("aqua")
+
+[sub_resource type="BoxMesh" id="ContactMesh"]
+size = Vector3(0.028, 0.003, 0.023)
+material = ExtResource("gold")
+
+[sub_resource type="BoxMesh" id="StripeMesh"]
+size = Vector3(0.104, 0.001, 0.012)
+material = ExtResource("dark")
+
+[node name="Keycard" type="Node3D"]
+
+[node name="Meshes" type="Node3D" parent="."]
+
+[node name="Body" type="MeshInstance3D" parent="Meshes"]
+position = Vector3(0, 0.004, 0)
+mesh = SubResource("BodyMesh")
+
+[node name="Contact" type="MeshInstance3D" parent="Meshes"]
+position = Vector3(-0.028, 0.009, 0.013)
+mesh = SubResource("ContactMesh")
+
+[node name="Stripe" type="MeshInstance3D" parent="Meshes"]
+position = Vector3(0, 0.009, -0.021)
+mesh = SubResource("StripeMesh")

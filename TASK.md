@@ -111,9 +111,9 @@ Current sprint: [SPRINT_01.md](SPRINT_01.md). Workflow: [docs/PARALLEL_DEVELOPME
 
 ## D-02: Gameplay prop set
 
-- Status: Waiting: start after D-01 merges
+- Status: Merged into `main` on 2026-11-24
 - Branch: `s1/d02-props`
-- Validation: -
+- Validation: Full gate 836/0, standalone prop checks 42/0, X11/Compatibility contact sheet.
 - Blockers: -
 
 ## D-03: Audio preparation

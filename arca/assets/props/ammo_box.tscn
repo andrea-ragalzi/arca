@@ -1,0 +1,43 @@
+[gd_scene load_steps=8 format=3]
+
+[ext_resource type="Material" path="res://arca/assets/environment/kit/gasket.tres" id="dark"]
+
+[ext_resource type="Material" path="res://arca/assets/environment/kit/hazard_trim.tres" id="gold"]
+
+[ext_resource type="Material" path="res://arca/assets/environment/kit/frame.tres" id="steel"]
+
+[sub_resource type="BoxMesh" id="BodyMesh"]
+size = Vector3(0.56, 0.15, 0.36)
+material = ExtResource("steel")
+
+[sub_resource type="BoxMesh" id="LidMesh"]
+size = Vector3(0.57, 0.064, 0.37)
+material = ExtResource("dark")
+
+[sub_resource type="BoxMesh" id="LatchMesh"]
+size = Vector3(0.08, 0.081, 0.02)
+material = ExtResource("gold")
+
+[sub_resource type="BoxMesh" id="StripeMesh"]
+size = Vector3(0.42, 0.012, 0.065)
+material = ExtResource("gold")
+
+[node name="AmmoBox" type="Node3D"]
+
+[node name="Meshes" type="Node3D" parent="."]
+
+[node name="Body" type="MeshInstance3D" parent="Meshes"]
+position = Vector3(0, 0.075, 0)
+mesh = SubResource("BodyMesh")
+
+[node name="Lid" type="MeshInstance3D" parent="Meshes"]
+position = Vector3(0, 0.18, 0)
+mesh = SubResource("LidMesh")
+
+[node name="Latch" type="MeshInstance3D" parent="Meshes"]
+position = Vector3(0, 0.156, -0.174)
+mesh = SubResource("LatchMesh")
+
+[node name="Stripe" type="MeshInstance3D" parent="Meshes"]
+position = Vector3(0, 0.213, 0.027)
+mesh = SubResource("StripeMesh")

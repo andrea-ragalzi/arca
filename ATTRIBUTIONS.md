@@ -79,6 +79,8 @@ The gameplay bake maps Quaternius up/down relative to neutral into constant addi
 ## ARCA additions
 
 Fuse, panel, door, divider geometry, the Regina prototype handgun's simple box meshes, mission and ambush logic, documentation and project workflow files are ARCA additions under MIT, as stated in `LICENSE_ARCA.md`. The handgun is original placeholder geometry, not extracted from the TPS robot or represented as final weapon art.
+The gameplay prop scenes in `arca/assets/props/` are original ARCA MIT assets that reuse the recorded modular kit materials.
+
 The two short sounds `arca/audio/pickup.wav` and `arca/audio/power.wav` are original synthesized sounds distributed under the same MIT license; they are not extracted from games or third-party sound packs.
 
 The playable mission retains its credited TPS foundation and uses the Ferocious Industries predator above. The Quaternius dinosaur source remains available as a retained reference, not a second gameplay enemy. The separate inspection scene includes the Regina fan model credited above; its underlying provenance has not been independently verified. Neither that model's stated CC license nor ARCA's broader fan-story concept grants rights to Capcom's names or characters.

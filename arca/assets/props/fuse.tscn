@@ -1,0 +1,43 @@
+[gd_scene load_steps=8 format=3]
+
+[ext_resource type="Material" path="res://arca/assets/environment/kit/gasket.tres" id="dark"]
+
+[ext_resource type="Material" path="res://arca/assets/environment/kit/hazard_trim.tres" id="gold"]
+
+[ext_resource type="Material" path="res://arca/assets/environment/kit/frame.tres" id="steel"]
+
+[sub_resource type="BoxMesh" id="CoreMesh"]
+size = Vector3(0.48, 0.14, 0.16)
+material = ExtResource("gold")
+
+[sub_resource type="BoxMesh" id="LeftCapMesh"]
+size = Vector3(0.078, 0.22, 0.218)
+material = ExtResource("steel")
+
+[sub_resource type="BoxMesh" id="RightCapMesh"]
+size = Vector3(0.078, 0.22, 0.218)
+material = ExtResource("steel")
+
+[sub_resource type="BoxMesh" id="MarkMesh"]
+size = Vector3(0.033, 0.01, 0.134)
+material = ExtResource("dark")
+
+[node name="Fuse" type="Node3D"]
+
+[node name="Meshes" type="Node3D" parent="."]
+
+[node name="Core" type="MeshInstance3D" parent="Meshes"]
+position = Vector3(0, 0.09, 0)
+mesh = SubResource("CoreMesh")
+
+[node name="LeftCap" type="MeshInstance3D" parent="Meshes"]
+position = Vector3(-0.265, 0.11, 0)
+mesh = SubResource("LeftCapMesh")
+
+[node name="RightCap" type="MeshInstance3D" parent="Meshes"]
+position = Vector3(0.265, 0.11, 0)
+mesh = SubResource("RightCapMesh")
+
+[node name="Mark" type="MeshInstance3D" parent="Meshes"]
+position = Vector3(0.103, 0.165, 0)
+mesh = SubResource("MarkMesh")

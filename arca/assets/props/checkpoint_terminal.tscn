@@ -1,0 +1,58 @@
+[gd_scene load_steps=10 format=3]
+
+[ext_resource type="Material" path="res://arca/assets/environment/kit/gasket.tres" id="dark"]
+
+[ext_resource type="Material" path="res://arca/assets/environment/kit/hazard_trim.tres" id="gold"]
+
+[ext_resource type="Material" path="res://arca/assets/environment/kit/frame.tres" id="steel"]
+
+[sub_resource type="StandardMaterial3D" id="aqua"]
+albedo_color = Color(0.20, 0.78, 0.70, 1)
+roughness = 0.68
+emission_enabled = true
+emission = Color(0.20, 0.78, 0.70, 1)
+emission_energy_multiplier = 0.45
+
+[sub_resource type="BoxMesh" id="BaseMesh"]
+size = Vector3(0.68, 0.12, 0.54)
+material = ExtResource("dark")
+
+[sub_resource type="BoxMesh" id="StandMesh"]
+size = Vector3(0.22, 1.16, 0.24)
+material = ExtResource("steel")
+
+[sub_resource type="BoxMesh" id="HousingMesh"]
+size = Vector3(0.72, 0.49, 0.38)
+material = ExtResource("steel")
+
+[sub_resource type="BoxMesh" id="ControlBarMesh"]
+size = Vector3(0.58, 0.08, 0.034)
+material = ExtResource("gold")
+
+[sub_resource type="BoxMesh" id="ScreenMesh"]
+size = Vector3(0.53, 0.28, 0.025)
+material = SubResource("aqua")
+
+[node name="CheckpointTerminal" type="Node3D"]
+
+[node name="Meshes" type="Node3D" parent="."]
+
+[node name="Base" type="MeshInstance3D" parent="Meshes"]
+position = Vector3(0, 0.06, 0)
+mesh = SubResource("BaseMesh")
+
+[node name="Stand" type="MeshInstance3D" parent="Meshes"]
+position = Vector3(0, 0.6, 0)
+mesh = SubResource("StandMesh")
+
+[node name="Housing" type="MeshInstance3D" parent="Meshes"]
+position = Vector3(0, 1.31, 0)
+mesh = SubResource("HousingMesh")
+
+[node name="ControlBar" type="MeshInstance3D" parent="Meshes"]
+position = Vector3(0, 1.12, -0.196)
+mesh = SubResource("ControlBarMesh")
+
+[node name="Screen" type="MeshInstance3D" parent="."]
+position = Vector3(0, 1.35, -0.2)
+mesh = SubResource("ScreenMesh")

@@ -1,0 +1,57 @@
+[gd_scene load_steps=10 format=3]
+
+[ext_resource type="Material" path="res://arca/assets/environment/kit/gasket.tres" id="dark"]
+
+[ext_resource type="Material" path="res://arca/assets/environment/kit/frame.tres" id="steel"]
+
+[sub_resource type="StandardMaterial3D" id="paper"]
+albedo_color = Color(0.91, 0.87, 0.73, 1)
+roughness = 0.68
+
+[sub_resource type="StandardMaterial3D" id="red"]
+albedo_color = Color(0.73, 0.16, 0.24, 1)
+roughness = 0.68
+
+[sub_resource type="BoxMesh" id="BodyMesh"]
+size = Vector3(0.58, 0.18, 0.43)
+material = SubResource("red")
+
+[sub_resource type="BoxMesh" id="LidMesh"]
+size = Vector3(0.59, 0.042, 0.44)
+material = ExtResource("dark")
+
+[sub_resource type="BoxMesh" id="MarkLongMesh"]
+size = Vector3(0.17, 0.008, 0.049)
+material = SubResource("paper")
+
+[sub_resource type="BoxMesh" id="MarkShortMesh"]
+size = Vector3(0.049, 0.009, 0.162)
+material = SubResource("paper")
+
+[sub_resource type="BoxMesh" id="LatchMesh"]
+size = Vector3(0.11, 0.07, 0.022)
+material = ExtResource("steel")
+
+[node name="MedkitCase" type="Node3D"]
+
+[node name="Meshes" type="Node3D" parent="."]
+
+[node name="Body" type="MeshInstance3D" parent="Meshes"]
+position = Vector3(0, 0.09, 0)
+mesh = SubResource("BodyMesh")
+
+[node name="Lid" type="MeshInstance3D" parent="Meshes"]
+position = Vector3(0, 0.19, 0)
+mesh = SubResource("LidMesh")
+
+[node name="MarkLong" type="MeshInstance3D" parent="Meshes"]
+position = Vector3(0, 0.213, 0)
+mesh = SubResource("MarkLongMesh")
+
+[node name="MarkShort" type="MeshInstance3D" parent="Meshes"]
+position = Vector3(0, 0.214, 0)
+mesh = SubResource("MarkShortMesh")
+
+[node name="Latch" type="MeshInstance3D" parent="Meshes"]
+position = Vector3(0, 0.155, -0.21)
+mesh = SubResource("LatchMesh")
