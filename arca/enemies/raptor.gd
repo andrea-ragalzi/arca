@@ -18,6 +18,19 @@ const WAKE_PROXIMITY_DURATION: float = 1.0
 # accurate fire cancels a pending bite; a committed ATTACK is never interrupted.
 const STAGGER_STATES: Array[State] = [State.ALERT, State.CHASE, State.WINDUP, State.RECOVER]
 
+const ROARS := [
+	preload("res://arca/audio/raptor/roar_01.wav"), preload("res://arca/audio/raptor/roar_02.wav"),
+]
+const HIT_VOICES := [
+	preload("res://arca/audio/raptor/hurt_01.wav"), preload("res://arca/audio/raptor/hurt_02.wav"),
+]
+const STEPS := [
+	preload("res://arca/audio/raptor/footstep_01.wav"), preload("res://arca/audio/raptor/footstep_02.wav"),
+	preload("res://arca/audio/raptor/footstep_03.wav"),
+]
+const BITE := preload("res://arca/audio/raptor/bite_01.wav")
+const DEATH_VOICE := preload("res://arca/audio/raptor/death_01.wav")
+
 @export var start_mode: StartMode = StartMode.ACTIVE
 @export var wake_noise_radius: float = 12.0
 @export var wake_proximity: float = 2.5
@@ -37,6 +50,14 @@ const STAGGER_STATES: Array[State] = [State.ALERT, State.CHASE, State.WINDUP, St
 @onready var skin: Node3D = $Skin
 @onready var animation: AnimationPlayer = $Skin/AnimationPlayer
 @onready var warning: Label3D = $Warning
+@onready var voice: AudioStreamPlayer3D = $Voice
+@onready var breath: AudioStreamPlayer3D = $Breath
+@onready var steps: AudioStreamPlayer3D = $Steps
+
+var roar_index: int = 0
+var hurt_index: int = 0
+var step_index: int = 0
+var step_remaining: float = 0.0
 
 var player: Node3D
 var state: State = State.WAIT
@@ -68,6 +89,8 @@ func _ready() -> void:
 					animation.get_animation(clip).loop_mode = Animation.LOOP_LINEAR
 	animation.callback_mode_process = AnimationMixer.ANIMATION_CALLBACK_MODE_PROCESS_PHYSICS
 	health_component.died.connect(_die)
+	state_changed.connect(_on_audio_state_changed)
+	staggered.connect(_play_hurt)
 	player = get_tree().get_first_node_in_group("arca_player") as Node3D
 	if start_mode == StartMode.SLEEPING and is_instance_valid(player):
 		player.shot_fired.connect(_on_player_shot)
@@ -139,6 +162,50 @@ func _physics_process(delta: float) -> void:
 				_change_state(State.CHASE)
 	velocity += get_gravity() * delta
 	move_and_slide()
+	if is_on_floor() and Vector2(get_real_velocity().x, get_real_velocity().z).length_squared() > 0.25:
+		step_remaining -= delta
+		if step_remaining <= 0.0:
+			_play_footstep()
+			step_remaining = 0.32 if state == State.CHASE else 0.52
+	else:
+		step_remaining = 0.0
+
+
+func _on_audio_state_changed(value: State) -> void:
+	if value != State.SLEEP:
+		breath.stop()
+	if not combat_enabled:
+		return
+	match value:
+		State.SLEEP:
+			breath.play()
+		State.EMERGE:
+			voice.stop()
+		State.ALERT:
+			_play_voice(ROARS[roar_index])
+			roar_index = (roar_index + 1) % ROARS.size()
+		State.ATTACK:
+			_play_voice(BITE)
+		State.DEAD:
+			steps.stop()
+			_play_voice(DEATH_VOICE)
+
+
+func _play_hurt() -> void:
+	if combat_enabled:
+		_play_voice(HIT_VOICES[hurt_index])
+		hurt_index = (hurt_index + 1) % HIT_VOICES.size()
+
+
+func _play_voice(stream: AudioStream) -> void:
+	voice.stream = stream
+	voice.play()
+
+
+func _play_footstep() -> void:
+	steps.stream = STEPS[step_index]
+	steps.play()
+	step_index = (step_index + 1) % STEPS.size()
 
 
 func _follow_path() -> void:
@@ -224,6 +291,9 @@ func _die() -> void:
 
 func stop_combat() -> void:
 	combat_enabled = false
+	voice.stop()
+	breath.stop()
+	steps.stop()
 	velocity = Vector3.ZERO
 	warning.hide()
 	if not dead:

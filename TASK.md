@@ -69,10 +69,10 @@ Current sprint: [SPRINT_01.md](SPRINT_01.md). Workflow: [docs/PARALLEL_DEVELOPME
 
 ## S1-09: Audio hookup
 
-- Status: Waiting: needs D-03 assets, S1-02 and S1-07
+- Status: Merged into `main` on 2026-11-24
 - Branch: `s1/09-audio`
-- Validation: -
-- Blockers: -
+- Validation: Gameplay gate 1002/0, standalone audio playback 17/0 and asset import 100/0.
+- Blockers: Audible mix and clipping review in S1-12.
 
 ## S1-10: Demo route integration
 

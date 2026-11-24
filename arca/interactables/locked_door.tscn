@@ -1,7 +1,10 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=6 format=3]
 
 [ext_resource type="Script" path="res://arca/interactables/locked_door.gd" id="1"]
 [ext_resource type="PackedScene" path="res://arca/interactables/sliding_door.tscn" id="2"]
+
+[ext_resource type="AudioStream" path="res://arca/audio/door/locked_deny_01.wav" id="3_denied"]
+[ext_resource type="AudioStream" path="res://arca/audio/ui/keycard_accept_01.wav" id="4_accepted"]
 
 [sub_resource type="BoxShape3D" id="Reach"]
 size = Vector3(3.2, 2.4, 2.0)
@@ -17,3 +20,15 @@ shape = SubResource("Reach")
 
 [node name="SlidingDoor" parent="." instance=ExtResource("2")]
 position = Vector3(0, 0, 0.25)
+
+
+[node name="Denied" type="AudioStreamPlayer3D" parent="."]
+position = Vector3(0, 1.2, 0)
+stream = ExtResource("3_denied")
+unit_size = 3.0
+max_distance = 10.0
+volume_db = -16.0
+
+[node name="Accepted" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("4_accepted")
+volume_db = -16.0

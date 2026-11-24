@@ -23,9 +23,12 @@ func interact(room: Node) -> bool:
 	if not enabled:
 		return false
 	if not room.has_key_item(required_item):
+		$Denied.play()
 		room._notify("Locked - requires " + locked_text)
 		return false
 	enabled = false
+	$Denied.stop()
+	$Accepted.play()
 	if consume_item:
 		room.consume_key_item(required_item)
 	room.player.health_component.died.connect(_freeze_opening, CONNECT_ONE_SHOT)

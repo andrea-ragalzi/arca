@@ -7,6 +7,7 @@ enum AmbushPhase { IDLE, WARNING, OPENING, EMERGING, ACTIVE, CANCELLED }
 
 const HATCH_OPEN_DURATION: float = 1.0
 const HATCH_LIFT: float = 3.3
+const MISSION_AUDIO := preload("res://arca/audio/mission_audio.tscn")
 
 @export var ambush_delay: float = 1.4
 @onready var fuse: ArcaInteractionPoint = $FusePickup
@@ -17,6 +18,7 @@ const HATCH_LIFT: float = 3.3
 @onready var lift_gate: ArcaInteractionPoint = $SecurityCorridor/LiftGate
 @onready var security_corridor: Node3D = $SecurityCorridor
 @onready var hatch: AnimatableBody3D = $ServiceHatch/Leaf
+var mission_audio: Node
 var key_items: Array[StringName] = []
 var has_fuse: bool:
 	get:
@@ -39,6 +41,8 @@ var predators_killed: int = 0
 
 func _ready() -> void:
 	super._ready()
+	mission_audio = MISSION_AUDIO.instantiate()
+	add_child(mission_audio)
 	player.player_input.camera_base.rotation.y = 1.1
 	enemy.position = $AmbushSpawn.position
 	enemy.prepare_ambush()
@@ -92,10 +96,12 @@ func _advance_ambush(delta: float) -> void:
 		AmbushPhase.EMERGING:
 			if enemy.state != ArcaRaptor.State.EMERGE:
 				ambush_phase = AmbushPhase.ACTIVE
+				mission_audio.get_node("Alarm").stop()
 
 func _cancel_ambush() -> void:
 	ambush_remaining = -1.0
 	ambush_phase = AmbushPhase.CANCELLED
+	mission_audio.get_node("Alarm").stop()
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("interact") and not event.is_echo():
@@ -166,6 +172,7 @@ func _on_panel_powered() -> void:
 	power_restored = true
 	consume_key_item(&"fuse")
 	$PowerSound.play()
+	mission_audio.get_node("Alarm").play()
 	door.open()
 	hud.set_interaction("")
 	ambush_remaining = maxf(ambush_delay, 0.0)
@@ -237,9 +244,18 @@ func get_mission_summary() -> Dictionary:
 		"kills": predators_killed, "predators_total": get_predators().size(),
 	}
 
+func play_note_feedback() -> void:
+	mission_audio.get_node("Note").play()
+
+
 func _on_player_died() -> void:
 	_cancel_ambush()
 	super._on_player_died()
+	# Keep the death animation running while quieting the live world.
+	for sound: Node in find_children("*", "AudioStreamPlayer", true, false):
+		sound.stop()
+	for sound: Node in find_children("*", "AudioStreamPlayer3D", true, false):
+		sound.stop()
 	$EndSound.pitch_scale = 0.72
 	$EndSound.play()
 	hud.set_interaction("")

@@ -1,8 +1,10 @@
-[gd_scene load_steps=5 format=3 uid="uid://nuynj6wc73y4"]
+[gd_scene load_steps=6 format=3 uid="uid://nuynj6wc73y4"]
 
 [ext_resource type="Script" uid="uid://gcpg6cs86byn" path="res://arca/enemies/raptor.gd" id="1"]
 [ext_resource type="PackedScene" path="res://arca/enemies/ferocious_model.tscn" id="2"]
 [ext_resource type="Script" uid="uid://ds5cp2c8vfbmd" path="res://arca/components/health_component.gd" id="3"]
+
+[ext_resource type="AudioStream" path="res://arca/audio/raptor/breath_01.wav" id="4_breath"]
 
 [sub_resource type="CapsuleShape3D" id="Capsule"]
 radius = 0.45
@@ -40,3 +42,22 @@ modulate = Color(1, 0.65, 0.18, 1)
 outline_modulate = Color(0.05, 0.03, 0.02, 1)
 text = "!"
 font_size = 80
+
+
+[node name="Voice" type="AudioStreamPlayer3D" parent="."]
+position = Vector3(0, 1.1, 0)
+unit_size = 4.0
+max_distance = 30.0
+volume_db = -11.0
+
+[node name="Breath" type="AudioStreamPlayer3D" parent="."]
+position = Vector3(0, 0.55, 0)
+stream = ExtResource("4_breath")
+unit_size = 2.0
+max_distance = 9.0
+volume_db = -23.0
+
+[node name="Steps" type="AudioStreamPlayer3D" parent="."]
+unit_size = 2.5
+max_distance = 15.0
+volume_db = -18.0

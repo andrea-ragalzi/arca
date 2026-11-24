@@ -9,6 +9,7 @@ func open() -> void:
 	if is_open or is_opening:
 		return
 	is_opening = true
+	$Servo.play()
 	$Status.text = "OPENING"
 	$Status.modulate = Color(0.45, 1.0, 0.7)
 	var tween := create_tween()

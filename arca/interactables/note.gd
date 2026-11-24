@@ -8,4 +8,5 @@ extends ArcaInteractionPoint
 func interact(room: Node) -> bool:
 	room.set_paused(true)
 	room.hud.show_note(title, body)
+	room.play_note_feedback()
 	return true

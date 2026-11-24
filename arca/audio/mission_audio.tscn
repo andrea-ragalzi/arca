@@ -1,0 +1,21 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="AudioStream" path="res://arca/audio/env/ambience_01.wav" id="1"]
+[ext_resource type="AudioStream" path="res://arca/audio/env/alarm_01.wav" id="2"]
+[ext_resource type="AudioStream" path="res://arca/audio/ui/note_open_01.wav" id="3"]
+
+[node name="MissionAudio" type="Node"]
+
+[node name="Ambience" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("1")
+autoplay = true
+volume_db = -31.0
+
+[node name="Alarm" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("2")
+volume_db = -22.0
+
+[node name="Note" type="AudioStreamPlayer" parent="."]
+process_mode = 3
+stream = ExtResource("3")
+volume_db = -18.0
