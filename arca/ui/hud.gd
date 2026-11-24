@@ -129,8 +129,12 @@ func set_interaction(message: String) -> void:
 	$Frame/Interaction.text = message
 	$Frame/Interaction.visible = not message.is_empty()
 
-func set_inventory(message: String) -> void:
-	$Frame/Inventory.text = message
+func set_inventory(message: String, key_items: Array[StringName] = []) -> void:
+	var lines := PackedStringArray([message])
+	for item_id: StringName in key_items:
+		if item_id != &"fuse":
+			lines.append(String(item_id).replace("_", " ").to_upper() + "  /  CARRIED")
+	$Frame/Inventory.text = "\n".join(lines)
 
 func set_notice(message: String) -> void:
 	$Frame/Notice.text = message

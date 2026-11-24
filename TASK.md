@@ -34,10 +34,10 @@ Current sprint: [SPRINT_01.md](SPRINT_01.md). Workflow: [docs/PARALLEL_DEVELOPME
 
 ## S1-04: Key items and locked door
 
-- Status: Waiting: start after S1-01 merges
+- Status: Merged into `main` on 2026-11-24
 - Branch: `s1/04-key-items`
-- Validation: -
-- Blockers: -
+- Validation: Full gate 817/0, including mission 75/0. See docs/tasks/S1-04.md.
+- Blockers: Placing the keycard and door in the route belongs to S1-10.
 
 ## S1-05: Area blockouts
 

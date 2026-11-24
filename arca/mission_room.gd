@@ -15,7 +15,10 @@ const HATCH_LIFT: float = 3.3
 @onready var medkit_pickup: ArcaInteractionPoint = $MedkitPickup
 @onready var door: Node3D = $ExitDoor
 @onready var hatch: AnimatableBody3D = $ServiceHatch/Leaf
-var has_fuse: bool = false
+var key_items: Array[StringName] = []
+var has_fuse: bool:
+	get:
+		return has_key_item(&"fuse")
 var power_restored: bool = false
 var mission_complete: bool = false
 var interaction_target: ArcaInteractionPoint
@@ -129,23 +132,35 @@ func _collect_supply(pickup: ArcaInteractionPoint, message: String) -> void:
 	hud.set_interaction("")
 	_notify(message)
 
+func has_key_item(item_id: StringName) -> bool:
+	return key_items.has(item_id)
+
+func add_key_item(item_id: StringName) -> bool:
+	if item_id.is_empty() or has_key_item(item_id):
+		return false
+	key_items.append(item_id)
+	_update_objective()
+	return true
+
+func consume_key_item(item_id: StringName) -> void:
+	key_items.erase(item_id)
+	_update_objective()
+
 func _on_fuse_pickup_collected() -> void:
-	has_fuse = true
+	add_key_item(&"fuse")
 	$PickupSound.play()
 	hud.set_interaction("")
-	_update_objective()
 	_notify("FUSE COLLECTED - retrace the corridor to the main room and power panel.")
 	print("Fuse collected: inventory updated")
 
 func _on_panel_powered() -> void:
 	if power_restored or mission_complete or player.health_component.current <= 0:
 		return
-	has_fuse = false
 	power_restored = true
+	consume_key_item(&"fuse")
 	$PowerSound.play()
 	door.open()
 	hud.set_interaction("")
-	_update_objective()
 	ambush_remaining = maxf(ambush_delay, 0.0)
 	ambush_phase = AmbushPhase.WARNING
 	$AlarmLight.show()
@@ -171,13 +186,13 @@ func _start_ambush() -> void:
 func _update_objective() -> void:
 	if power_restored:
 		hud.set_status("03 / Escape through the green door. Fight or evade the predator.")
-		hud.set_inventory("FUSE  /  INSTALLED")
+		hud.set_inventory("FUSE  /  INSTALLED", key_items)
 	elif has_fuse:
 		hud.set_status("02 / Return through the corridor to the power panel on the left.")
-		hud.set_inventory("FUSE  /  CARRIED")
+		hud.set_inventory("FUSE  /  CARRIED", key_items)
 	else:
 		hud.set_status("01 / Explore the marked service corridor. Find the fuse and press E.")
-		hud.set_inventory("FUSE  /  MISSING")
+		hud.set_inventory("FUSE  /  MISSING", key_items)
 
 func _notify(message: String) -> void:
 	notice_remaining = 4.5

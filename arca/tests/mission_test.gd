@@ -221,6 +221,7 @@ func run() -> void:
 	check(room.enemy.position.distance_to(room.player.position) < 2.0,
 		"Raptor can return from the alcove through the corridor to the main room")
 	await test_mission_summary()
+	await test_keycard_door()
 	print("MISSION RESULT: %d checks, %d failures" % [checks, failures])
 	room.stop_audio()
 	current_scene = null
@@ -286,3 +287,94 @@ func test_mission_summary() -> void:
 		and death_text.contains("PREDATOR  STILL ALIVE") and death_text.contains("Backspace")
 		and room.get_mission_summary()["seconds"] == death_time,
 		"Death modal counts actual HP lost, shows a living predator and freezes the timer")
+
+
+func add_keycard_door_fixture() -> Array[Node3D]:
+	var pickup_scene := load("res://arca/interactables/key_item_pickup.tscn") as PackedScene
+	var door_scene := load("res://arca/interactables/locked_door.tscn") as PackedScene
+	var pickup: Node3D = pickup_scene.instantiate()
+	var locked: Node3D = door_scene.instantiate()
+	locked.set("consume_item", true)
+	pickup.position = Vector3(0, 0.8, -6)
+	locked.position = Vector3(0, 0, -3)
+	room.add_child(pickup)
+	room.add_child(locked)
+	return [pickup, locked]
+
+
+func test_keycard_door() -> void:
+	await reset_mission()
+	var has_keycard_scenes := ResourceLoader.exists("res://arca/interactables/key_item_pickup.tscn") \
+		and ResourceLoader.exists("res://arca/interactables/locked_door.tscn")
+	check(has_keycard_scenes, "Keycard and locked door are available as reusable scenes")
+	if not has_keycard_scenes:
+		return
+	var fixture := add_keycard_door_fixture()
+	var pickup: Node3D = fixture[0]
+	var locked: Node3D = fixture[1]
+	var slider: Node3D = locked.get_node("SlidingDoor")
+	var body: Node3D = slider.get_node("DoorBody")
+	var ray := PhysicsRayQueryParameters3D.create(Vector3(0, 1, -4), Vector3(0, 1, -2), 1)
+	var space: PhysicsDirectSpaceState3D = room.get_world_3d().direct_space_state
+	await frames(4)
+	check(space.intersect_ray(ray).get("collider") == body, "A locked door blocks the real passage")
+	await move_player(Vector3(0, 0.05, -9))
+	check(room.interaction_target != locked, "A distant locked door is not offered")
+	await move_player(Vector3(0, 0.05, -4.2))
+	check(room.interaction_target == locked and room.hud.get_node("Frame/Interaction").text.contains("Locked - Keycard"),
+		"The nearby locked door shows the missing keycard")
+	await press_e()
+	check(not slider.get("is_opening") and room.hud.get_node("Frame/Notice").text.contains("Keycard"),
+		"E without a keycard leaves the door closed and shows feedback")
+
+	var barrier := StaticBody3D.new()
+	barrier.position = Vector3(0, 1.5, -3.55)
+	var hull := CollisionShape3D.new()
+	var box := BoxShape3D.new()
+	box.size = Vector3(2, 3, 0.15)
+	hull.shape = box
+	barrier.add_child(hull)
+	room.add_child(barrier)
+	await frames(5)
+	check(room.interaction_target != locked, "An overlapping door behind a wall is not offered")
+	barrier.queue_free()
+	await move_player(Vector3(0, 0.05, -6.8))
+	await press_e()
+	check(not is_instance_valid(pickup) and room.hud.get_node("Frame/Inventory").text.contains("KEYCARD"),
+		"E collects the keycard and lists it on the HUD")
+	await move_player(Vector3(0, 0.05, -4.2))
+	var openings: Array[int] = []
+	slider.connect("opened", func(): openings.append(1))
+	await press_e()
+	check(slider.get("is_opening") and not room.hud.get_node("Frame/Inventory").text.contains("KEYCARD"),
+		"E starts the sliding door and consumes its configured keycard")
+	await press_e()
+	room.set_paused(true)
+	var paused_height := body.position.y
+	await frames(70)
+	check(is_equal_approx(body.position.y, paused_height) and not slider.get("is_open"),
+		"Pause freezes the sliding door partway through opening")
+	room.set_paused(false)
+	await frames(75)
+	check(slider.get("is_open") and space.intersect_ray(ray).is_empty(),
+		"Resuming opens the door and clears the player collision")
+	check(openings.size() == 1, "Repeated E emits exactly one successful opening")
+
+	await reset_mission()
+	check(not is_instance_valid(locked) and room.key_items.is_empty(), "Restart discards the previous door and inventory")
+	fixture = add_keycard_door_fixture()
+	pickup = fixture[0]
+	locked = fixture[1]
+	check(pickup.get("enabled") and not locked.get_node("SlidingDoor").get("is_open"),
+		"Fresh instances restore the available keycard and closed door")
+	await move_player(Vector3(0, 0.05, -6.8))
+	await press_e()
+	await move_player(Vector3(0, 0.05, -4.2))
+	await press_e()
+	slider = locked.get_node("SlidingDoor")
+	body = slider.get_node("DoorBody")
+	room.player.take_damage(1000)
+	var death_height := body.position.y
+	await frames(75)
+	check(is_equal_approx(body.position.y, death_height) and not slider.get("is_open"),
+		"Player death freezes a pending unlock")
