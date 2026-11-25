@@ -1,144 +1,239 @@
+<div align="center">
+
 # ARCA
 
-A small third-person survival-action game built with **Godot 4.5.1 Standard** and GDScript. The playable demo follows Regina through Continuity Station's maintenance sector, security corridor, control office and exit lift. Restore power, evade or fight the predators, then find the lift keycard. Ammunition and healing supplies are limited. An optional office checkpoint is kept in memory for the current run.
+**A third-person survival-action demo set aboard Continuity Station.**
 
-## Start here
+Restore power, outthink a pack of predators and reach the evacuation lift with the ammunition you can find.
 
-1. Extract the archive once into your development folder, for example `~/Projects/ARCA`.
-2. Open that entire folder in Zed, and open a terminal there.
-3. Run `bash scripts/editor.sh --nvidia`. It finds the portable Godot executable in `~/Applications/` or Godot on your PATH.
-4. Wait for import, press **F5**, then select **New Game**. **F6** runs only the scene currently open in Godot.
+![Godot 4.5.1](https://img.shields.io/badge/Godot-4.5.1_Standard-478cbf?logo=godotengine&logoColor=white)
+![GDScript](https://img.shields.io/badge/language-GDScript-355570)
+![Renderer](https://img.shields.io/badge/renderer-Compatibility-4a6b5d)
+![Platform](https://img.shields.io/badge/platform-Linux_(X11)-333333?logo=linux&logoColor=white)
+![Code license](https://img.shields.io/badge/code-MIT-2f6f4f)
 
-If your executable is elsewhere:
+![Regina faces a Velociraptor breaking out of the service hatch](docs/media/hatch-ambush.jpg)
+
+</div>
+
+---
+
+## Contents
+
+- [Overview](#overview)
+- [Screenshots](#screenshots)
+- [Features](#features)
+- [Getting started](#getting-started)
+- [How to play](#how-to-play)
+- [Project structure](#project-structure)
+- [Quality gate](#quality-gate)
+- [Development workflow](#development-workflow)
+- [Documentation](#documentation)
+- [Project status](#project-status)
+- [Credits and licenses](#credits-and-licenses)
+
+## Overview
+
+ARCA is a compact survival-action slice built with **Godot 4.5.1 Standard** and typed GDScript. The player controls **Regina**, a field operative crossing the maintenance sector, security corridor, control office and exit lift of a research station after a containment failure.
+
+Each area combines one environmental task with predator pressure. Ammunition and healing are scarce, every predator can be fought or evaded, and the route can be finished without a single kill. A typical first run lasts **5 to 10 minutes**.
+
+The project grows from the official [Godot Third Person Shooter Demo](https://github.com/godotengine/tps-demo) (tag `4.5-90f2e38`). It keeps the tested TPS movement, camera and shooting, and adds ARCA's mission logic, predator AI, interaction system, character, environments and audio on top. See [docs/UPSTREAM.md](docs/UPSTREAM.md).
+
+> ARCA is a non-commercial fan concept inspired by the *Dino Crisis* series. It is not affiliated with or endorsed by the rights holders of that series. See [docs/DESIGN.md](docs/DESIGN.md) for scope and direction.
+
+## Screenshots
+
+<table>
+  <tr>
+    <td width="50%"><img src="docs/media/title-screen.jpg" alt="Title screen with New Game, Pack Training, Controls and Quit"></td>
+    <td width="50%"><img src="docs/media/maintenance-room.jpg" alt="Regina carries the fuse back to the power panel in the maintenance room"></td>
+  </tr>
+  <tr>
+    <td align="center"><sub><b>Title screen.</b> Start the mission or the Pack Training drill.</sub></td>
+    <td align="center"><sub><b>Maintenance room.</b> Recover the fuse and restore power.</sub></td>
+  </tr>
+  <tr>
+    <td><img src="docs/media/security-corridor.jpg" alt="Security corridor with a station log on a crate"></td>
+    <td><img src="docs/media/control-office.jpg" alt="Control office with the security keycard on the back workstation"></td>
+  </tr>
+  <tr>
+    <td align="center"><sub><b>Security corridor.</b> Station logs record how the emergency unfolded.</sub></td>
+    <td align="center"><sub><b>Control office.</b> Find the keycard, save the run at the terminal.</sub></td>
+  </tr>
+  <tr>
+    <td><img src="docs/media/raptor-pounce.jpg" alt="A Velociraptor pounces towards Regina"></td>
+    <td><img src="docs/media/raptor-knockdown.jpg" alt="Regina knocked down by a raptor"></td>
+  </tr>
+  <tr>
+    <td align="center"><sub><b>Pounce.</b> Sidestep the windup with Q + A/D.</sub></td>
+    <td align="center"><sub><b>Knockdown.</b> Press Q to break free before the next bite.</sub></td>
+  </tr>
+  <tr>
+    <td><img src="docs/media/pack-training.jpg" alt="Pack Training bay with three Velociraptors"></td>
+    <td><img src="docs/media/exit-lift.jpg" alt="Regina enters the B-04 surface transfer lift"></td>
+  </tr>
+  <tr>
+    <td align="center"><sub><b>Pack Training.</b> Three predators that search, flank and call to each other.</sub></td>
+    <td align="center"><sub><b>Exit lift.</b> Reach the cabin to complete the mission.</sub></td>
+  </tr>
+</table>
+
+<sub>Captured in-engine under X11 and the Compatibility renderer on an NVIDIA RTX 3050 Laptop GPU. The scripts that produced them are listed in [Quality gate](#quality-gate).</sub>
+
+## Features
+
+**Mission**
+
+- A connected four-area route: maintenance sector, security corridor, control office and exit lift.
+- Objective chain: find a concealed fuse, restore power, recover the security keycard and reach the lift.
+- A scripted hatch breach with a 1.4 s warning, a physical sliding hatch and a collision-aware emergence.
+- An in-memory checkpoint terminal, readable station logs and a victory/defeat summary showing time, shots, damage and predator outcome.
+
+**Predators**
+
+- Licensed, fully animated Velociraptors with dormant, sleeping and active starts.
+- Sight and hearing: gunfire draws the pack to the last audible shot. Breaking line of sight triggers search and flanking.
+- Pack coordination: the lead animal gives ground after an attack while a partner closes in. Calls and replies are spatialized.
+- Alert roar, interruptible bite windups, staggers with a 1.5 s cooldown, pounces, knockdowns and climbing onto surfaces.
+
+**Player**
+
+- Regina in a field uniform, integrated into the upstream TPS controller with camera-relative movement.
+- Vertical pistol aim, lateral footwork, sidestep dodge, break-free, surface jumps, and hit and death reactions.
+- Limited economy: 12 rounds loaded, 12 in reserve, a six-round backup sidearm, ammo boxes and medkits.
+
+**Engineering**
+
+- A single interaction contract: one script per interactable, nearest-target selection with reach and line-of-sight checks, and one action per key press.
+- Pause, death, restart and completion freeze or cancel every delayed action.
+- A headless regression gate of more than 3,000 checks across 20 suites.
+
+## Getting started
+
+### Requirements
+
+| Requirement | Notes |
+| --- | --- |
+| [Godot 4.5.1 Standard](https://godotengine.org/download/archive/4.5.1-stable/) | The portable Linux binary is discovered in `~/Applications/` or on `PATH`. Do not use a different engine version. |
+| Linux with X11 or XWayland | The launchers force X11 and the Compatibility renderer, matching the tested Pop!_OS setup. |
+| Bash, coreutils, `grep` | Needed by the launch and check scripts. `ripgrep` is optional. |
+
+### Run the game
 
 ```bash
-GODOT_BIN="/absolute/path/to/godot" bash scripts/editor.sh --nvidia
+git clone https://github.com/andrea-ragalzi/arca.git ARCA
+cd ARCA
+bash scripts/editor.sh --nvidia   # open the editor (omit --nvidia without NVIDIA PRIME offload)
 ```
 
-Use `bash scripts/editor.sh` without `--nvidia` on a computer without NVIDIA offload. The Linux launchers use X11 and the Compatibility renderer, matching the tested Pop!_OS setup.
-
-## Start Git once
-
-If you downloaded a source archive without Git history, initialize Git once in the `ARCA` folder containing `project.godot`. If you cloned an existing repository, skip this step and keep its configured remote. The `arca/` source directory is a normal tracked folder, not a separate repository; do not run `git init` inside it.
+Wait for the first import to finish, press **F5** and choose **New Game**. To run the game directly without the editor:
 
 ```bash
-git init -b main
-git add .
-git commit -m "Initialize ARCA with power restoration and predator ambush"
+bash scripts/run.sh --nvidia
 ```
 
-If Git asks for your identity, set your own name and email locally with `git config user.name "Your Name"` and `git config user.email "you@example.com"`, then retry the commit. No GitHub account is required for local history. See [the workflow guide](docs/WORKFLOW.md) for branches and checkpoints.
+If Godot is installed elsewhere, point the scripts at it:
 
-Keep this same `ARCA` folder for future work. Commits identify changes; folder and project names do not contain release numbers. Godot and upstream dependency versions remain pinned for reproducibility.
+```bash
+GODOT_BIN="/absolute/path/to/godot" bash scripts/editor.sh
+```
 
-## Play the mission
+On Wayland desktops the launchers apply two process-local workarounds for Godot 4.5.1 (input method and embedded game window). See [docs/WORKFLOW.md](docs/WORKFLOW.md#x11-startup-on-wayland-desktops).
 
-1. Find the yellow **SERVICE / FUSE ACCESS** entrance framed by the starting camera. Enter the corridor, follow the floor stripe and explore around the far screen to find the concealed fuse. Collect it with **E**.
-2. Retrace the corridor into the maintenance room and install the fuse at the power panel with **E**.
-3. When power returns, the marked **SERVICE HATCH** opens and releases a raptor. Fight or evade it and go through the powered door to the security corridor.
-4. Find the **CONTROL OFFICE** off the alcove and take the keycard from the back workstation. A sleeping raptor can wake if you linger nearby or fire. Use the office checkpoint terminal to save the current run in memory.
-5. Return to the far door. Press **E** to use the keycard, continue through the lift hall and cross the green marker inside the cabin. Killing a predator is optional.
-6. Regina starts with 12 rounds loaded and 12 in reserve. An ammo box supplies 12 rounds. A medkit restores up to 40 HP. Use **E** to collect supplies and read station logs. Press **E** or **Escape** to close a log.
+## How to play
+
+### Mission walkthrough
+
+1. **Maintenance sector.** Enter the yellow **SERVICE / FUSE ACCESS** corridor framed by the starting camera. Explore behind the far screen to find the concealed fuse, then install it at the power panel.
+2. **The breach.** Restored power opens the marked **SERVICE HATCH** and releases a raptor. Fight it or slip through the powered door.
+3. **Security corridor.** Find the **CONTROL OFFICE** off the alcove. A sleeping raptor wakes if you linger nearby or fire.
+4. **Control office.** Take the keycard from the back workstation. The checkpoint terminal saves the current run in memory.
+5. **Exit lift.** Use the keycard on the far door, cross the lift hall and step onto the green marker inside the cabin.
+
+Regina starts with 12 rounds loaded and 12 in reserve. An ammo box supplies 12 rounds and a medkit restores up to 40 HP. Killing predators is optional.
+
+### Pack Training
+
+From the title screen choose **Pack Training** to face three Velociraptors in a dedicated test bay. Use cover to break their line of sight, jump onto desks and platforms with **Space** while moving towards the edge, and practise sidesteps and break-frees. The drill has its own roster and does not affect mission progress.
+
+### Controls
 
 | Input | Action |
 | --- | --- |
-| WASD / mouse | Move / look |
+| <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> / mouse | Move / look |
 | Right mouse / left mouse | Aim / fire while aiming |
-| Space | Jump |
-| Q + A/D | Sidestep. Press Q while downed to break free. |
-| E | Interact with the nearest reachable object |
-| R | Reload the pistol |
-| Backspace | Restart the whole mission |
-| Escape | Pause / resume |
-| F3 | Toggle debug telemetry |
+| <kbd>Space</kbd> | Jump; in Pack Training, move towards a marked edge and jump to climb onto a surface |
+| <kbd>Q</kbd> + <kbd>A</kbd>/<kbd>D</kbd> | Sidestep. Press <kbd>Q</kbd> alone while downed to break free |
+| <kbd>E</kbd> | Interact with the nearest reachable object, read or close a log |
+| <kbd>R</kbd> | Reload |
+| <kbd>1</kbd> / <kbd>2</kbd> | Select primary or backup sidearm |
+| <kbd>Backspace</kbd> | Restart the mission or drill |
+| <kbd>Esc</kbd> | Pause / resume |
+| <kbd>F3</kbd> | Toggle debug telemetry |
 
-The connected interior uses one station finish in all four spaces: steel skirting, a grey-green washable band and clinical white walls, a dark resin floor and a 0.60 m panel ceiling at 2.65 m (2.50 m in the security corridor). The control office monitors the habitats and Third Energy. The security recess and freight approach show different traces of the emergency. See the [environment style guide](ENVIRONMENT_STYLE_GUIDE.md), the [interior review record](docs/tasks/S2-10.md) and the [station finish record](docs/tasks/S2-11.md).
+### Setting
 
-### Earlier maintenance-sector playtest
+All four interior spaces share one station finish: steel skirting, a grey-green washable band, clinical white walls, a dark resin floor and a 0.60 m panel ceiling at 2.65 m (2.50 m in the security corridor). The control office monitors the habitats and Third Energy; the security recess and freight approach show different traces of the emergency. See the [environment style guide](ENVIRONMENT_STYLE_GUIDE.md).
 
-The user accepted the combined F5 playtest on 2026-11-24.
+## Project structure
 
-1. Start a fresh mission with **F5**. Step left and right with and without aim, then sweep the camera up and down while sidestepping. Watch Regina's feet, wrist and pistol as you start and stop.
-2. Fire several rounds. Press **R** to reload and **Escape** during the reload. Check that reload completes after you resume. Find the ammo box in the marked service corridor. Take damage, then use the medkit in the maintenance room. An empty gun with reserve should reload on the next fire attempt.
-3. Restore power and escape without killing the raptor. Check the victory panel's time, shots, damage and **EVADED** result. Restart with **Backspace** and let the raptor kill Regina on another run. Check the defeat panel and verify that Backspace restores both pickups, 100 HP and 12 / 12 ammo. A run that kills the raptor should show **KILLED**.
+```text
+ARCA/
+├── arca/                     ARCA game code, scenes and assets
+│   ├── mission_room.tscn/gd  Main mission: objectives, inventory, hatch sequence
+│   ├── raptor_room.tscn/gd   Predator test room (parent of the mission)
+│   ├── test_room.tscn/gd     Robot test room (root of the room inheritance chain)
+│   ├── pack_arena.tscn/gd    Pack Training drill
+│   ├── enemies/              Predator state machine, senses, navigation and melee
+│   ├── interactables/        Interaction contract, fuse, panel, doors, pickups, logs
+│   ├── player/               ARCA player: health, Regina integration, safe shooting origin
+│   ├── areas/, components/   Modular environment kit and shared building blocks
+│   ├── ui/                   Title screen and HUD
+│   ├── audio/                Processed sound cues
+│   ├── assets/               Licensed models, animation bakes and source notes
+│   ├── tests/                Headless gameplay suites and optional capture scripts
+│   └── tools/                Navigation bakes, area builders, asset checks, review captures
+├── player/, enemies/         Adapted upstream TPS controller and robot opponent
+├── scripts/                  Launchers and the quality gate
+└── docs/                     Design, validation, workflow and task records
+```
 
-### Route and camera playtest
+**Scene inheritance.** `mission_room.tscn` inherits `raptor_room.tscn`, which inherits `test_room.tscn`; their scripts follow the same chain. All rooms share the ARCA player scene, which installs Regina at runtime and keeps the upstream robot hidden and inert. In the mission, the hatch predator starts dormant, the corridor predator asleep and the lift predator active.
 
-This blockout increment is a route-and-camera experiment, not a new camera controller. From the starting area, the service entrance should be recognizable while the fuse itself remains concealed. The corridor uses a screened alcove, a return sign and the existing third-person spring arm; one inherited crate is repositioned in the mission only to reveal the entrance.
+| File | Responsibility |
+| --- | --- |
+| `arca/ui/title_screen.tscn` | Project main scene: New Game, Pack Training, Controls, Quit |
+| `arca/mission_room.gd` | Objectives, inventory, interaction and the warned hatch-entrance sequence |
+| `arca/enemies/raptor.gd` | Predator state machine, navigation, melee, dormant activation and emergence |
+| `arca/interactables/interaction_point.gd` | Base class for every interactable (`get_prompt`, `interact`) |
+| `arca/ui/hud.gd` | Health, ammunition, objectives, prompts and pause/death/completion panels |
+| `arca/player/arca_player.gd` | ARCA health, Regina installation and safe shooting origin around cover |
 
-The user accepted the service corridor in an F5 playtest on **2026-10-17**: "The service corridor works in my F5 playtest." The target remains **roughly 10–20 seconds of ordinary walking from fuse to panel**; the automated root-motion route measured **19.6 simulated seconds**, including brief waypoint settling. No human timing measurement was reported.
+## Quality gate
 
-### Service hatch F5 checklist
+```bash
+bash scripts/check.sh
+```
 
-1. Restore power and look toward the marked hatch beside the green exit. Check the red warning, visible sliding hatch and raptor walking through the opening, with enough time to react. Movement and camera control remain yours.
-2. Evade through the green exit without shooting. Restart and separately check that shooting the emerging/active raptor still works.
-3. Pause/resume during opening and walk-out, then restart during the sequence. Check that motion freezes/resumes and restart restores the closed hatch and hidden predator; death/completion must prevent later entrance movement.
+The gate imports assets, then runs the launcher tests and every gameplay, physics and asset suite headlessly at a fixed 60 FPS: first playable, raptor, mission, ambush, Regina, economy, multiple predators, environment kit, areas, full route, audio, checkpoint, title, predator perception, physical combat, Pack Training, props and audio assets. The last full run reported **3,151 checks and 0 failures**. Logs are written to the ignored `.artifacts/test-logs/`.
 
-The sequence gives a 1.4-second warning, a one-second hatch opening and about 2.3 seconds of collision-aware walk-out before the existing alert/combat flow. The user confirmed that the service hatch passed this F5 checklist on **2026-10-17**, accepting hatch readability and reaction comfort. The task was closed through documentation only; no gameplay fixes were needed. This acceptance is not a GPU performance measurement.
+If the Godot editor is already open, run the same gate in an isolated snapshot:
 
-## Gameplay raptor
+```bash
+bash scripts/ai_check.sh          # full gate in a source snapshot
+bash scripts/ai_check.sh --mcp    # read-only MCP and engine identity check
+```
 
-The mission and predator test room now use **Ferocious Industries' PBR Velociraptor**, licensed under CC BY 4.0. It replaces the previous visible raptor; it does not add another enemy. The existing AI, collision, health, 20-HP bite, navigation and hatch lifecycle remain unchanged. Its visual wrapper selects Idle_02, Walk, Jog, Bite_02 and Death_01; the source rig and clips remain intact. See [the source/adaptation notes](arca/assets/raptor/ferocious/README.md) and [credits](ATTRIBUTIONS.md).
+Headless checks verify logic and physics, not visual quality, audio mix or GPU performance. Visual changes are reviewed with in-engine captures (`arca/tests/capture_mission.gd`, `arca/tools/capture_sprint_review.gd`, `arca/tools/review_interiors.gd`) and manual F5 playtests. The checklists are in [docs/PLAYTESTS.md](docs/PLAYTESTS.md).
 
-Press **F5**, restore power and inspect the new raptor emerging from the service hatch. Check its facing, walking/chasing, bite, death, pause and restart. Source contact/material limitations remain visible; this replacement does not resolve Regina's existing quality-gate failures.
+## Development workflow
 
-### Hit reaction and alert roar
-
-The raptor now **roars when it becomes alert** (`Roar_03`, fitted to the unchanged 0.7 s alert) and **flinches when shot** (`Hurt_01`, a 0.5 s stagger). A hit during the bite windup cancels that bite. Sustained fire can't stun-lock it: a new stagger needs 1.5 s since the previous one. A committed bite, an emerging raptor and a dormant raptor are never staggered. Damage, health, speeds and all other timings are unchanged.
-
-F5 checklist:
-
-1. Restore power and watch the raptor clear the hatch: it should roar with its jaw wide open, then start chasing.
-2. Aim and shoot it while it closes in: it should visibly flinch and pause, then resume. Keep firing; it shouldn't flinch again until about 1.5 s later.
-3. Let it start a bite (the orange `!` marker), then shoot it: the bite should be cancelled and you shouldn't lose health.
-4. Pause during a flinch and resume: the flinch continues from where it froze. Kill it during a flinch: the death plays once.
-
-## Pack Training
-
-From the title choose **Pack Training** to enter the maintenance test bay with three Velociraptors. An exposed player can be seen from across the bay. Gunfire brings the pack towards the last audible shot. Break sight behind a barrier to test searching and flanking. Watch the lead animal give ground after an attack while a nearby partner approaches. The calls and short replies are spatialized.
-
-Approach the short side of the desk, workbench or platform. Hold movement towards the top and tap **Space** near the approach to jump onto it. The desk ramp also reaches the top. Step to one side to leave room for a pursuing raptor's landing.
-
-Use **Q + A/D** to sidestep a windup, **Q** to break free after a pounce, **1 / 2** to select a sidearm, **R** to reload, **Backspace** to reset the drill and **Esc → Return to Title** to leave. The drill has its own room and roster and does not advance mission progress.
-
-## Inspect the Regina character
-
-Press **F5** and choose **New Game** or **Pack Training** to play as Regina. Her dark field uniform, red panels, S.O.R.T. patch and fitted pack are integrated into the shared ARCA player with the animation bake and prototype handgun; the existing TPS controller, camera and collision drive the new pistol trace from camera aim to muzzle impact. The base `player/player.tscn` remains the unchanged visible-robot reference. For the separate idle/walk/run experiment, open **`arca/character_locomotion_test.tscn`** and press **F6**; it still inherits the static `arca/character_test.tscn` and its inspection lighting, ruler and visual corrections.
-
-**Current F5 locomotion status:** facing and low-hop physics have been corrected. Regina now keeps a camera-forward heading outside aim too, using W forward, S backward and A/D side steps. Her open-floor hop measures about **0.447 m / 0.60 s**. At a marked approach, movement input and **Space** can launch a longer hop onto a clear work surface. The two Quaternius UAL2 lateral walks pass the skinned sole-contact tests. The final F5 sweep covers gait and aim during side steps. The original robot keeps its old turn-to-travel policy and 5 m/s jump.
-
-**Current weapon status:** Regina's vertical aim uses Quaternius pistol poses rebased against the human neutral pose. Sampled tests confirm the barrel pitches in the expected direction and remains forward at both camera limits. Both hands clear the slide and barrel in the sampled endpoint poses. The user accepted the vertical aim F5 result on 2026-11-22.
-
-### Vertical aim F5 checklist
-
-1. Press **F5**, stand away from cover, and hold right mouse. Sweep slowly from the upper camera limit to the lower limit and back. Check that Regina's pistol rises and falls with the view and stays forward at the ends.
-2. Repeat while stepping left and right. Watch the right wrist and both hands for snaps or visible intersections with the slide or barrel.
-3. Fire at high and low targets, then repeat near cover. Check that shots still follow the crosshair and that cover still blocks obstructed shots.
-
-**F6 controls:** `1` idle, `2` walk, `3` run; `M` switches centered/root-travel playback and resets the lane; `Space` pauses/resumes; `R` restores centered idle; `V` cycles overview/front/side/back. The camera follows travel; the 12 m lane pauses at its end rather than teleporting.
-
-Short **F6 checklist**:
-
-1. Select all three clips. Check human scale against the ruler, -Z facing, and smooth loops/transitions.
-2. Cycle views with `V`: inspect planted feet, knee bends, shoulders/hands and attached costume/holster. Some shoulder/costume clipping remains visible during the run; this is not a final character-art acceptance.
-3. Press `M` and watch travel against the floor references; check no doubled motion or loop snap. Pause/resume, then reset with `R` while paused.
-
-The source model remains 69 bones, nine materials, 17 textures, approximately 1.799 m tall in reference pose, and **zero authored clips**. The supplied original FBX also has no animation objects/takes. The F6 proof continues to use separately retargeted **Quaternius CC0** idle/walk/run clips and its own derived root-motion proxy. The F5 player uses a separate gameplay library combining those locomotion poses with Quaternius vertical pistol aim and lateral footwork, plus licensed TPS combat and jump poses. See [the Regina report](docs/REGINA.md) for sources, mapping, validation and the remaining prototype/visual limits.
-
-## Develop with Zed and Godot
-
-The project includes `.zed/settings.json` with save on focus change, plus `.zed/tasks.json` with editor, play, test and Git-status tasks. Open Zed's command palette, run **task: spawn**, and select an **ARCA:** task. Keep one Godot editor instance open on this folder.
-
-**Codex**, **Claude Code** and the built-in **Zed Agent** are all supported. They share `AGENTS.md` (Claude Code loads it through `CLAUDE.md`) and the specialized skills in `.agents/skills/`. Single-folder prompts are in [docs/PROMPTS.md](docs/PROMPTS.md). [docs/AI_ENVIRONMENT.md](docs/AI_ENVIRONMENT.md) records the pinned Godot MCP installation, Zed settings and verified read-only checks. No custom slash-command registry or second Godot MCP is needed.
-
-### Parallel agents
-
-Codex and Claude Code can work at the same time, each in **its own Git worktree and branch** under `../ARCA-wt/`. The live Godot editor and MCP stay in this main checkout. Worktrees run headless checks only.
-
-- [docs/PARALLEL_DEVELOPMENT.md](docs/PARALLEL_DEVELOPMENT.md): creating worktrees, file ownership, merge order and task records.
-- [SPRINT_01.md](SPRINT_01.md): current tasks, lanes and integration order.
-- `docs/tasks/<ID>.md`: one self-contained brief per task; paste it as the agent's prompt.
-- [TASK.md](TASK.md): status board with one section per task. Earlier task history is preserved verbatim in [docs/archive/](docs/archive/README.md).
+- **Rules.** [AGENTS.md](AGENTS.md) holds the binding project rules for people and AI agents alike: protect working code, keep scene inheritance intact, add focused regression checks and track licenses.
+- **Editor.** Zed tasks in `.zed/tasks.json` open the editor, run the game, run checks and show Git status. Keep a single Godot editor instance on the main checkout. See [docs/WORKFLOW.md](docs/WORKFLOW.md).
+- **AI agents.** Codex, Claude Code and the Zed Agent share `AGENTS.md` and the skills in `.agents/skills/`. The pinned Godot MCP setup is described in [docs/AI_ENVIRONMENT.md](docs/AI_ENVIRONMENT.md).
+- **Parallel work.** One Git worktree and branch per task under `../ARCA-wt/<id>`. Worktrees run headless checks only. See [docs/PARALLEL_DEVELOPMENT.md](docs/PARALLEL_DEVELOPMENT.md).
+- **Tracking.** [TASK.md](TASK.md) is the status board. Each task has a brief and a record in [docs/tasks/](docs/tasks/README.md). Sprint plans are in [SPRINT_01.md](SPRINT_01.md) and [SPRINT_02.md](SPRINT_02.md).
 
 ```bash
 git worktree add -b s1/02-raptor-reactions ../ARCA-wt/s1-02 main
@@ -146,35 +241,40 @@ git worktree add -b s1/02-raptor-reactions ../ARCA-wt/s1-02 main
 (cd ../ARCA-wt/s1-02 && bash scripts/check.sh)
 ```
 
-Stop the game and save scenes before an agent edits them. Reload external scene changes from disk instead of overwriting them from an old editor tab. Godot auto-reload settings and daily steps are in [docs/WORKFLOW.md](docs/WORKFLOW.md).
+## Documentation
 
-## Check the project
-
-```bash
-bash scripts/check.sh
-```
-
-If Godot is already open, use `bash scripts/ai_check.sh` for the same gate in an isolated source snapshot, or `bash scripts/ai_check.sh --mcp` for a read-only MCP/4.5.1 check without touching live scenes. See [the AI environment guide](docs/AI_ENVIRONMENT.md) for logs and the existing local ripgrep fallback.
-
-Requires Godot 4.5.1, Bash, `timeout` (coreutils) and `grep`. It uses ripgrep when installed and falls back to `grep` otherwise, so fresh worktrees need no extra tools. It imports assets and runs the actual gameplay/physics suites. Logs go to ignored `.artifacts/test-logs/`. Installing ripgrep (`sudo apt install ripgrep`) is optional.
-
-## Understand the code
-
-| File | Responsibility |
+| Document | Contents |
 | --- | --- |
-| `arca/mission_room.tscn` | Main playable scene: service corridor, concealed fuse, panel, exit and physical service-hatch bay |
-| `arca/mission_room.gd` | Objectives, inventory, interaction and warned hatch-entrance sequence |
-| `arca/enemies/raptor.gd` | Predator state machine, navigation, melee, dormant activation and physical emergence |
-| `arca/interactables/` | Reusable interaction points, fuse, panel and sliding door |
-| `arca/ui/hud.gd` | Health, objectives, prompts, notices and pause/death/completion panels |
-| `arca/player/arca_player.gd` | ARCA health and safe shooting origin around cover |
-| `player/`, `enemies/red_robot/` | Adapted official TPS controller and robot test opponent |
-| `arca/tests/` | Gameplay integration suites; capture/shadow scripts are optional visual tools |
+| [docs/DESIGN.md](docs/DESIGN.md) | Direction, current playable slice and scope boundaries |
+| [docs/VALIDATION.md](docs/VALIDATION.md) | Verified behavior, automated coverage and known limits |
+| [docs/PLAYTESTS.md](docs/PLAYTESTS.md) | Feature notes and manual F5/F6 checklists, with accepted results |
+| [docs/REGINA.md](docs/REGINA.md) | Character sources, retargeting, animation bakes and remaining visual limits |
+| [ENVIRONMENT_STYLE_GUIDE.md](ENVIRONMENT_STYLE_GUIDE.md) | Station finish, materials, lighting and signage rules |
+| [docs/assets/](docs/assets/) | Environment kit, props, audio plan and manifest |
+| [docs/WORKFLOW.md](docs/WORKFLOW.md) | Local setup, Godot settings and the daily loop |
+| [docs/PARALLEL_DEVELOPMENT.md](docs/PARALLEL_DEVELOPMENT.md) | Worktrees, file ownership and merge order |
+| [docs/AI_ENVIRONMENT.md](docs/AI_ENVIRONMENT.md) | AI agents, pinned Godot MCP and isolated checks |
+| [docs/UPSTREAM.md](docs/UPSTREAM.md) | What is reused from the Godot TPS demo |
+| [DEVELOPMENT_STATUS.md](DEVELOPMENT_STATUS.md) | Sprint baseline audit |
+| [docs/archive/](docs/archive/README.md) | Historical task records, kept verbatim |
 
-The mission inherits `raptor_room.tscn`, which inherits `test_room.tscn`. Their scripts mirror that structure. All three rooms share the ARCA player scene, which installs Regina at runtime while keeping the inherited robot hidden and inert. The original `player/player.tscn` remains a robot reference. In the mission, the hatch predator starts dormant, the corridor predator starts asleep, and the lift predator starts active.
+## Project status
 
-Read [docs/DESIGN.md](docs/DESIGN.md) for scope and [docs/VALIDATION.md](docs/VALIDATION.md) for verified behavior and limits. Credits and licenses are in [ATTRIBUTIONS.md](ATTRIBUTIONS.md), [LICENSE.md](LICENSE.md), and [LICENSE_ARCA.md](LICENSE_ARCA.md).
+ARCA is a **playable prototype**, not a finished game. The full route, predator AI and combat loop are implemented and covered by the gate. Open items:
 
-## Final demo playtest
+- A human free-play review of mood, combat readability, audio mix and FPS during chases.
+- Regina remains a prototype integration: some shoulder and costume clipping is visible during runs, and the handgun is placeholder geometry.
+- Aiming tight against a wall can clip the arm, a limitation inherited from the upstream arm offset.
 
-The automated route verifies the connections and victory using ordinary movement. For first-run timing, camera readability, audio and FPS, follow the [full-route checklist](docs/tasks/S1-12.md).
+Current progress is tracked in [TASK.md](TASK.md).
+
+## Credits and licenses
+
+- **ARCA code and original additions:** MIT, see [LICENSE_ARCA.md](LICENSE_ARCA.md).
+- **Upstream TPS demo assets:** CC BY 3.0, Juan Linietsky and Fernando Miguel Calabró. See [LICENSE.md](LICENSE.md).
+- **Velociraptor:** "PBR Velociraptor (Animated)" by Ferocious Industries, CC BY 4.0.
+- **Regina model:** "DinoCrisisCustom - Regina" by Otherspectre, CC BY 4.0.
+- **Animation:** Quaternius Universal Animation Library and Universal Animation Library 2, CC0.
+- **Audio:** processed CC0 recordings from Freesound, credited Wikimedia Commons recordings, user-supplied cues and original ARCA synthesis.
+
+The full list of sources, authors, modifications and checksums is in [ATTRIBUTIONS.md](ATTRIBUTIONS.md). Keep these files when redistributing the project.

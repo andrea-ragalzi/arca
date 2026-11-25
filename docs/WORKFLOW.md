@@ -4,7 +4,15 @@
 
 Open the same folder containing `project.godot` in Zed and Godot. Keep Godot open for scene editing, asset import, and F5 playtesting. Use Zed's built-in Agent, Codex or Claude Code for source changes. Use Git commits to keep working checkpoints. For several agents at once, give each its own worktree; see [PARALLEL_DEVELOPMENT.md](PARALLEL_DEVELOPMENT.md). The main checkout stays the only folder opened in the Godot editor.
 
-Keep one Git repository at the `ARCA` root containing `project.godot`. The `arca/` source folder belongs to that repository; do not initialize a nested repository there. For a source archive without Git history, initialize Git using the README commands. For an existing clone, keep its history and configured remote. Use your own Git identity; local history needs a separate backup or remote to protect against disk loss.
+Keep one Git repository at the `ARCA` root containing `project.godot`. The `arca/` source folder belongs to that repository; do not initialize a nested repository there. For a source archive without Git history, initialize Git once with the commands below. For an existing clone, keep its history and configured remote. Use your own Git identity; local history needs a separate backup or remote to protect against disk loss.
+
+```bash
+git init -b main
+git add .
+git commit -m "Initialize ARCA with power restoration and predator ambush"
+```
+
+If Git asks for your identity, set it locally with `git config user.name "Your Name"` and `git config user.email "you@example.com"`, then retry the commit. No GitHub account is required for local history. Commits identify changes; folder and project names do not contain release numbers. Godot and upstream dependency versions remain pinned for reproducibility.
 
 ## Zed
 

@@ -57,7 +57,8 @@ git worktree add -b s1/02-raptor-reactions ../ARCA-wt/s1-02 main
 | --- | --- | --- |
 | `TASK.md` | Each branch edits **only its own `## <ID>` section** | Status, branch, latest validation line, blockers |
 | `docs/tasks/<ID>.md` | The owning branch, below the `## Record` heading | Implementation notes, changed paths, actual checks, F5 steps, limits |
-| `README.md`, `docs/DESIGN.md`, `docs/VALIDATION.md` | Branches append a **self-contained subsection** for player-facing changes; never rewrite shared paragraphs | Consolidated at merge time |
+| `docs/PLAYTESTS.md`, `docs/DESIGN.md`, `docs/VALIDATION.md` | Branches append a **self-contained subsection** for player-facing changes and their F5 checklists; never rewrite shared paragraphs | Consolidated at merge time |
+| `README.md` | Public overview: keep it short. Only the integration task updates feature bullets, controls or screenshots in `docs/media/` | Integration task |
 | `docs/archive/` | Nobody (append-only by the user or integrator) | Verbatim history |
 
 Separate sections, with unchanged headings between them, let Git merge parallel edits to `TASK.md` without conflicts. Commit each `TASK.md` section update together with the work it describes.

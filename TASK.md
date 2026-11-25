@@ -213,3 +213,10 @@ Current sprint: [SPRINT_01.md](SPRINT_01.md). Workflow: [docs/PARALLEL_DEVELOPME
 - Branch: `main`
 - Validation: Full gate 3151/0 (areas 1761, route 86 with 36 camera checks, physical combat 24). X11/Compatibility walk 290/0 including 240 camera probes. Measured heights and RTX 3050 timings in [S2-11](docs/tasks/S2-11.md).
 - Blockers: Subjective mood, combat readability and chase FPS need a human pass. Aiming tight against a wall can still clip (upstream arm offset).
+
+## DOC-01: Public README and documentation
+
+- Status: Implemented on `main`, uncommitted; awaiting user review
+- Branch: `main`
+- Validation: Documentation only. Local links checked; screenshots captured in-engine (X11/Compatibility, RTX 3050 Laptop). No gameplay code changed, gate not re-run. See [DOC-01](docs/tasks/DOC-01.md).
+- Blockers: -
